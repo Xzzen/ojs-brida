@@ -2394,7 +2394,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
                     <tr>
-                      <th className="p-3">ID</th>
+                      <th className="p-3">No.</th>
                       <th className="p-3">Jurnal Tujuan</th>
                       <th className="p-3">Judul Naskah &amp; Penulis</th>
                       <th className="p-3">Status Alur</th>
@@ -2414,7 +2414,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         </td>
                       </tr>
                     ) : (
-                    filteredSubmissions.map((sub) => {
+                    filteredSubmissions.map((sub, idx) => {
                       const badge = STATUS_BADGE[sub.status] || STATUS_BADGE.pending;
                       const isOwnSubmission = isAuthor && String(sub.author_id) === String(currentUser?.id);
                       const myRev = isReviewer
@@ -2423,9 +2423,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       const prog = getSubmissionProgressMeta(sub);
                       return (
                         <tr key={sub.id} className="hover:bg-slate-50/70 transition">
-                          <td className="p-3 font-mono font-bold text-slate-500">#{sub.id}</td>
+                          <td className="p-3 font-mono font-bold text-slate-500">#{idx + 1}</td>
                           <td className="p-3">
-                            <span className="font-extrabold text-[11px] px-2.5 py-1 rounded-md bg-[#FEF2F2] text-[#7A2222] border border-blue-200">
+                            <span className="font-extrabold text-[11px] px-2.5 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/20">
                               {sub.journal?.abbreviation}
                             </span>
                           </td>
@@ -4399,7 +4399,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
                     <tr>
-                      <th className="p-3">ID</th>
+                      <th className="p-3">No.</th>
                       <th className="p-3">Nama &amp; Email</th>
                       <th className="p-3">Peran (Role)</th>
                       <th className="p-3">Afiliasi &amp; Keahlian</th>
@@ -4407,9 +4407,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {(stats.users || []).map((u) => (
+                    {(stats.users || []).map((u, idx) => (
                       <tr key={u.id} className="hover:bg-slate-50/70">
-                        <td className="p-3 font-mono font-bold text-slate-400">#{u.id}</td>
+                        <td className="p-3 font-mono font-bold text-slate-400">#{idx + 1}</td>
                         <td className="p-3">
                           <div className="font-bold text-slate-800">{u.name}</div>
                           <div className="text-[11px] text-slate-500">{u.email}</div>
@@ -4419,7 +4419,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             u.role === 'admin'
                               ? 'bg-purple-50 text-purple-800 border-purple-200'
                               : u.role === 'editor'
-                              ? 'bg-blue-50 text-[#7A2222] border-blue-200'
+                              ? 'bg-[#FEF2F2] text-[#7A2222] border-[#7A2222]/25'
                               : u.role === 'reviewer'
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               : 'bg-amber-50 text-amber-800 border-amber-200'
