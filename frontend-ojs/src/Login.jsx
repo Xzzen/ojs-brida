@@ -36,6 +36,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
   const isRegister = mode === 'register';
 
   const handleSwitchMode = (nextMode) => {
+    if (nextMode === mode) return;
     setMode(nextMode);
     setErrorMsg('');
     setInfoMsg('');
@@ -50,7 +51,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, submitMode) => {
     e.preventDefault();
     setErrorMsg('');
     setInfoMsg('');
@@ -62,7 +63,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
 
     setLoading(true);
     try {
-      if (mode === 'register') {
+      if (submitMode === 'register') {
         if (!name.trim()) {
           setErrorMsg('Nama lengkap wajib diisi.');
           setLoading(false);
@@ -116,6 +117,108 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     { label: 'K1', h: 74 }
   ];
 
+  // Shared crisp smartphone UI preview component
+  const renderPhoneMockup = (tiltedRight = false) => (
+    <div
+      className={`w-[236px] sm:w-[254px] rounded-t-[34px] bg-[#0e0b0b] border-t-[6px] border-x-[6px] border-[#3a2c2c] shadow-[0_-18px_50px_rgba(0,0,0,0.65)] p-3 pb-4 translate-y-2 transition-transform duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)] hover:rotate-0 ${
+        tiltedRight ? 'rotate-3' : '-rotate-3'
+      }`}
+    >
+      <div className="w-16 h-3.5 bg-black rounded-full mx-auto mb-3" />
+      <div className="bg-white rounded-2xl p-3.5 text-gray-900 shadow-xs space-y-2.5">
+        <div className="flex items-center justify-between text-[9px] text-gray-400 font-semibold">
+          <span>Portal OJS BRIDA</span>
+          <span className="text-emerald-600 font-bold">● Live</span>
+        </div>
+        <div className="flex items-baseline justify-between">
+          <div className="text-xl font-extrabold tracking-tight text-gray-900 tabular-nums">
+            4 Jurnal
+          </div>
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222]">
+            SINTA 2–3
+          </span>
+        </div>
+        <div className="flex items-end justify-between gap-1.5 h-16 pt-2">
+          {chartBars.map((bar) => (
+            <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+              <div className="w-full bg-gray-100 rounded-md h-full flex items-end overflow-hidden">
+                <div
+                  className="w-full rounded-md bg-gradient-to-t from-[#7A2222] via-[#DC2626] to-[#F97316]"
+                  style={{ height: `${bar.h}%` }}
+                />
+              </div>
+              <span className="text-[8px] font-bold text-gray-400">{bar.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-2.5 space-y-2">
+        <div className="text-[9px] font-semibold text-white/45 px-1">Ekosistem Jurnal</div>
+        <div className="grid grid-cols-3 gap-1.5">
+          <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
+            <div className="text-[11px] font-extrabold text-white">Rp 0</div>
+            <div className="text-[8px] text-white/50 mt-0.5">Open Access</div>
+          </div>
+          <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
+            <div className="text-[11px] font-extrabold text-amber-300">DOI</div>
+            <div className="text-[8px] text-white/50 mt-0.5">Resmi Aktif</div>
+          </div>
+          <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
+            <div className="text-[11px] font-extrabold text-emerald-300">IMRAD</div>
+            <div className="text-[8px] text-white/50 mt-0.5">Standar SINTA</div>
+          </div>
+        </div>
+
+        <div className="pt-2 flex items-center justify-around text-white/40 border-t border-white/[0.06]">
+          <BookOpen size={12} />
+          <ShieldCheck size={12} />
+          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7A2222] via-[#DC2626] to-[#FBBF24] p-[2px] flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-[#120c0c] flex items-center justify-center">
+              <img src="/assets/brida-favicon.png" alt="" className="w-3.5 h-3.5 object-contain" />
+            </div>
+          </div>
+          <Globe size={12} />
+          <User size={12} />
+        </div>
+      </div>
+    </div>
+  );
+
+  // Reusable minimalist "I'm not a robot" verification pill
+  const renderRobotPill = () => (
+    <div
+      onClick={() => {
+        setNotRobot(!notRobot);
+        if (!notRobot) setErrorMsg('');
+      }}
+      className={`px-4 py-2.5 rounded-full border flex items-center justify-between cursor-pointer select-none transition ${
+        notRobot
+          ? 'border-[#7A2222]/40 bg-[#FDF7F7]'
+          : 'border-gray-200 bg-gray-50/70 hover:border-gray-300'
+      }`}
+    >
+      <div className="flex items-center gap-2.5">
+        <div
+          className={`w-4 h-4 rounded-full border flex items-center justify-center transition ${
+            notRobot ? 'bg-[#7A2222] border-[#7A2222] text-white' : 'bg-white border-gray-300'
+          }`}
+        >
+          {notRobot && (
+            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="3.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </div>
+        <span className="text-xs font-medium text-gray-600">I&apos;m not a robot</span>
+      </div>
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-400">
+        <ShieldCheck size={13} className="text-[#7A2222]/70" />
+        SSL Verified
+      </span>
+    </div>
+  );
+
   return (
     <div
       className="min-h-screen w-full relative overflow-x-hidden flex items-center justify-center py-6 px-4 sm:px-8 select-none"
@@ -125,7 +228,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     >
       {/* Subtle Ambient Warm Studio Halo Behind the Card */}
       <div
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[620px] h-[320px] rounded-full opacity-35 blur-3xl"
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[640px] h-[340px] rounded-full opacity-35 blur-3xl"
         style={{ background: 'radial-gradient(circle, #b45309 0%, #7A2222 45%, transparent 75%)' }}
       />
       <div
@@ -133,160 +236,21 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
         style={{ background: 'radial-gradient(circle, #7A2222 0%, transparent 70%)' }}
       />
 
-      {/* MAIN FLOATING LUXURY SPLIT CARD WITH SMOOTH SLIDE ANIMATION */}
-      <div className="relative z-10 w-full max-w-[1040px] lg:h-[680px] rounded-[32px] bg-[#211414] shadow-[0_38px_100px_-24px_rgba(28,10,10,0.45)] overflow-hidden flex flex-col lg:block">
+      {/* ====================================================================
+          BASE WHITE CARD CONTAINER (DUA FORM TERPASANG TETAP DI KIRI & KANAN,
+          DITIMPA KARTU GELAP YANG MELUNCUR HALUS DI ATASNYA!)
+         ==================================================================== */}
+      <div className="relative z-10 w-full max-w-[1040px] lg:h-[680px] rounded-[32px] bg-white shadow-[0_40px_110px_-24px_rgba(28,10,10,0.38)] border border-white/80 overflow-hidden flex flex-col lg:block">
         {/* ================================================================
-            PANEL GELAP (SHOWCASE + LOGO BRIDA + MOCKUP HP)
-            - Mode Masuk: di KIRI (translate-x-0)
-            - Mode Daftar Akun: slide mulus ke KANAN (translate-x-full)
+            SISI KIRI BAWAH (LAYER 1): FORM DAFTAR AKUN (TERBUKA SAAT REGISTER)
            ================================================================ */}
         <div
-          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-20 bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white px-8 pt-7 pb-0 flex flex-col justify-between overflow-hidden min-h-[440px] transition-transform duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${
-            isRegister ? 'lg:translate-x-full' : 'lg:translate-x-0'
-          }`}
-        >
-          {/* Subtle Concentric Circle Rings Behind Headline */}
-          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-white/[0.06]" />
-          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[410px] h-[410px] rounded-full border border-white/[0.04]" />
-          <div
-            className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full opacity-25 blur-3xl"
-            style={{ background: 'radial-gradient(circle, #991B1B 0%, transparent 70%)' }}
-          />
-
-          {/* Top Centered Minimal Tagline */}
-          <p className="relative z-10 text-center text-[11px] sm:text-xs text-white/55 font-medium tracking-wide">
-            Publikasi ilmiah modern — satu portal untuk seluruh jurnal BRIDA Makassar.
-          </p>
-
-          {/* Logo Resmi BRIDA di Atas Judul + Headline Dinamis */}
-          <div key={mode} className="relative z-10 text-center my-4 lg:my-5 space-y-4 animate-fade-slide">
-            <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
-              <img
-                src="/assets/brida-logo.png"
-                alt="Logo BRIDA Kota Makassar"
-                className="h-8 sm:h-9 w-auto object-contain"
-              />
-            </div>
-
-            <h2 className="text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white">
-              {isRegister ? (
-                <>
-                  Mulai berkarya
-                  <br />
-                  bersama BRIDA
-                </>
-              ) : (
-                <>
-                  Publikasi
-                  <br />
-                  riset Anda
-                </>
-              )}
-            </h2>
-          </div>
-
-          {/* Bottom Sleek Tilted Smartphone UI Mockup (rotates smoothly with slide!) */}
-          <div className="relative z-10 flex justify-center items-end pt-1">
-            <div
-              className={`w-[244px] sm:w-[260px] rounded-t-[34px] bg-[#0e0b0b] border-t-[6px] border-x-[6px] border-[#3a2c2c] shadow-[0_-18px_50px_rgba(0,0,0,0.65)] p-3 pb-4 translate-y-2 transition-transform duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] hover:rotate-0 ${
-                isRegister ? 'rotate-3' : '-rotate-3'
-              }`}
-            >
-              {/* Dynamic Island */}
-              <div className="w-16 h-3.5 bg-black rounded-full mx-auto mb-3" />
-
-              {/* Top Light Analytics Card Inside Phone */}
-              <div className="bg-white rounded-2xl p-3.5 text-gray-900 shadow-xs space-y-2.5">
-                <div className="flex items-center justify-between text-[9px] text-gray-400 font-semibold">
-                  <span>Portal OJS BRIDA</span>
-                  <span className="text-emerald-600 font-bold">● Live</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <div className="text-xl font-extrabold tracking-tight text-gray-900 tabular-nums">
-                    4 Jurnal
-                  </div>
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222]">
-                    SINTA 2–3
-                  </span>
-                </div>
-
-                {/* Crimson-Coral Bar Chart */}
-                <div className="flex items-end justify-between gap-1.5 h-16 pt-2">
-                  {chartBars.map((bar) => (
-                    <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                      <div className="w-full bg-gray-100 rounded-md h-full flex items-end overflow-hidden">
-                        <div
-                          className="w-full rounded-md bg-gradient-to-t from-[#7A2222] via-[#DC2626] to-[#F97316]"
-                          style={{ height: `${bar.h}%` }}
-                        />
-                      </div>
-                      <span className="text-[8px] font-bold text-gray-400">{bar.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Lower Dark Metrics Grid Inside Phone */}
-              <div className="mt-2.5 space-y-2">
-                <div className="text-[9px] font-semibold text-white/45 px-1">Ekosistem Jurnal</div>
-                <div className="grid grid-cols-3 gap-1.5">
-                  <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
-                    <div className="text-[11px] font-extrabold text-white">Rp 0</div>
-                    <div className="text-[8px] text-white/50 mt-0.5">Open Access</div>
-                  </div>
-                  <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
-                    <div className="text-[11px] font-extrabold text-amber-300">DOI</div>
-                    <div className="text-[8px] text-white/50 mt-0.5">Resmi Aktif</div>
-                  </div>
-                  <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
-                    <div className="text-[11px] font-extrabold text-emerald-300">IMRAD</div>
-                    <div className="text-[8px] text-white/50 mt-0.5">Standar SINTA</div>
-                  </div>
-                </div>
-
-                {/* Mini Bottom Dock Inside Phone */}
-                <div className="pt-2 flex items-center justify-around text-white/40 border-t border-white/[0.06]">
-                  <BookOpen size={12} />
-                  <ShieldCheck size={12} />
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7A2222] via-[#DC2626] to-[#FBBF24] p-[2px] flex items-center justify-center">
-                    <div className="w-full h-full rounded-full bg-[#120c0c] flex items-center justify-center">
-                      <img src="/assets/brida-favicon.png" alt="" className="w-3.5 h-3.5 object-contain" />
-                    </div>
-                  </div>
-                  <Globe size={12} />
-                  <User size={12} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Subtle Public Access Pill inside Dark Panel */}
-          <button
-            type="button"
-            onClick={onOpenPublicPortal}
-            title="Jelajahi Portal Publik tanpa login"
-            className={`hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer ${
-              isRegister ? 'left-5' : 'right-5'
-            }`}
-          >
-            <Globe size={12} className="text-amber-300" />
-            Portal Publik
-          </button>
-        </div>
-
-        {/* ================================================================
-            PANEL PUTIH (FORM MASUK / DAFTAR AKUN)
-            - Mode Masuk: di KANAN (translate-x-full)
-            - Mode Daftar Akun: slide mulus ke KIRI (translate-x-0)
-           ================================================================ */}
-        <div
-          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-10 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+          className={`w-full lg:w-1/2 lg:h-full lg:absolute lg:top-0 lg:left-0 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
             isRegister
-              ? 'lg:translate-x-0 rounded-[32px] lg:rounded-l-[32px] lg:rounded-r-[32px]'
-              : 'lg:translate-x-full rounded-[32px] lg:rounded-l-[32px] lg:rounded-r-[32px]'
+              ? 'opacity-100 scale-100 pointer-events-auto z-10'
+              : 'hidden lg:flex lg:opacity-0 lg:scale-[0.96] lg:pointer-events-none lg:z-0'
           }`}
         >
-          {/* Top Bar Inside White Panel: BRIDA Logo + Toggle Daftar / Masuk */}
           <div className="flex items-center justify-between gap-3 shrink-0">
             <img
               src="/assets/brida-logo.png"
@@ -295,94 +259,79 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             />
             <button
               type="button"
-              onClick={() => handleSwitchMode(isRegister ? 'login' : 'register')}
+              onClick={() => handleSwitchMode('login')}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-[#7A2222]/40 hover:bg-[#FDF7F7] text-xs font-semibold text-gray-700 hover:text-[#7A2222] transition cursor-pointer"
             >
-              <User size={14} className="text-[#7A2222]" />
-              <span>{isRegister ? 'Masuk' : 'Daftar Akun'}</span>
+              <LogIn size={13} className="text-[#7A2222]" />
+              <span>Masuk</span>
             </button>
           </div>
 
-          {/* Center Minimalist Form Area */}
-          <div key={mode} className="w-full max-w-[360px] mx-auto my-auto py-4 animate-fade-slide">
+          <div className="w-full max-w-[360px] mx-auto my-auto py-3">
             <h1 className="text-[28px] sm:text-[32px] font-semibold text-gray-900 tracking-tight leading-tight mb-1">
-              {isRegister ? 'Daftar Akun' : 'Masuk'}
+              Daftar Akun
             </h1>
-            <p className="text-xs text-gray-400 mb-5">
-              {isRegister
-                ? 'Buat akun Penulis atau Mitra Bestari (Reviewer) baru'
-                : 'Masuk ke Portal E-Journal OJS BRIDA Kota Makassar'}
+            <p className="text-xs text-gray-400 mb-4">
+              Buat akun Penulis atau Mitra Bestari (Reviewer) baru
             </p>
 
-            {/* Error / Info Alerts */}
-            {errorMsg && (
-              <div className="mb-3.5 px-4 py-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2">
+            {errorMsg && isRegister && (
+              <div className="mb-3 px-4 py-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2">
                 <AlertCircle size={15} className="shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </div>
             )}
-            {infoMsg && (
-              <div className="mb-3.5 px-4 py-2.5 rounded-2xl bg-[#FEF2F2] border border-[#7A2222]/20 text-[#7A2222] text-xs font-semibold flex items-start gap-2">
-                <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
-                <span>{infoMsg}</span>
+
+            <form onSubmit={(e) => handleSubmit(e, 'register')} className="space-y-2.5">
+              <div className="relative">
+                <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Nama Lengkap & Gelar *"
+                  className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  required
+                />
               </div>
-            )}
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              {isRegister && (
-                <>
-                  <div className="relative">
-                    <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Nama Lengkap & Gelar *"
-                      className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
-                      required
-                    />
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="relative">
+                  <Building2 size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={affiliation}
+                    onChange={(e) => setAffiliation(e.target.value)}
+                    placeholder="Instansi / Afiliasi"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  />
+                </div>
+                <div className="relative">
+                  <UserCheck size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <select
+                    value={registerRole}
+                    onChange={(e) => setRegisterRole(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#7A2222] transition cursor-pointer"
+                  >
+                    <option value="author">Penulis (Author)</option>
+                    <option value="reviewer">Mitra Bestari</option>
+                  </select>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div className="relative">
-                      <Building2 size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        value={affiliation}
-                        onChange={(e) => setAffiliation(e.target.value)}
-                        placeholder="Instansi / Afiliasi"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
-                      />
-                    </div>
-                    <div className="relative">
-                      <UserCheck size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <select
-                        value={registerRole}
-                        onChange={(e) => setRegisterRole(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#7A2222] transition cursor-pointer"
-                      >
-                        <option value="author">Penulis (Author)</option>
-                        <option value="reviewer">Mitra Bestari</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {registerRole === 'reviewer' && (
-                    <div className="relative">
-                      <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        value={specialty}
-                        onChange={(e) => setSpecialty(e.target.value)}
-                        placeholder="Bidang Keahlian (mis. Smart City, Kesehatan)"
-                        className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
-                      />
-                    </div>
-                  )}
-                </>
+              {registerRole === 'reviewer' && (
+                <div className="relative">
+                  <Briefcase size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={specialty}
+                    onChange={(e) => setSpecialty(e.target.value)}
+                    placeholder="Bidang Keahlian (mis. Smart City, Kesehatan)"
+                    className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  />
+                </div>
               )}
 
-              {/* Email Pill Input */}
               <div className="relative">
                 <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -390,20 +339,140 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email akun Anda"
-                  className={`w-full pl-11 pr-5 ${isRegister ? 'py-2.5' : 'py-3.5'} rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition`}
+                  className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
                   required
                 />
               </div>
 
-              {/* Password Pill Input */}
               <div className="relative">
                 <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={isRegister ? 'Kata sandi (minimal 6 karakter)' : 'Kata sandi'}
-                  className={`w-full pl-11 pr-12 ${isRegister ? 'py-2.5' : 'py-3.5'} rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition`}
+                  placeholder="Kata sandi (minimal 6 karakter)"
+                  className="w-full pl-11 pr-12 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Tampilkan atau sembunyikan kata sandi"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition cursor-pointer"
+                >
+                  {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+              </div>
+
+              {renderRobotPill()}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-full bg-gradient-to-r from-[#7A2222] via-[#C2272D] to-[#EA580C] hover:brightness-105 active:scale-[0.99] text-white font-semibold text-sm shadow-[0_14px_28px_-8px_rgba(185,28,28,0.52)] transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <UserCheck size={16} />
+                <span>{loading ? 'Memproses...' : 'Daftar Akun Baru'}</span>
+              </button>
+            </form>
+
+            <div className="mt-4 text-center space-y-1.5">
+              <p className="text-xs text-gray-500">
+                Sudah punya akun?{' '}
+                <button
+                  type="button"
+                  onClick={() => handleSwitchMode('login')}
+                  className="font-bold text-[#7A2222] hover:underline cursor-pointer"
+                >
+                  Masuk di sini
+                </button>
+              </p>
+              <button
+                type="button"
+                onClick={onOpenPublicPortal}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#7A2222] transition cursor-pointer"
+              >
+                <BookOpen size={13} />
+                <span>Jelajahi Portal Publik tanpa login</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400 shrink-0">
+            <span>© 2026 BRIDA Kota Makassar</span>
+            <span className="text-gray-500 font-semibold">OJS • ID</span>
+          </div>
+        </div>
+
+        {/* ================================================================
+            SISI KANAN BAWAH (LAYER 1): FORM MASUK (TERBUKA SAAT LOGIN)
+           ================================================================ */}
+        <div
+          className={`w-full lg:w-1/2 lg:h-full lg:absolute lg:top-0 lg:right-0 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+            !isRegister
+              ? 'opacity-100 scale-100 pointer-events-auto z-10'
+              : 'hidden lg:flex lg:opacity-0 lg:scale-[0.96] lg:pointer-events-none lg:z-0'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-3 shrink-0">
+            <img
+              src="/assets/brida-logo.png"
+              alt="BRIDA Kota Makassar"
+              className="h-9 sm:h-10 object-contain"
+            />
+            <button
+              type="button"
+              onClick={() => handleSwitchMode('register')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-[#7A2222]/40 hover:bg-[#FDF7F7] text-xs font-semibold text-gray-700 hover:text-[#7A2222] transition cursor-pointer"
+            >
+              <User size={13} className="text-[#7A2222]" />
+              <span>Daftar Akun</span>
+            </button>
+          </div>
+
+          <div className="w-full max-w-[360px] mx-auto my-auto py-4">
+            <h1 className="text-[30px] sm:text-[34px] font-semibold text-gray-900 tracking-tight leading-tight mb-1.5">
+              Masuk
+            </h1>
+            <p className="text-xs text-gray-400 mb-6">
+              Masuk ke Portal E-Journal OJS BRIDA Kota Makassar
+            </p>
+
+            {errorMsg && !isRegister && (
+              <div className="mb-4 px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2">
+                <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+            {infoMsg && !isRegister && (
+              <div className="mb-4 px-4 py-3 rounded-2xl bg-[#FEF2F2] border border-[#7A2222]/20 text-[#7A2222] text-xs font-semibold flex items-start gap-2">
+                <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
+                <span>{infoMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={(e) => handleSubmit(e, 'login')} className="space-y-3.5">
+              <div className="relative">
+                <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email akun Anda"
+                  className="w-full pl-11 pr-5 py-3.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  required
+                />
+              </div>
+
+              <div className="relative">
+                <Lock size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Kata sandi"
+                  className="w-full pl-11 pr-12 py-3.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
                   required
                 />
                 <button
@@ -416,84 +485,41 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                 </button>
               </div>
 
-              {/* Forgot Password Link */}
-              {!isRegister && (
-                <div className="px-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setInfoMsg(
-                        'Silakan hubungi Administrator Portal OJS BRIDA Kota Makassar (admin@brida.go.id) untuk pemulihan kata sandi.'
-                      )
-                    }
-                    className="text-xs font-semibold text-[#B91C1C] hover:text-[#7A2222] hover:underline cursor-pointer"
-                  >
-                    Lupa kata sandi?
-                  </button>
-                </div>
-              )}
-
-              {/* Minimalist "I'm not a robot" Verification Pill */}
-              <div
-                onClick={() => {
-                  setNotRobot(!notRobot);
-                  if (!notRobot) setErrorMsg('');
-                }}
-                className={`px-4 py-2.5 rounded-full border flex items-center justify-between cursor-pointer select-none transition ${
-                  notRobot
-                    ? 'border-[#7A2222]/40 bg-[#FDF7F7]'
-                    : 'border-gray-200 bg-gray-50/70 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition ${
-                      notRobot
-                        ? 'bg-[#7A2222] border-[#7A2222] text-white'
-                        : 'bg-white border-gray-300'
-                    }`}
-                  >
-                    {notRobot && (
-                      <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth="3.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-xs font-medium text-gray-600">I&apos;m not a robot</span>
-                </div>
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-400">
-                  <ShieldCheck size={13} className="text-[#7A2222]/70" />
-                  SSL Verified
-                </span>
+              <div className="px-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setInfoMsg(
+                      'Silakan hubungi Administrator Portal OJS BRIDA Kota Makassar (admin@brida.go.id) untuk pemulihan kata sandi.'
+                    )
+                  }
+                  className="text-xs font-semibold text-[#B91C1C] hover:text-[#7A2222] hover:underline cursor-pointer"
+                >
+                  Lupa kata sandi?
+                </button>
               </div>
 
-              {/* Signature Vibrant Maroon-to-Coral Gradient Pill CTA Button */}
+              {renderRobotPill()}
+
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#7A2222] via-[#C2272D] to-[#EA580C] hover:brightness-105 active:scale-[0.99] text-white font-semibold text-sm shadow-[0_14px_28px_-8px_rgba(185,28,28,0.52)] transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 <LogIn size={16} />
-                <span>
-                  {loading
-                    ? 'Memproses...'
-                    : isRegister
-                    ? 'Daftar Akun Baru'
-                    : 'Masuk'}
-                </span>
+                <span>{loading ? 'Memproses...' : 'Masuk'}</span>
               </button>
             </form>
 
-            {/* Quick Open-Access Visitor Action */}
-            <div className="mt-4 text-center space-y-2">
+            <div className="mt-5 text-center space-y-2">
               <p className="text-xs text-gray-500">
-                {isRegister ? 'Sudah punya akun? ' : 'Belum punya akun? '}
+                Belum punya akun?{' '}
                 <button
                   type="button"
-                  onClick={() => handleSwitchMode(isRegister ? 'login' : 'register')}
+                  onClick={() => handleSwitchMode('register')}
                   className="font-bold text-[#7A2222] hover:underline cursor-pointer"
                 >
-                  {isRegister ? 'Masuk di sini' : 'Daftar sekarang'}
+                  Daftar sekarang
                 </button>
               </p>
               <button
@@ -508,7 +534,6 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             </div>
           </div>
 
-          {/* Bottom Minimalist Footer Inside White Panel */}
           <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400 shrink-0">
             <span>© 2026 BRIDA Kota Makassar</span>
             <div className="flex items-center gap-4 font-medium">
@@ -520,6 +545,104 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                 Portal Publik
               </button>
               <span className="text-gray-500 font-semibold">OJS • ID</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ================================================================
+            KARTU GELAP MENIMPA (OVERLAY CURTAIN CARD — Z-30)
+            Meluncur mulus di atas kedua form dengan bayangan menimpa & efek
+            parallax di dalamnya!
+           ================================================================ */}
+        <div
+          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-30 overflow-hidden bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white min-h-[430px] will-change-transform transition-all duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+            isRegister
+              ? 'lg:translate-x-full lg:rounded-l-[32px] lg:shadow-[-26px_0_70px_-10px_rgba(20,5,5,0.48)]'
+              : 'lg:translate-x-0 lg:rounded-r-[32px] lg:shadow-[26px_0_70px_-10px_rgba(20,5,5,0.48)]'
+          }`}
+        >
+          {/* Ambient Rings & Warm Maroon Glow */}
+          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-white/[0.06]" />
+          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[410px] h-[410px] rounded-full border border-white/[0.04]" />
+          <div
+            className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full opacity-25 blur-3xl"
+            style={{ background: 'radial-gradient(circle, #991B1B 0%, transparent 70%)' }}
+          />
+
+          {/* Inner Counter-Parallax Track (200% lebar — konten slide halus di dalam kartu!) */}
+          <div
+            className={`w-[200%] h-full flex transition-transform duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] will-change-transform ${
+              isRegister ? '-translate-x-1/2' : 'translate-x-0'
+            }`}
+          >
+            {/* SLIDE 1 (TAMPIL SAAT MODE LOGIN — DI KIRI) */}
+            <div className="w-1/2 h-full px-8 pt-7 pb-0 flex flex-col justify-between relative">
+              <p className="relative z-10 text-center text-[11px] sm:text-xs text-white/55 font-medium tracking-wide">
+                Publikasi ilmiah modern — satu portal untuk seluruh jurnal BRIDA Makassar.
+              </p>
+
+              <div className="relative z-10 text-center my-4 space-y-4">
+                <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
+                  <img
+                    src="/assets/brida-logo.png"
+                    alt="Logo BRIDA Kota Makassar"
+                    className="h-8 sm:h-9 w-auto object-contain"
+                  />
+                </div>
+                <h2 className="text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white">
+                  Publikasi
+                  <br />
+                  riset Anda
+                </h2>
+              </div>
+
+              <div className="relative z-10 flex justify-center items-end pt-1">
+                {renderPhoneMockup(false)}
+              </div>
+
+              <button
+                type="button"
+                onClick={onOpenPublicPortal}
+                className="hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 right-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer"
+              >
+                <Globe size={12} className="text-amber-300" />
+                Portal Publik
+              </button>
+            </div>
+
+            {/* SLIDE 2 (TAMPIL SAAT MODE DAFTAR AKUN — DI KANAN) */}
+            <div className="w-1/2 h-full px-8 pt-7 pb-0 flex flex-col justify-between relative">
+              <p className="relative z-10 text-center text-[11px] sm:text-xs text-white/55 font-medium tracking-wide">
+                Bergabung sebagai Penulis atau Mitra Bestari BRIDA Kota Makassar.
+              </p>
+
+              <div className="relative z-10 text-center my-4 space-y-4">
+                <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
+                  <img
+                    src="/assets/brida-logo.png"
+                    alt="Logo BRIDA Kota Makassar"
+                    className="h-8 sm:h-9 w-auto object-contain"
+                  />
+                </div>
+                <h2 className="text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white">
+                  Mulai berkarya
+                  <br />
+                  bersama BRIDA
+                </h2>
+              </div>
+
+              <div className="relative z-10 flex justify-center items-end pt-1">
+                {renderPhoneMockup(true)}
+              </div>
+
+              <button
+                type="button"
+                onClick={onOpenPublicPortal}
+                className="hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 left-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer"
+              >
+                <Globe size={12} className="text-amber-300" />
+                Portal Publik
+              </button>
             </div>
           </div>
         </div>
