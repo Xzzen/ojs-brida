@@ -3,6 +3,7 @@
 // Vercel Serverless entry point untuk Laravel 9
 // Pastikan folder /tmp/storage tersedia karena filesystem Vercel bersifat read-only di luar /tmp
 $dirs = [
+    '/tmp/storage/app',
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
     '/tmp/storage/framework/sessions',

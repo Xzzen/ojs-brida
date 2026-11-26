@@ -562,7 +562,7 @@ class SubmissionController extends Controller
      */
     public function downloadTemplate()
     {
-        $tmpPath = storage_path('app/Template_Naskah_OJS_BRIDA_SINTA.docx');
+        $tmpPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'Template_Naskah_OJS_BRIDA_SINTA.docx';
         $zip = new \ZipArchive();
         if ($zip->open($tmpPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
             return response()->json(['status' => 'error', 'message' => 'Gagal membuat file template.'], 500);

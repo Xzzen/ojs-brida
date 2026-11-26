@@ -18,17 +18,11 @@ Route::get('/health', function () {
         $dbError = $e->getMessage();
     }
 
-    $rawHost = (string) config('database.connections.mysql.host');
-    $hostPreview = strlen($rawHost) > 20 ? substr($rawHost, 0, 20) . '...' : $rawHost;
-
     return response()->json([
         'status' => $dbOk ? 'ok' : 'degraded',
         'app' => config('app.name', 'OJS BRIDA'),
         'database' => $dbOk ? 'connected' : 'error',
         'database_error' => $dbOk ? null : $dbError,
-        'db_host_preview' => $hostPreview,
-        'db_port' => config('database.connections.mysql.port'),
-        'db_database' => config('database.connections.mysql.database'),
         'storage_driver' => CloudStorageService::activeDriverName(),
         'timestamp' => now()->toIso8601String(),
     ], $dbOk ? 200 : 503);
