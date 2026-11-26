@@ -53,14 +53,48 @@ const JOURNAL_THEME = {
 
 export default function Dashboard({ currentUser, initialTab = 'portal', onLogout }) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [navTab, setNavTab] = useState(initialTab);
+  const [isTabFading, setIsTabFading] = useState(false);
+  const tabSwapTimerRef = useRef(null);
+  const tabRaf1Ref = useRef(null);
+  const tabRaf2Ref = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const switchTab = (nextTab) => {
     setMobileMenuOpen(false);
-    if (nextTab === activeTab) return;
-    setActiveTab(nextTab);
-    window.scrollTo(0, 0);
+    if (nextTab === navTab && !isTabFading) return;
+
+    if (tabSwapTimerRef.current) clearTimeout(tabSwapTimerRef.current);
+    if (tabRaf1Ref.current) cancelAnimationFrame(tabRaf1Ref.current);
+    if (tabRaf2Ref.current) cancelAnimationFrame(tabRaf2Ref.current);
+
+    // Highlight sidebar pill seketika & fade-out lembut konten lama di tempat (0px gerak)
+    setNavTab(nextTab);
+    setIsTabFading(true);
+
+    tabSwapTimerRef.current = setTimeout(() => {
+      setActiveTab(nextTab);
+      window.scrollTo(0, 0);
+      // Tunggu 2 frame paint selesai baru fade-in lembut pada 60fps penuh
+      tabRaf1Ref.current = requestAnimationFrame(() => {
+        tabRaf2Ref.current = requestAnimationFrame(() => {
+          setIsTabFading(false);
+        });
+      });
+    }, 165);
   };
+
+  useEffect(() => {
+    setNavTab(activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      if (tabSwapTimerRef.current) clearTimeout(tabSwapTimerRef.current);
+      if (tabRaf1Ref.current) cancelAnimationFrame(tabRaf1Ref.current);
+      if (tabRaf2Ref.current) cancelAnimationFrame(tabRaf2Ref.current);
+    };
+  }, []);
   const [journals, setJournals] = useState([]);
   const [selectedJournalId, setSelectedJournalId] = useState('all');
   const [portalSelectedJournal, setPortalSelectedJournal] = useState(null);
@@ -1073,17 +1107,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               switchTab('portal');
             }}
             className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-              activeTab === 'portal'
+              navTab === 'portal'
                 ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                 : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Globe size={16} className={activeTab === 'portal' ? 'text-[#7A2222]' : 'text-white/60'} />
+              <Globe size={16} className={navTab === 'portal' ? 'text-[#7A2222]' : 'text-white/60'} />
               Portal Publik Jurnal
             </span>
             <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-              activeTab === 'portal' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+              navTab === 'portal' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
             }`}>
               {journals.length}
             </span>
@@ -1093,17 +1127,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           <button
             onClick={() => switchTab('trending')}
             className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-              activeTab === 'trending'
+              navTab === 'trending'
                 ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                 : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Flame size={16} className={activeTab === 'trending' ? 'text-amber-600' : 'text-amber-300'} />
+              <Flame size={16} className={navTab === 'trending' ? 'text-amber-600' : 'text-amber-300'} />
               Trending &amp; Forum
             </span>
             <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-              activeTab === 'trending'
+              navTab === 'trending'
                 ? 'bg-amber-100 text-amber-800'
                 : 'bg-amber-400/20 text-amber-300 border border-amber-300/30'
             }`}>
@@ -1115,17 +1149,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <button
               onClick={() => switchTab('dashboard')}
               className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-                activeTab === 'dashboard'
+                navTab === 'dashboard'
                   ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
               <span className="flex items-center gap-3">
-                <LayoutDashboard size={16} className={activeTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <LayoutDashboard size={16} className={navTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/60'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
               <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-                activeTab === 'dashboard' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+                navTab === 'dashboard' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
               }`}>
                 {scopedStats.total}
               </span>
@@ -1137,12 +1171,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <button
               onClick={() => switchTab('journals')}
               className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-                activeTab === 'journals'
+                navTab === 'journals'
                   ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
-              <BookOpen size={16} className={activeTab === 'journals' ? 'text-[#7A2222]' : 'text-white/60'} />
+              <BookOpen size={16} className={navTab === 'journals' ? 'text-[#7A2222]' : 'text-white/60'} />
               Manajemen Multi-Jurnal
             </button>
           )}
@@ -1152,17 +1186,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <button
               onClick={() => switchTab('users')}
               className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-                activeTab === 'users'
+                navTab === 'users'
                   ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Users size={16} className={activeTab === 'users' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <Users size={16} className={navTab === 'users' ? 'text-[#7A2222]' : 'text-white/60'} />
                 Manajemen Pengguna
               </span>
               <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-                activeTab === 'users' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+                navTab === 'users' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
               }`}>
                 {(stats.users || []).length}
               </span>
@@ -1174,12 +1208,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <button
               onClick={() => switchTab('unggah')}
               className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-                activeTab === 'unggah'
+                navTab === 'unggah'
                   ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
-              <FileUp size={16} className={activeTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/60'} />
+              <FileUp size={16} className={navTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/60'} />
               Unggah Naskah Baru
             </button>
           )}
@@ -1189,13 +1223,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <button
               onClick={() => switchTab('review')}
               className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
-                activeTab === 'review'
+                navTab === 'review'
                   ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
               <span className="flex items-center gap-3">
-                <CheckSquare size={16} className={activeTab === 'review' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <CheckSquare size={16} className={navTab === 'review' ? 'text-[#7A2222]' : 'text-white/60'} />
                 {isReviewer ? 'Meja Evaluasi Review' : 'Evaluasi & Editorial'}
               </span>
               {reviewQueueBadgeCount > 0 && (
@@ -1288,10 +1322,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               )}
             </button>
           </div>
+          {/* Sleek Maroon-Gold Shimmer Progress Bar saat perpindahan menu */}
+          {isTabFading && (
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2.5px] overflow-hidden">
+              <div className="h-full w-full bg-gradient-to-r from-transparent via-[#7A2222] to-[#FBBF24] animate-topbar-sweep" />
+            </div>
+          )}
         </header>
 
-        {/* PURE 60FPS SILK CROSSFADE VIEWPORT (ZERO VERTICAL JUMP / ZERO JITTER) */}
-        <div key={activeTab} className="flex-1 flex flex-col animate-tab-silk">
+        {/* SMOOTH IN-PLACE CROSSFADE VIEWPORT (100% GPU OPACITY, 0px GERAK / 0 GETAR) */}
+        <div
+          className={`flex-1 flex flex-col transition-opacity will-change-[opacity] ${
+            isTabFading
+              ? 'opacity-0 duration-[160ms] ease-out pointer-events-none'
+              : 'opacity-100 duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+          }`}
+        >
 
         {/* ===================================================================
             TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
@@ -1467,31 +1513,31 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
                         </div>
 
-                        {/* 4 Ringkasan Statistik Live Portal */}
+                        {/* 4 Ringkasan Statistik Live Portal — Seragam Merah Maroon BRIDA */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                          <div className="rounded-2xl bg-[#FDF7F7]/70 border border-[#7A2222]/10 px-4 py-3 transition hover:-translate-y-0.5">
+                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
                             <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
                               {journals.length}
                             </div>
-                            <div className="text-[10px] font-bold text-gray-500 mt-1">Jurnal Resmi</div>
+                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Jurnal Resmi</div>
                           </div>
-                          <div className="rounded-2xl bg-gray-50 border border-gray-200/80 px-4 py-3 transition hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-gray-900 tabular-nums leading-none">
+                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
+                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
                               {publishedSubmissions.length}
                             </div>
-                            <div className="text-[10px] font-bold text-gray-500 mt-1">Artikel Terbit</div>
+                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Artikel Terbit</div>
                           </div>
-                          <div className="rounded-2xl bg-amber-50/70 border border-amber-200/80 px-4 py-3 transition hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-amber-600 tabular-nums leading-none">
+                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
+                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
                               {forumThreadCount}
                             </div>
-                            <div className="text-[10px] font-bold text-gray-500 mt-1">Diskusi Riset</div>
+                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Diskusi Riset</div>
                           </div>
-                          <div className="rounded-2xl bg-emerald-50/70 border border-emerald-200/80 px-4 py-3 transition hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-emerald-700 leading-none">
+                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
+                            <div className="text-lg font-extrabold text-[#7A2222] leading-none">
                               Rp 0
                             </div>
-                            <div className="text-[10px] font-bold text-emerald-700/80 mt-1">Biaya Publikasi</div>
+                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Biaya Publikasi</div>
                           </div>
                         </div>
 

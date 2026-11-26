@@ -81,12 +81,27 @@
   }
 }
 
+@keyframes topbarSweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0.4;
+  }
+}
+
+.animate-topbar-sweep {
+  animation: topbarSweep 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .animate-tab-silk {
-  animation: tabSilkIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tabSilkIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .animate-blur-morph {
-  animation: tabSilkIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tabSilkIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes modalBackdropFade {
