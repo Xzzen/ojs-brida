@@ -374,7 +374,7 @@ class SubmissionController extends Controller
                 ];
             }
 
-            // Ekstrak teks aman dari stream PDF (tahan biner/gambar & selalu valid UTF-8)
+            // Ekstrak teks aman khusus dari blok teks PDF (BT ... ET) agar tidak salah membaca biner font/gambar
             $extracted = '';
             $streams = [];
             if (@preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $raw, $m)) {
@@ -391,13 +391,14 @@ class SubmissionController extends Controller
                         $decoded = @gzinflate($chunk);
                     }
                     $candidate = $decoded !== false ? $decoded : $chunk;
-                    if (strlen($candidate) <= 400000) {
+                    // Hanya proses stream yang benar-benar mengandung operator teks PDF (BT ... ET)
+                    if (strlen($candidate) <= 400000 && str_contains($candidate, 'BT') && str_contains($candidate, 'ET')) {
                         $streams[] = $candidate;
                         $streamCount++;
                     }
                 }
             }
-            if (empty($streams) && strlen($raw) <= 300000) {
+            if (empty($streams) && strlen($raw) <= 300000 && str_contains($raw, 'BT') && str_contains($raw, 'ET')) {
                 $streams[] = $raw;
             }
 
@@ -405,12 +406,31 @@ class SubmissionController extends Controller
                 if (strlen($extracted) > 65000) {
                     break;
                 }
-                if (@preg_match_all('/\(([^()]{2,200})\)/', $st, $tm)) {
-                    foreach ($tm[1] as $seg) {
-                        $clean = str_replace(['\\(', '\\)', '\\\\'], ['(', ')', '\\'], $seg);
-                        $clean = preg_replace('/[^\x20-\x7E]/', ' ', $clean) ?? '';
-                        if (preg_match('/[a-zA-Z]{2,}/', $clean)) {
-                            $extracted .= ' ' . $clean;
+                // Ambil hanya blok BT ... ET
+                if (@preg_match_all('/\bBT\b(.*?)\bET\b/s', $st, $btMatches)) {
+                    foreach ($btMatches[1] as $btBlock) {
+                        // 1. Rekonstruksi array kerning PDF: [(P) -10 (E) 5 (N)...] TJ
+                        if (@preg_match_all('/\[(.*?)\]\s*TJ/s', $btBlock, $tjArrays)) {
+                            foreach ($tjArrays[1] as $arrContent) {
+                                if (@preg_match_all('/\(([^()]*)\)/', $arrContent, $parts)) {
+                                    $joined = implode('', $parts[1]);
+                                    $joined = str_replace(['\\(', '\\)', '\\\\'], ['(', ')', '\\'], $joined);
+                                    $joined = preg_replace('/[^\x20-\x7E]/', ' ', $joined) ?? '';
+                                    if (preg_match('/[a-zA-Z]{2,}/', $joined)) {
+                                        $extracted .= ' ' . $joined;
+                                    }
+                                }
+                            }
+                        }
+                        // 2. String teks tunggal: (Teks...) Tj
+                        if (@preg_match_all('/\(([^()]{2,200})\)\s*Tj/', $btBlock, $tjSingle)) {
+                            foreach ($tjSingle[1] as $seg) {
+                                $clean = str_replace(['\\(', '\\)', '\\\\'], ['(', ')', '\\'], $seg);
+                                $clean = preg_replace('/[^\x20-\x7E]/', ' ', $clean) ?? '';
+                                if (preg_match('/[a-zA-Z]{2,}/', $clean)) {
+                                    $extracted .= ' ' . $clean;
+                                }
+                            }
                         }
                     }
                 }
@@ -421,10 +441,18 @@ class SubmissionController extends Controller
                 $cleanText = mb_convert_encoding($cleanText, 'UTF-8', 'UTF-8');
             }
 
+            // Pastikan teks PDF benar-benar prosa terbaca (bukan encoding CIDFont/ToUnicode glyph)
+            $proseStopwords = preg_match_all(
+                '/\b(yang|dan|dengan|untuk|pada|dari|dalam|adalah|penelitian|hasil|metode|the|and|of|in|to|for|with|this|that)\b/i',
+                $cleanText
+            );
+            $readableProse = ($proseStopwords !== false && $proseStopwords >= 5);
+
             return [
                 'valid_signature' => true,
                 'signature_error' => null,
                 'text' => $cleanText,
+                'readable_prose' => $readableProse,
                 'ext' => $ext,
             ];
         }
@@ -587,8 +615,9 @@ class SubmissionController extends Controller
                 $textWordCount = count($wordsList);
 
                 // Untuk DOCX selalu wajib teks terbaca & struktur IMRAD lengkap;
-                // Untuk PDF/DOC, cek IMRAD apabila stream teks terbaca (>= 25 kata)
-                $shouldCheckImrad = ($ext === 'docx') || ($textWordCount >= 25);
+                // Untuk PDF/DOC, cek IMRAD hanya bila teks benar-benar prosa terbaca (bukan PDF CIDFont/ToUnicode)
+                $isReadableProse = (bool) ($docCheck['readable_prose'] ?? ($textWordCount >= 40));
+                $shouldCheckImrad = ($ext === 'docx') || ($isReadableProse && $textWordCount >= 40);
 
                 if ($ext === 'docx' && $textWordCount < 50) {
                     $violations[] = "Isi dokumen .docx terlalu singkat ({$textWordCount} kata). Naskah ilmiah minimal harus berisi komponen struktur artikel yang lengkap.";
