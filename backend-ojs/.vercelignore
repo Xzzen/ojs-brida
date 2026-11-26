@@ -1,0 +1,10 @@
+/vendor
+/node_modules
+/public/hot
+/public/storage
+.env
+.env.backup
+.git
+tests
+storage/logs/*.log
+storage/app/public/submissions/*

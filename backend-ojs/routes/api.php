@@ -28,6 +28,33 @@ Route::get('/health', function () {
     ], $dbOk ? 200 : 503);
 });
 
+// Inisialisasi Migrasi & Seeder Aman untuk Serverless Cloud (Vercel) — Idempotent (tidak menimpa data)
+Route::get('/setup-db', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $migrateOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'CloudBootstrapSeeder',
+            '--force' => true,
+        ]);
+        $seedOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Database cloud berhasil dimigrasi dan diinisialisasi!',
+            'migrate' => $migrateOutput,
+            'seed' => $seedOutput,
+            'storage_driver' => CloudStorageService::activeDriverName(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+});
+
 Route::post('/login', [SubmissionController::class, 'login']);
 Route::post('/register', [SubmissionController::class, 'register']);
 
