@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: ojs-brida-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_NAME
+        value: "OJS BRIDA Makassar"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_SSL_MODE
+        value: REQUIRED
+      - key: DB_SSL_VERIFY
+        value: "false"
+      - key: AUTO_MIGRATE
+        value: "true"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+      - key: SUPABASE_BUCKET
+        value: manuscripts

@@ -88,8 +88,7 @@ class DatabaseSeeder extends Seeder
         }
         $pdf .= "trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n$xrefOffset\n%%EOF";
 
-        Storage::disk('public')->put('submissions/' . $filename, $pdf);
-        return 'submissions/' . $filename;
+        return \App\Services\CloudStorageService::uploadRawContent('submissions/' . $filename, $pdf, 'application/pdf');
     }
 
     public function run()

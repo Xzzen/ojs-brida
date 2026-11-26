@@ -53,4 +53,14 @@ class Submission extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    public function articleComments()
+    {
+        return $this->hasMany(SubmissionComment::class)->orderBy('created_at', 'asc');
+    }
+
+    public function articleLikes()
+    {
+        return $this->hasMany(SubmissionLike::class);
+    }
 }

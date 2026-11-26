@@ -59,8 +59,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA') ?: (env('DB_SSL_MODE') === 'REQUIRED' ? '/etc/ssl/certs/ca-certificates.crt' : null),
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('DB_SSL_VERIFY') === null ? null : filter_var(env('DB_SSL_VERIFY'), FILTER_VALIDATE_BOOLEAN),
+            ], fn($v) => $v !== null) : [],
         ],
 
         'pgsql' => [

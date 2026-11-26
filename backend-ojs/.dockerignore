@@ -1,0 +1,10 @@
+/vendor
+/node_modules
+.env
+.env.backup
+.git
+.gitignore
+storage/*.key
+storage/logs/*.log
+tests
+README.md
