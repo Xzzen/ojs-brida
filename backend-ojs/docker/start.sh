@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-PORT="${PORT:-10000}"
+PORT="${PORT:-7860}"
 
-# Bind Apache dynamically to Render's $PORT
-sed -ri "s/Listen 80/Listen ${PORT}/g" /etc/apache2/ports.conf
-sed -ri "s/<VirtualHost \*:80>/<VirtualHost *:${PORT}>/g" /etc/apache2/sites-available/000-default.conf
+# Re-bind Apache port if platform injects custom PORT (e.g. Render/Cloud Run)
+if [ "${PORT}" != "7860" ]; then
+  sed -ri "s/Listen [0-9]+/Listen ${PORT}/g" /etc/apache2/ports.conf || true
+  sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/g" /etc/apache2/sites-available/000-default.conf || true
+fi
 
-# If Aiven / Cloud MySQL CA certificate content is provided via env var, write it to disk
+# If custom DB CA certificate content is provided via env var, write it to disk
 if [ -n "${MYSQL_ATTR_SSL_CA_CONTENT}" ]; then
   printf "%s\n" "${MYSQL_ATTR_SSL_CA_CONTENT}" > /tmp/cloud-db-ca.pem
   export MYSQL_ATTR_SSL_CA="/tmp/cloud-db-ca.pem"
