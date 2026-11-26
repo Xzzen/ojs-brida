@@ -24,31 +24,18 @@ const STATUS_BADGE = {
   rejected: { label: 'DITOLAK', bg: 'bg-rose-50/90 text-rose-800 border-rose-200/80' }
 };
 
+const SOLID_MAROON_THEME = {
+  border: 'border-[#7A2222]',
+  bgHeader: 'bg-[#7A2222]',
+  badge: 'bg-[#FEF2F2] text-[#7A2222] border-[#7A2222]/20',
+  btn: 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
+};
+
 const JOURNAL_THEME = {
-  blue: {
-    border: 'border-[#7A2222]',
-    bgHeader: 'from-[#4A1313] via-[#661B1B] to-[#7A2222]',
-    badge: 'bg-[#FEF2F2] text-[#7A2222] border-red-200/80',
-    btn: 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
-  },
-  red: {
-    border: 'border-[#7A2222]',
-    bgHeader: 'from-[#5B1616] via-[#7A2222] to-[#991B1B]',
-    badge: 'bg-[#FEF2F2] text-[#7A2222] border-red-200/80',
-    btn: 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
-  },
-  emerald: {
-    border: 'border-emerald-800',
-    bgHeader: 'from-[#063229] via-[#065F46] to-[#047857]',
-    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
-    btn: 'bg-emerald-700 hover:bg-emerald-800 text-white'
-  },
-  amber: {
-    border: 'border-amber-800',
-    bgHeader: 'from-[#451A03] via-[#78350F] to-[#92400E]',
-    badge: 'bg-amber-50 text-amber-800 border-amber-200/80',
-    btn: 'bg-amber-700 hover:bg-amber-800 text-white'
-  }
+  blue: SOLID_MAROON_THEME,
+  red: SOLID_MAROON_THEME,
+  emerald: SOLID_MAROON_THEME,
+  amber: SOLID_MAROON_THEME
 };
 
 export default function Dashboard({ currentUser, initialTab = 'portal', onLogout }) {
@@ -1875,10 +1862,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         className="card-luxury card-luxury-hover rounded-[24px] p-5 flex flex-col justify-between"
                       >
                         <div>
-                          {/* Bespoke Editorial Academic Journal Cover */}
+                          {/* Bespoke Editorial Academic Journal Cover — Solid BRIDA Maroon */}
                           <div
                             onClick={() => setDetailSubmission(sub)}
-                            className={`w-full h-44 rounded-[18px] bg-gradient-to-br ${coverTheme.bgHeader} mb-4 relative overflow-hidden cursor-pointer group p-4 flex flex-col justify-between text-white shadow-inner`}
+                            className={`w-full h-44 rounded-[18px] ${coverTheme.bgHeader} mb-4 relative overflow-hidden cursor-pointer group p-4 flex flex-col justify-between text-white shadow-inner`}
                           >
                             {/* Decorative subtle editorial lines */}
                             <div className="pointer-events-none absolute -right-10 -top-10 w-36 h-36 rounded-full bg-white/[0.06]" />
@@ -1980,63 +1967,63 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                     {journals.map((j) => {
                       const theme = JOURNAL_THEME[j.accent_color] || JOURNAL_THEME.blue;
                       const currentIssue = j.issues?.find((i) => i.is_current) || j.issues?.[0];
                       return (
                         <div
                           key={j.id}
-                          className="card-luxury card-luxury-hover rounded-[24px] overflow-hidden flex flex-col justify-between group"
+                          className="card-luxury card-luxury-hover rounded-[28px] overflow-hidden flex flex-col group"
                         >
-                          <div>
-                            <div className={`bg-gradient-to-r ${theme.bgHeader} p-6 text-white`}>
-                              <div className="flex items-center justify-between gap-2 mb-3">
-                                <span className="text-xs font-extrabold uppercase tracking-wider bg-black/25 px-3 py-1 rounded-full border border-white/20">
+                          {/* Header Solid Merah Maroon dengan Tinggi Seragam Kiri & Kanan */}
+                          <div className={`${theme.bgHeader} p-6 text-white min-h-[178px] flex flex-col justify-between gap-3`}>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-xs font-extrabold uppercase tracking-wider bg-black/20 px-3 py-1 rounded-full border border-white/20">
                                   {j.abbreviation}
                                 </span>
-                                <span className="text-xs font-extrabold bg-amber-400 text-slate-950 px-3 py-1 rounded-full flex items-center gap-1 shadow-xs">
+                                <span className="text-xs font-extrabold bg-amber-400 text-slate-950 px-3 py-1 rounded-full flex items-center gap-1 shadow-xs shrink-0">
                                   <Award size={13} /> Terakreditasi {j.accreditation}
                                 </span>
                               </div>
-                              <h4 className="text-lg font-extrabold leading-snug group-hover:underline">
+                              <h4 className="text-lg font-extrabold leading-snug line-clamp-2 min-h-[3.1rem] group-hover:underline">
                                 {j.title}
                               </h4>
-                              <div className="flex flex-wrap gap-4 mt-3 text-xs text-white/85 font-medium">
-                                <span>P-ISSN: {j.issn_print}</span>
-                                <span>•</span>
-                                <span>E-ISSN: {j.issn_online}</span>
-                                <span>•</span>
-                                <span>{j.frequency}</span>
-                              </div>
                             </div>
 
-                            <div className="p-6 space-y-4">
-                              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                                {j.description}
-                              </p>
-                              <div className="bg-[#FDF7F7] p-3.5 rounded-2xl border border-[#7A2222]/15 text-xs space-y-1.5">
-                                <div>
-                                  <strong className="text-slate-800">Fokus &amp; Ruang Lingkup:</strong>{' '}
-                                  <span className="text-slate-600">{j.focus_scope}</span>
-                                </div>
-                                <div>
-                                  <strong className="text-slate-800">Ketua Dewan Redaksi:</strong>{' '}
-                                  <span className="text-slate-600">{j.chief_editor}</span>
-                                </div>
-                                {currentIssue && (
-                                  <div className="text-[#7A2222] font-bold pt-1">
-                                    📌 Terbitan Terkini: {currentIssue.volume} {currentIssue.number} ({currentIssue.year}) — {currentIssue.title}
-                                  </div>
-                                )}
-                              </div>
+                            <div className="pt-2 border-t border-white/15 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-white/85 font-medium">
+                              <span>P-ISSN: {j.issn_print} • E-ISSN: {j.issn_online}</span>
+                              <span className="text-white/75">{j.frequency}</span>
                             </div>
                           </div>
 
-                          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3">
+                          {/* Badan Kartu Sejajar Simetris */}
+                          <div className="flex-1 p-6 flex flex-col justify-between gap-4">
+                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
+                              {j.description}
+                            </p>
+                            <div className="bg-[#FDF7F7] p-4 rounded-2xl border border-[#7A2222]/15 text-xs space-y-1.5">
+                              <div className="line-clamp-2">
+                                <strong className="text-slate-800">Fokus &amp; Ruang Lingkup:</strong>{' '}
+                                <span className="text-slate-600">{j.focus_scope}</span>
+                              </div>
+                              <div className="truncate">
+                                <strong className="text-slate-800">Ketua Dewan Redaksi:</strong>{' '}
+                                <span className="text-slate-600">{j.chief_editor}</span>
+                              </div>
+                              {currentIssue && (
+                                <div className="text-[#7A2222] font-bold pt-1 line-clamp-2">
+                                  📌 Terbitan Terkini: {currentIssue.volume} {currentIssue.number} ({currentIssue.year}) — {currentIssue.title}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
                               <span>📄 {j.submissions_count || 0} Naskah</span>
-                              <span className="text-emerald-700">✅ {j.published_count || 0} Terbit</span>
+                              <span className="text-[#7A2222]">✅ {j.published_count || 0} Terbit</span>
                             </div>
                             <div className="flex items-center gap-2">
                               {!isReviewer && !isGuest && (
@@ -2108,13 +2095,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     setPortalSelectedJournal(null);
                     setSelectedJournalId('all');
                   }}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#7A2222] bg-white hover:bg-blue-50 px-4 py-2.5 rounded-full border border-blue-200 shadow-sm transition cursor-pointer"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-[#7A2222] bg-white hover:bg-[#FDF7F7] px-5 py-2.5 rounded-full border border-[#7A2222]/20 shadow-sm transition cursor-pointer"
                 >
                   ← Kembali ke Katalog Rumah Jurnal BRIDA
                 </button>
 
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className={`bg-gradient-to-r ${(JOURNAL_THEME[portalSelectedJournal.accent_color] || JOURNAL_THEME.blue).bgHeader} p-8 text-white`}>
+                <div className="card-luxury rounded-[32px] overflow-hidden">
+                  <div className={`${(JOURNAL_THEME[portalSelectedJournal.accent_color] || JOURNAL_THEME.blue).bgHeader} p-8 text-white`}>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                       <div className="space-y-2 max-w-3xl">
                         <div className="flex items-center gap-2">
