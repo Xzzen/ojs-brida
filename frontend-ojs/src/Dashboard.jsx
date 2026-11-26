@@ -170,6 +170,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   });
   const [showDeclineForm, setShowDeclineForm] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
+  const [showDeskRejectForm, setShowDeskRejectForm] = useState(false);
+  const [deskRejectReason, setDeskRejectReason] = useState('');
+  const [dismissedRejectBanner, setDismissedRejectBanner] = useState(false);
+  const authorRejectToastShownRef = useRef(false);
 
   // State Manajemen Pengguna (Khusus Admin)
   const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -393,6 +397,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         return s.status === 'under_review' && myRev && (myRev.status === 'assigned' || myRev.status === 'in_progress');
       }).length
     : stats.pending + stats.under_review;
+
+  // Daftar naskah Author yang ditolak Editor/Redaksi (untuk Notifikasi Penulis)
+  const rejectedAuthorSubmissions = isAuthor
+    ? roleScopedSubmissions.filter((s) => s.status === 'rejected')
+    : [];
+
+  // Tampilkan toast pemberitahuan otomatis 1x saat Author login/membuka portal jika ada naskah ditolak
+  useEffect(() => {
+    if (isAuthor && rejectedAuthorSubmissions.length > 0 && !authorRejectToastShownRef.current) {
+      authorRejectToastShownRef.current = true;
+      const latestRejected = rejectedAuthorSubmissions[0];
+      toast.error(
+        `Pemberitahuan Redaksi: ${rejectedAuthorSubmissions.length} naskah Anda ditolak ("${latestRejected.title.slice(0, 48)}${latestRejected.title.length > 48 ? '...' : ''}"). Periksa alasan di Dasbor Naskah Saya.`,
+        { duration: 7000 }
+      );
+    }
+  }, [isAuthor, rejectedAuthorSubmissions.length]);
 
   // Helper Progress Tracker Terpadu untuk Semua Peran (Admin, Penulis, Reviewer)
   const getSubmissionProgressMeta = (sub) => {
@@ -831,6 +852,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     }
   };
 
+  // Handler Tolak Naskah Langsung oleh Editor (Desk Reject — mis. tidak sesuai tema/ruang lingkup)
+  const handleDeskReject = async (submissionId) => {
+    if (!deskRejectReason.trim()) {
+      toast.error('Harap pilih atau tuliskan alasan penolakan naskah agar Penulis menerima pemberitahuan yang jelas.');
+      return;
+    }
+    try {
+      const res = await axios.post(`${API_BASE}/submissions/${submissionId}/editor-decision`, {
+        decision: 'reject',
+        editor_notes: deskRejectReason.trim()
+      });
+      toast.success('Naskah ditolak (Desk Reject). Pemberitahuan & alasan telah dikirim ke Penulis!');
+      setShowDeskRejectForm(false);
+      setDeskRejectReason('');
+      setSelectedSubForAction(res.data?.data || null);
+      fetchAllData(selectedJournalId);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal menolak naskah.');
+    }
+  };
+
   // Handler Keputusan Akhir Chief Editor (mis. saat Split Decision antar Reviewer)
   const handleEditorDecision = async (submissionId, decision) => {
     const labelMap = {
@@ -1192,10 +1234,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <LayoutDashboard size={16} className={navTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/60'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
-              <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-                navTab === 'dashboard' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
-              }`}>
-                {scopedStats.total}
+              <span className="flex items-center gap-1.5">
+                {isAuthor && rejectedAuthorSubmissions.length > 0 && (
+                  <span
+                    title={`${rejectedAuthorSubmissions.length} naskah ditolak`}
+                    className="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-rose-500 text-white shadow-xs tabular-nums"
+                  >
+                    ! {rejectedAuthorSubmissions.length}
+                  </span>
+                )}
+                <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
+                  navTab === 'dashboard' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+                }`}>
+                  {scopedStats.total}
+                </span>
               </span>
             </button>
           )}
@@ -2277,6 +2329,82 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
            =================================================================== */}
         {activeTab === 'dashboard' && !isGuest && (
           <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto">
+            {/* BANNER NOTIFIKASI PENOLAKAN NASKAH UNTUK AUTHOR (PENULIS) */}
+            {isAuthor && rejectedAuthorSubmissions.length > 0 && !dismissedRejectBanner && (
+              <div className="rounded-[28px] bg-rose-50 border border-rose-200/90 p-5 sm:p-6 shadow-[0_14px_34px_-16px_rgba(190,18,60,0.22)] space-y-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <X size={18} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm sm:text-base font-extrabold text-rose-900">
+                          Pemberitahuan Dewan Redaksi: {rejectedAuthorSubmissions.length} Naskah Anda Ditolak
+                        </h3>
+                        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900">
+                          NOTIFIKASI PENULIS
+                        </span>
+                      </div>
+                      <p className="text-xs text-rose-800/85 mt-0.5">
+                        Editor telah meninjau naskah Anda dan memutuskan untuk tidak melanjutkannya ke tahap publikasi. Silakan periksa catatan alasan di bawah.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDismissedRejectBanner(true)}
+                    className="p-1.5 rounded-full text-rose-400 hover:text-rose-700 hover:bg-rose-100 transition cursor-pointer shrink-0"
+                    title="Tutup banner sementara"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-2.5">
+                  {rejectedAuthorSubmissions.map((rej) => (
+                    <div
+                      key={rej.id}
+                      className="bg-white/95 rounded-2xl border border-rose-200/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/20">
+                            {rej.journal?.abbreviation || 'JURNAL'}
+                          </span>
+                          <span className="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-1">
+                            {rej.title}
+                          </span>
+                        </div>
+                        <div className="text-xs text-rose-800 bg-rose-50/70 rounded-xl px-3 py-2 border border-rose-100">
+                          <strong className="font-bold">Alasan Penolakan Editor:</strong>{' '}
+                          <span className="italic">
+                            &ldquo;{rej.editor_notes || 'Naskah tidak memenuhi kesesuaian tema/ruang lingkup atau standar publikasi jurnal tujuan.'}&rdquo;
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setDetailSubmission(rej)}
+                          className="px-4 py-2 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-700 font-bold text-xs transition cursor-pointer"
+                        >
+                          Lihat Detail
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => switchTab('unggah')}
+                          className="px-4 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                        >
+                          + Kirim Naskah Baru
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Kartu Metrik Eksekutif — Floating Rounded-[28px] ala Login */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
@@ -3253,6 +3381,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             setExtraReviewerId('');
                             setShowDeclineForm(false);
                             setDeclineReason('');
+                            setShowDeskRejectForm(false);
+                            setDeskRejectReason('');
                           }}
                           className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer space-y-2 ${
                             active
@@ -3340,9 +3470,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               </div>
 
               {/* Panel Kerja di Kanan */}
-              <div className="lg:col-span-7">
+              <div className="lg:col-span-7 min-w-0">
                 {!selectedSubForAction ? (
-                  <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center space-y-3">
+                  <div className="card-luxury rounded-[28px] p-12 text-center space-y-3">
                     <CheckSquare size={42} className="mx-auto text-slate-300" />
                     <h4 className="text-base font-bold text-slate-700">
                       Pilih Naskah di Sebelah Kiri
@@ -3365,7 +3495,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       myReviewHeader.status !== 'declined');
 
                   return (
-                  <div className="bg-white rounded-2xl border border-slate-200/80 p-6 space-y-6">
+                  <div className="card-luxury rounded-[28px] p-6 space-y-6 min-w-0 overflow-hidden">
                     {/* Header Naskah */}
                     <div className="border-b border-slate-100 pb-5 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3479,19 +3609,96 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               />
                             </div>
 
-                            <div className="pt-1 flex items-center justify-between gap-3">
+                            <div className="pt-1 flex flex-wrap items-center justify-between gap-2.5">
                               <span className="text-[11px] font-bold text-[#7A2222]">
                                 {selectedReviewerIds.length} Mitra Bestari dipilih
                               </span>
-                              <button
-                                type="button"
-                                disabled={selectedReviewerIds.length === 0}
-                                onClick={() => handleAssignReviewer(selectedSubForAction.id)}
-                                className="bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
-                              >
-                                📋 Tugaskan {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer (Mulai Telaah)
-                              </button>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setShowDeskRejectForm((prev) => !prev)}
+                                  className="px-4 py-2.5 rounded-full border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition cursor-pointer"
+                                >
+                                  ✕ Tolak Naskah
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={selectedReviewerIds.length === 0}
+                                  onClick={() => handleAssignReviewer(selectedSubForAction.id)}
+                                  className="bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition cursor-pointer flex items-center gap-2"
+                                >
+                                  📋 Tugaskan {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer (Mulai Telaah)
+                                </button>
+                              </div>
                             </div>
+
+                            {/* Form Tolak Naskah Awal (Desk Reject — mis. tidak sesuai tema/fokus jurnal) */}
+                            {showDeskRejectForm && (
+                              <div className="mt-3 p-4 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-3">
+                                <div className="flex items-center justify-between gap-2">
+                                  <h5 className="text-xs font-extrabold text-rose-900">
+                                    Tolak Naskah (Desk Reject) — Alasan akan dikirim sebagai notifikasi ke Penulis
+                                  </h5>
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowDeskRejectForm(false)}
+                                    className="text-rose-400 hover:text-rose-700 text-xs font-bold cursor-pointer"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+
+                                <div className="flex flex-wrap gap-1.5">
+                                  {[
+                                    'Naskah tidak sesuai fokus & ruang lingkup (tema) jurnal tujuan.',
+                                    'Format & struktur penulisan belum memenuhi standar SINTA / IMRAD.',
+                                    'Tingkat kemiripan (plagiarisme) terindikasi melebihi batas maksimal 20%.',
+                                    'Kebaruan riset & metodologi belum memenuhi kriteria publikasi BRIDA.'
+                                  ].map((preset) => (
+                                    <button
+                                      key={preset}
+                                      type="button"
+                                      onClick={() => setDeskRejectReason(preset)}
+                                      className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer text-left ${
+                                        deskRejectReason === preset
+                                          ? 'bg-rose-700 text-white border-rose-700'
+                                          : 'bg-white text-rose-800 border-rose-200 hover:border-rose-400'
+                                      }`}
+                                    >
+                                      {preset}
+                                    </button>
+                                  ))}
+                                </div>
+
+                                <textarea
+                                  rows={2}
+                                  value={deskRejectReason}
+                                  onChange={(e) => setDeskRejectReason(e.target.value)}
+                                  placeholder="Tuliskan alasan penolakan yang jelas untuk Penulis (mis. tema di luar ruang lingkup jurnal)..."
+                                  className="w-full bg-white border border-rose-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-500"
+                                />
+
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setShowDeskRejectForm(false);
+                                      setDeskRejectReason('');
+                                    }}
+                                    className="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-xs cursor-pointer"
+                                  >
+                                    Batal
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeskReject(selectedSubForAction.id)}
+                                    className="px-5 py-2 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shadow-xs cursor-pointer"
+                                  >
+                                    Konfirmasi Tolak Naskah
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
@@ -3677,7 +3884,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               </div>
 
                               {/* Tambah Reviewer Tambahan / Pengganti / Penunjukan Reviewer ke-3 */}
-                              <div className="bg-white/90 p-3.5 rounded-xl border border-dashed border-blue-300 space-y-2">
+                              <div className="bg-white/95 p-4 rounded-2xl border border-dashed border-[#7A2222]/30 space-y-2.5 min-w-0">
                                 <div className="text-[11px] font-extrabold text-[#7A2222]">
                                   {declinedReviews.length > 0 && activeReviews.length < 2
                                     ? `+ Tunjuk Mitra Bestari Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
@@ -3686,11 +3893,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     : `+ Tambah Mitra Bestari Tambahan (Reviewer Aktif ke-${activeReviews.length + 1}):`}
                                 </div>
                                 {unassignedReviewers.length > 0 ? (
-                                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0">
                                     <select
                                       value={extraReviewerId}
                                       onChange={(e) => setExtraReviewerId(e.target.value)}
-                                      className="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold"
+                                      className="min-w-0 w-full sm:flex-1 bg-white border border-slate-300 focus:border-[#7A2222] rounded-full px-4 py-2 text-xs font-semibold text-slate-800 outline-none truncate"
                                     >
                                       <option value="">-- Pilih Mitra Bestari --</option>
                                       {unassignedReviewers.map((r) => (
@@ -3704,7 +3911,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       type="button"
                                       disabled={!extraReviewerId}
                                       onClick={() => handleAddExtraReviewer(selectedSubForAction.id)}
-                                      className="px-4 py-2 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0"
+                                      className="px-5 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0 whitespace-nowrap shadow-xs transition"
                                     >
                                       + Undang Reviewer
                                     </button>
@@ -3763,11 +3970,76 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     </button>
                                   </div>
                                 </div>
-                              ) : (
-                                <p className="text-[11px] text-slate-500 leading-relaxed italic">
-                                  ℹ️ Reviewer yang baru diundang berstatus <strong>Menunggu Konfirmasi</strong> hingga mereka menyetujui atau menolak undangan review. Status naskah akan berlanjut setelah semua reviewer aktif selesai menilai.
-                                </p>
-                              )}
+                                ) : (
+                                  <div className="space-y-3">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                      <p className="text-[11px] text-slate-500 leading-relaxed italic flex-1 min-w-[200px]">
+                                        ℹ️ Reviewer yang baru diundang berstatus <strong>Menunggu Konfirmasi</strong> hingga mereka menyetujui atau menolak undangan review. Status naskah akan berlanjut setelah semua reviewer aktif selesai menilai.
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowDeskRejectForm((prev) => !prev)}
+                                        className="px-4 py-1.5 rounded-full border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] transition cursor-pointer shrink-0"
+                                      >
+                                        ✕ Tolak Naskah
+                                      </button>
+                                    </div>
+
+                                    {showDeskRejectForm && (
+                                      <div className="p-4 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-2.5">
+                                        <div className="text-xs font-extrabold text-rose-900">
+                                          Tolak Naskah — Alasan akan dikirim sebagai notifikasi ke Penulis
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                          {[
+                                            'Naskah tidak sesuai fokus & ruang lingkup (tema) jurnal tujuan.',
+                                            'Format & struktur penulisan belum memenuhi standar SINTA / IMRAD.',
+                                            'Tingkat kemiripan (plagiarisme) terindikasi melebihi batas maksimal 20%.'
+                                          ].map((preset) => (
+                                            <button
+                                              key={preset}
+                                              type="button"
+                                              onClick={() => setDeskRejectReason(preset)}
+                                              className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer text-left ${
+                                                deskRejectReason === preset
+                                                  ? 'bg-rose-700 text-white border-rose-700'
+                                                  : 'bg-white text-rose-800 border-rose-200 hover:border-rose-400'
+                                              }`}
+                                            >
+                                              {preset}
+                                            </button>
+                                          ))}
+                                        </div>
+                                        <textarea
+                                          rows={2}
+                                          value={deskRejectReason}
+                                          onChange={(e) => setDeskRejectReason(e.target.value)}
+                                          placeholder="Tuliskan alasan penolakan untuk Penulis..."
+                                          className="w-full bg-white border border-rose-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-500"
+                                        />
+                                        <div className="flex items-center justify-end gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setShowDeskRejectForm(false);
+                                              setDeskRejectReason('');
+                                            }}
+                                            className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-xs cursor-pointer"
+                                          >
+                                            Batal
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleDeskReject(selectedSubForAction.id)}
+                                            className="px-5 py-1.5 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
+                                          >
+                                            Konfirmasi Tolak Naskah
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                             </div>
                           );
                         })()}
@@ -3852,8 +4124,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               </span>
                             </div>
                             <p className="text-slate-700 leading-relaxed">
-                              Berdasarkan hasil penelaahan Mitra Bestari, naskah ini dinyatakan tidak memenuhi kriteria penerbitan jurnal.
+                              Naskah ini telah dinyatakan ditolak oleh Dewan Redaksi dan pemberitahuan telah muncul pada akun Penulis.
                             </p>
+                            {selectedSubForAction.editor_notes && (
+                              <div className="bg-white/90 p-3 rounded-xl border border-rose-200 text-rose-900">
+                                <span className="text-[10px] font-extrabold uppercase text-rose-700 block mb-0.5">
+                                  Alasan Penolakan yang Dikirim ke Penulis:
+                                </span>
+                                <span className="italic">&ldquo;{selectedSubForAction.editor_notes}&rdquo;</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -4566,6 +4846,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               <div className="font-bold text-slate-900 mb-1">Abstrak:</div>
               {detailSubmission.abstract}
             </div>
+
+            {/* Pemberitahuan Penolakan Naskah dari Editor / Redaksi */}
+            {detailSubmission.status === 'rejected' && (
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs space-y-1.5">
+                <div className="font-extrabold text-rose-800 uppercase tracking-wider text-[11px]">
+                  ✕ Keputusan Dewan Redaksi: Naskah Ditolak
+                </div>
+                <p className="text-rose-900 leading-relaxed italic">
+                  &ldquo;{detailSubmission.editor_notes || 'Naskah tidak memenuhi kesesuaian tema/ruang lingkup atau kriteria publikasi jurnal tujuan.'}&rdquo;
+                </p>
+              </div>
+            )}
 
             {/* Kotak Catatan Evaluasi Reviewer (HANYA review selesai — TIDAK menampilkan alasan penolakan undangan reviewer ke Penulis) */}
             {(() => {
