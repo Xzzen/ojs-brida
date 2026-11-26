@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import {
   ShieldCheck,
@@ -20,7 +20,12 @@ import {
 import { API_BASE } from './config';
 
 export default function Login({ onLogin, onOpenPublicPortal }) {
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [mode, setMode] = useState('login'); // Target posisi kartu: 'login' | 'register'
+  const [overlayMode, setOverlayMode] = useState('login'); // Teks di dalam kartu gelap (diganti diam-diam saat ter-blur di midpoint)
+  const [isBlurring, setIsBlurring] = useState(false); // Efek motion-blur lembut saat kartu sedang meluncur
+  const timerMidRef = useRef(null);
+  const timerEndRef = useRef(null);
+
   const [name, setName] = useState('');
   const [affiliation, setAffiliation] = useState('');
   const [specialty, setSpecialty] = useState('');
@@ -35,8 +40,21 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
 
   const isRegister = mode === 'register';
 
+  useEffect(() => {
+    return () => {
+      if (timerMidRef.current) clearTimeout(timerMidRef.current);
+      if (timerEndRef.current) clearTimeout(timerEndRef.current);
+    };
+  }, []);
+
   const handleSwitchMode = (nextMode) => {
     if (nextMode === mode) return;
+
+    if (timerMidRef.current) clearTimeout(timerMidRef.current);
+    if (timerEndRef.current) clearTimeout(timerEndRef.current);
+
+    // Fase 1: Blur lembut konten + mulai luncurkan kartu menimpa
+    setIsBlurring(true);
     setMode(nextMode);
     setErrorMsg('');
     setInfoMsg('');
@@ -49,6 +67,16 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
       setRegisterRole('author');
       setEmail('');
     }
+
+    // Fase 2 (Midpoint 340ms): Ganti teks kartu gelap secara diam-diam saat sedang ter-blur/redup
+    timerMidRef.current = setTimeout(() => {
+      setOverlayMode(nextMode);
+    }, 340);
+
+    // Fase 3 (430ms): Buka kembali blur sehingga konten baru muncul mulus saat kartu mendarat
+    timerEndRef.current = setTimeout(() => {
+      setIsBlurring(false);
+    }, 430);
   };
 
   const handleSubmit = async (e, submitMode) => {
@@ -117,74 +145,6 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     { label: 'K1', h: 74 }
   ];
 
-  // Shared crisp smartphone UI preview component
-  const renderPhoneMockup = (tiltedRight = false) => (
-    <div
-      className={`w-[236px] sm:w-[254px] rounded-t-[34px] bg-[#0e0b0b] border-t-[6px] border-x-[6px] border-[#3a2c2c] shadow-[0_-18px_50px_rgba(0,0,0,0.65)] p-3 pb-4 translate-y-2 transition-transform duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)] hover:rotate-0 ${
-        tiltedRight ? 'rotate-3' : '-rotate-3'
-      }`}
-    >
-      <div className="w-16 h-3.5 bg-black rounded-full mx-auto mb-3" />
-      <div className="bg-white rounded-2xl p-3.5 text-gray-900 shadow-xs space-y-2.5">
-        <div className="flex items-center justify-between text-[9px] text-gray-400 font-semibold">
-          <span>Portal OJS BRIDA</span>
-          <span className="text-emerald-600 font-bold">● Live</span>
-        </div>
-        <div className="flex items-baseline justify-between">
-          <div className="text-xl font-extrabold tracking-tight text-gray-900 tabular-nums">
-            4 Jurnal
-          </div>
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222]">
-            SINTA 2–3
-          </span>
-        </div>
-        <div className="flex items-end justify-between gap-1.5 h-16 pt-2">
-          {chartBars.map((bar) => (
-            <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-              <div className="w-full bg-gray-100 rounded-md h-full flex items-end overflow-hidden">
-                <div
-                  className="w-full rounded-md bg-gradient-to-t from-[#7A2222] via-[#DC2626] to-[#F97316]"
-                  style={{ height: `${bar.h}%` }}
-                />
-              </div>
-              <span className="text-[8px] font-bold text-gray-400">{bar.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-2.5 space-y-2">
-        <div className="text-[9px] font-semibold text-white/45 px-1">Ekosistem Jurnal</div>
-        <div className="grid grid-cols-3 gap-1.5">
-          <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
-            <div className="text-[11px] font-extrabold text-white">Rp 0</div>
-            <div className="text-[8px] text-white/50 mt-0.5">Open Access</div>
-          </div>
-          <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
-            <div className="text-[11px] font-extrabold text-amber-300">DOI</div>
-            <div className="text-[8px] text-white/50 mt-0.5">Resmi Aktif</div>
-          </div>
-          <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
-            <div className="text-[11px] font-extrabold text-emerald-300">IMRAD</div>
-            <div className="text-[8px] text-white/50 mt-0.5">Standar SINTA</div>
-          </div>
-        </div>
-
-        <div className="pt-2 flex items-center justify-around text-white/40 border-t border-white/[0.06]">
-          <BookOpen size={12} />
-          <ShieldCheck size={12} />
-          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7A2222] via-[#DC2626] to-[#FBBF24] p-[2px] flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-[#120c0c] flex items-center justify-center">
-              <img src="/assets/brida-favicon.png" alt="" className="w-3.5 h-3.5 object-contain" />
-            </div>
-          </div>
-          <Globe size={12} />
-          <User size={12} />
-        </div>
-      </div>
-    </div>
-  );
-
   // Reusable minimalist "I'm not a robot" verification pill
   const renderRobotPill = () => (
     <div
@@ -238,17 +198,18 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
 
       {/* ====================================================================
           BASE WHITE CARD CONTAINER (DUA FORM TERPASANG TETAP DI KIRI & KANAN,
-          DITIMPA KARTU GELAP YANG MELUNCUR HALUS DI ATASNYA!)
+          DITIMPA KARTU GELAP YANG MELUNCUR HALUS + SOFT BLUR MORPH!)
          ==================================================================== */}
       <div className="relative z-10 w-full max-w-[1040px] lg:h-[680px] rounded-[32px] bg-white shadow-[0_40px_110px_-24px_rgba(28,10,10,0.38)] border border-white/80 overflow-hidden flex flex-col lg:block">
         {/* ================================================================
-            SISI KIRI BAWAH (LAYER 1): FORM DAFTAR AKUN (TERBUKA SAAT REGISTER)
+            SISI KIRI BAWAH (LAYER 1): FORM DAFTAR AKUN
+            Muncul halus dari blur tepat saat kartu gelap menyingkapnya!
            ================================================================ */}
         <div
-          className={`w-full lg:w-1/2 lg:h-full lg:absolute lg:top-0 lg:left-0 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          className={`w-full lg:w-1/2 lg:h-full lg:absolute lg:top-0 lg:left-0 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-700 ease-out ${
             isRegister
-              ? 'opacity-100 scale-100 pointer-events-auto z-10'
-              : 'hidden lg:flex lg:opacity-0 lg:scale-[0.96] lg:pointer-events-none lg:z-0'
+              ? 'opacity-100 blur-0 scale-100 pointer-events-auto z-10 lg:delay-200'
+              : 'hidden lg:flex lg:opacity-0 lg:blur-md lg:scale-[0.97] lg:pointer-events-none lg:z-0 lg:delay-0'
           }`}
         >
           <div className="flex items-center justify-between gap-3 shrink-0">
@@ -406,13 +367,14 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
         </div>
 
         {/* ================================================================
-            SISI KANAN BAWAH (LAYER 1): FORM MASUK (TERBUKA SAAT LOGIN)
+            SISI KANAN BAWAH (LAYER 1): FORM MASUK
+            Muncul halus dari blur tepat saat kartu gelap menyingkapnya!
            ================================================================ */}
         <div
-          className={`w-full lg:w-1/2 lg:h-full lg:absolute lg:top-0 lg:right-0 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          className={`w-full lg:w-1/2 lg:h-full lg:absolute lg:top-0 lg:right-0 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-700 ease-out ${
             !isRegister
-              ? 'opacity-100 scale-100 pointer-events-auto z-10'
-              : 'hidden lg:flex lg:opacity-0 lg:scale-[0.96] lg:pointer-events-none lg:z-0'
+              ? 'opacity-100 blur-0 scale-100 pointer-events-auto z-10 lg:delay-200'
+              : 'hidden lg:flex lg:opacity-0 lg:blur-md lg:scale-[0.97] lg:pointer-events-none lg:z-0 lg:delay-0'
           }`}
         >
           <div className="flex items-center justify-between gap-3 shrink-0">
@@ -551,14 +513,14 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
 
         {/* ================================================================
             KARTU GELAP MENIMPA (OVERLAY CURTAIN CARD — Z-30)
-            Meluncur mulus di atas kedua form dengan bayangan menimpa & efek
-            parallax di dalamnya!
+            Konten di dalamnya halus blur-morph diam-diam saat meluncur
+            sehingga pergantian teks sama sekali tidak terlihat mencolok!
            ================================================================ */}
         <div
-          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-30 overflow-hidden bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white min-h-[430px] will-change-transform transition-all duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-30 overflow-hidden bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white px-8 pt-7 pb-0 flex flex-col justify-between min-h-[430px] will-change-transform transition-all duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
             isRegister
-              ? 'lg:translate-x-full lg:rounded-l-[32px] lg:shadow-[-26px_0_70px_-10px_rgba(20,5,5,0.48)]'
-              : 'lg:translate-x-0 lg:rounded-r-[32px] lg:shadow-[26px_0_70px_-10px_rgba(20,5,5,0.48)]'
+              ? 'lg:translate-x-full lg:rounded-l-[32px] lg:shadow-[-28px_0_75px_-10px_rgba(20,5,5,0.52)]'
+              : 'lg:translate-x-0 lg:rounded-r-[32px] lg:shadow-[28px_0_75px_-10px_rgba(20,5,5,0.52)]'
           }`}
         >
           {/* Ambient Rings & Warm Maroon Glow */}
@@ -569,82 +531,127 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             style={{ background: 'radial-gradient(circle, #991B1B 0%, transparent 70%)' }}
           />
 
-          {/* Inner Counter-Parallax Track (200% lebar — konten slide halus di dalam kartu!) */}
-          <div
-            className={`w-[200%] h-full flex transition-transform duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] will-change-transform ${
-              isRegister ? '-translate-x-1/2' : 'translate-x-0'
+          {/* Top Tagline (Blur-Morph Halus Saat Berpindah) */}
+          <p
+            className={`relative z-10 text-center text-[11px] sm:text-xs text-white/55 font-medium tracking-wide transition-all duration-300 ease-out ${
+              isBlurring ? 'opacity-0 blur-md -translate-y-1' : 'opacity-100 blur-0 translate-y-0'
             }`}
           >
-            {/* SLIDE 1 (TAMPIL SAAT MODE LOGIN — DI KIRI) */}
-            <div className="w-1/2 h-full px-8 pt-7 pb-0 flex flex-col justify-between relative">
-              <p className="relative z-10 text-center text-[11px] sm:text-xs text-white/55 font-medium tracking-wide">
-                Publikasi ilmiah modern — satu portal untuk seluruh jurnal BRIDA Makassar.
-              </p>
+            {overlayMode === 'register'
+              ? 'Bergabung sebagai Penulis atau Mitra Bestari BRIDA Kota Makassar.'
+              : 'Publikasi ilmiah modern — satu portal untuk seluruh jurnal BRIDA Makassar.'}
+          </p>
 
-              <div className="relative z-10 text-center my-4 space-y-4">
-                <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
-                  <img
-                    src="/assets/brida-logo.png"
-                    alt="Logo BRIDA Kota Makassar"
-                    className="h-8 sm:h-9 w-auto object-contain"
-                  />
-                </div>
-                <h2 className="text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white">
-                  Publikasi
-                  <br />
-                  riset Anda
-                </h2>
-              </div>
-
-              <div className="relative z-10 flex justify-center items-end pt-1">
-                {renderPhoneMockup(false)}
-              </div>
-
-              <button
-                type="button"
-                onClick={onOpenPublicPortal}
-                className="hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 right-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer"
-              >
-                <Globe size={12} className="text-amber-300" />
-                Portal Publik
-              </button>
+          {/* Logo BRIDA (Stabil) + Judul (Blur-Morph Halus di Pertengahan Slide) */}
+          <div className="relative z-10 text-center my-4 space-y-4">
+            <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
+              <img
+                src="/assets/brida-logo.png"
+                alt="Logo BRIDA Kota Makassar"
+                className="h-8 sm:h-9 w-auto object-contain"
+              />
             </div>
 
-            {/* SLIDE 2 (TAMPIL SAAT MODE DAFTAR AKUN — DI KANAN) */}
-            <div className="w-1/2 h-full px-8 pt-7 pb-0 flex flex-col justify-between relative">
-              <p className="relative z-10 text-center text-[11px] sm:text-xs text-white/55 font-medium tracking-wide">
-                Bergabung sebagai Penulis atau Mitra Bestari BRIDA Kota Makassar.
-              </p>
-
-              <div className="relative z-10 text-center my-4 space-y-4">
-                <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
-                  <img
-                    src="/assets/brida-logo.png"
-                    alt="Logo BRIDA Kota Makassar"
-                    className="h-8 sm:h-9 w-auto object-contain"
-                  />
-                </div>
-                <h2 className="text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white">
+            <h2
+              className={`text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white transition-all duration-300 ease-out ${
+                isBlurring ? 'opacity-0 blur-lg scale-95' : 'opacity-100 blur-0 scale-100'
+              }`}
+            >
+              {overlayMode === 'register' ? (
+                <>
                   Mulai berkarya
                   <br />
                   bersama BRIDA
-                </h2>
+                </>
+              ) : (
+                <>
+                  Publikasi
+                  <br />
+                  riset Anda
+                </>
+              )}
+            </h2>
+          </div>
+
+          {/* Bottom Smartphone Mockup (Halus ikut miring + subtle motion blur saat meluncur) */}
+          <div className="relative z-10 flex justify-center items-end pt-1">
+            <div
+              className={`w-[238px] sm:w-[256px] rounded-t-[34px] bg-[#0e0b0b] border-t-[6px] border-x-[6px] border-[#3a2c2c] shadow-[0_-18px_50px_rgba(0,0,0,0.65)] p-3 pb-4 translate-y-2 transition-all duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] hover:rotate-0 ${
+                isRegister ? 'rotate-3' : '-rotate-3'
+              } ${isBlurring ? 'blur-[1.5px] scale-[0.98]' : 'blur-0 scale-100'}`}
+            >
+              <div className="w-16 h-3.5 bg-black rounded-full mx-auto mb-3" />
+              <div className="bg-white rounded-2xl p-3.5 text-gray-900 shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between text-[9px] text-gray-400 font-semibold">
+                  <span>Portal OJS BRIDA</span>
+                  <span className="text-emerald-600 font-bold">● Live</span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <div className="text-xl font-extrabold tracking-tight text-gray-900 tabular-nums">
+                    4 Jurnal
+                  </div>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222]">
+                    SINTA 2–3
+                  </span>
+                </div>
+                <div className="flex items-end justify-between gap-1.5 h-16 pt-2">
+                  {chartBars.map((bar) => (
+                    <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                      <div className="w-full bg-gray-100 rounded-md h-full flex items-end overflow-hidden">
+                        <div
+                          className="w-full rounded-md bg-gradient-to-t from-[#7A2222] via-[#DC2626] to-[#F97316]"
+                          style={{ height: `${bar.h}%` }}
+                        />
+                      </div>
+                      <span className="text-[8px] font-bold text-gray-400">{bar.label}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="relative z-10 flex justify-center items-end pt-1">
-                {renderPhoneMockup(true)}
-              </div>
+              <div className="mt-2.5 space-y-2">
+                <div className="text-[9px] font-semibold text-white/45 px-1">Ekosistem Jurnal</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
+                    <div className="text-[11px] font-extrabold text-white">Rp 0</div>
+                    <div className="text-[8px] text-white/50 mt-0.5">Open Access</div>
+                  </div>
+                  <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
+                    <div className="text-[11px] font-extrabold text-amber-300">DOI</div>
+                    <div className="text-[8px] text-white/50 mt-0.5">Resmi Aktif</div>
+                  </div>
+                  <div className="bg-white/[0.06] border border-white/[0.07] rounded-xl p-2 text-center">
+                    <div className="text-[11px] font-extrabold text-emerald-300">IMRAD</div>
+                    <div className="text-[8px] text-white/50 mt-0.5">Standar SINTA</div>
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={onOpenPublicPortal}
-                className="hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 left-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer"
-              >
-                <Globe size={12} className="text-amber-300" />
-                Portal Publik
-              </button>
+                <div className="pt-2 flex items-center justify-around text-white/40 border-t border-white/[0.06]">
+                  <BookOpen size={12} />
+                  <ShieldCheck size={12} />
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7A2222] via-[#DC2626] to-[#FBBF24] p-[2px] flex items-center justify-center">
+                    <div className="w-full h-full rounded-full bg-[#120c0c] flex items-center justify-center">
+                      <img src="/assets/brida-favicon.png" alt="" className="w-3.5 h-3.5 object-contain" />
+                    </div>
+                  </div>
+                  <Globe size={12} />
+                  <User size={12} />
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Subtle Public Access Pill */}
+          <button
+            type="button"
+            onClick={onOpenPublicPortal}
+            className={`hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition-all duration-300 cursor-pointer ${
+              isRegister ? 'left-5' : 'right-5'
+            } ${isBlurring ? 'opacity-0' : 'opacity-100'}`}
+          >
+            <Globe size={12} className="text-amber-300" />
+            Portal Publik
+          </button>
         </div>
       </div>
     </div>
