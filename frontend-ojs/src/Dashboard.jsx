@@ -66,11 +66,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     setIsTabBlurring(true);
     tabTimerRef.current = setTimeout(() => {
       setActiveTab(nextTab);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 150);
+      window.scrollTo(0, 0);
+    }, 140);
     tabEndTimerRef.current = setTimeout(() => {
       setIsTabBlurring(false);
-    }, 220);
+    }, 180);
   };
 
   useEffect(() => {
@@ -1243,7 +1243,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {/* =====================================================================
           MAIN CONTENT AREA
           ===================================================================== */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative">
+      <main className="flex-1 flex flex-col min-w-0 overflow-x-clip relative">
         {/* TOPBAR HEADER — FROSTED GLASS & PILL CONTROLS ALA LOGIN */}
         <header className="bg-white/80 backdrop-blur-xl border-b border-[#7A2222]/8 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30 shadow-[0_6px_24px_-16px_rgba(74,19,19,0.16)]">
           <div className="flex items-center gap-3 min-w-0">
@@ -1308,12 +1308,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           </div>
         </header>
 
-        {/* SMOOTH BLUR-MORPH VIEWPORT WRAPPER (IDENTIK TRANSISI HALUS LOGIN PAGE) */}
+        {/* SMOOTH BLUR-MORPH VIEWPORT WRAPPER (SATU LAPIS TRANSISI HALUS, TANPA GETAR) */}
         <div
-          className={`flex-1 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`flex-1 flex flex-col transition-[opacity,filter,transform] duration-300 ease-out will-change-[opacity,filter,transform] ${
             isTabBlurring
-              ? 'opacity-0 blur-md scale-[0.99] pointer-events-none'
-              : 'opacity-100 blur-0 scale-100'
+              ? 'opacity-0 blur-[6px] translate-y-1 pointer-events-none'
+              : 'opacity-100 blur-0 translate-y-0'
           }`}
         >
 
@@ -1321,7 +1321,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
            =================================================================== */}
         {activeTab === 'portal' && (
-          <div className="flex-1 w-full relative overflow-x-hidden pb-24 animate-blur-morph">
+          <div className="flex-1 w-full relative overflow-x-hidden pb-24">
             {!portalSelectedJournal ? (
               <>
                 {/* HERO BAND MAROON — HARMONISASI DESIGN SYSTEM LOGIN BRIDA */}
@@ -2216,30 +2216,28 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 1B: TRENDING TOPIK & FORUM DISKUSI ALA THREADS / X (SEMUA ROLE & PUBLIK)
            =================================================================== */}
         {activeTab === 'trending' && (
-          <div className="animate-blur-morph">
-            <ForumTrending
-              apiBase={API_BASE}
-              storageBase={STORAGE_BASE}
-              currentUser={currentUser}
-              isGuest={isGuest}
-              isAdminOrEditor={isAdminOrEditor}
-              journals={journals}
-              selectedJournalId={selectedJournalId}
-              initialTag={forumInitialTag}
-              onClearInitialTag={() => setForumInitialTag('')}
-              onRequireLogin={onLogout}
-              onThreadCountChange={setForumThreadCount}
-              onOpenArticleDetail={(art) => setDetailSubmission(art)}
-              onGoToSubmit={() => switchTab('unggah')}
-            />
-          </div>
+          <ForumTrending
+            apiBase={API_BASE}
+            storageBase={STORAGE_BASE}
+            currentUser={currentUser}
+            isGuest={isGuest}
+            isAdminOrEditor={isAdminOrEditor}
+            journals={journals}
+            selectedJournalId={selectedJournalId}
+            initialTag={forumInitialTag}
+            onClearInitialTag={() => setForumInitialTag('')}
+            onRequireLogin={onLogout}
+            onThreadCountChange={setForumThreadCount}
+            onOpenArticleDetail={(art) => setDetailSubmission(art)}
+            onGoToSubmit={() => switchTab('unggah')}
+          />
         )}
 
         {/* ===================================================================
             TAB 2: DASBOR EKSEKUTIF & ANALITIK MULTI-JOURNAL
            =================================================================== */}
         {activeTab === 'dashboard' && !isGuest && (
-          <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto animate-blur-morph">
+          <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto">
             {/* Kartu Metrik Eksekutif — Floating Rounded-[28px] ala Login */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
@@ -2629,7 +2627,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 3: MANAJEMEN MULTI-JURNAL (ADMIN/EDITOR)
            =================================================================== */}
         {activeTab === 'journals' && isAdminOrEditor && (
-          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto animate-blur-morph">
+          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-800">
@@ -2719,7 +2717,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 4: UNGGAH NASKAH BARU (GATEKEEPER STANDARISASI SINTA / OJS)
            =================================================================== */}
         {activeTab === 'unggah' && (isAuthor || isAdminOrEditor) && (
-          <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto animate-blur-morph">
+          <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto">
             <div className="card-luxury rounded-[32px] p-6 sm:p-10 space-y-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -3161,7 +3159,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 5: MEJA EVALUASI PEER-REVIEW (REVIEWER & ADMIN)
            =================================================================== */}
         {activeTab === 'review' && (isReviewer || isAdminOrEditor) && (
-          <div className="p-6 sm:p-8 max-w-7xl w-full mx-auto animate-blur-morph">
+          <div className="p-6 sm:p-8 max-w-7xl w-full mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Antrean Naskah di Kiri */}
               <div className="lg:col-span-5 card-luxury rounded-[28px] p-5 space-y-4 h-fit">
@@ -4398,7 +4396,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 6: MANAJEMEN PENGGUNA (KHUSUS ADMIN/EDITOR)
            =================================================================== */}
         {activeTab === 'users' && isAdminOrEditor && (
-          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto animate-blur-morph">
+          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-800">
