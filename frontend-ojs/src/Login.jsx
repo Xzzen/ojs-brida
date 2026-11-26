@@ -110,16 +110,22 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
           affiliation: affiliation.trim(),
           specialty: specialty.trim()
         });
-        if (res.data?.user) {
-          onLogin(res.data.user);
+        const userPayload = res.data?.data || res.data?.user;
+        if (userPayload) {
+          onLogin(userPayload);
+        } else {
+          setErrorMsg(res.data?.message || 'Pendaftaran tidak mengembalikan data akun. Silakan coba lagi.');
         }
       } else {
         const res = await axios.post(`${API_BASE}/login`, {
           email: email.trim(),
           password
         });
-        if (res.data?.user) {
-          onLogin(res.data.user);
+        const userPayload = res.data?.data || res.data?.user;
+        if (userPayload) {
+          onLogin(userPayload);
+        } else {
+          setErrorMsg(res.data?.message || 'Login berhasil, tetapi data akun tidak ditemukan.');
         }
       }
     } catch (err) {
