@@ -3568,27 +3568,51 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 </p>
                               ) : (
                                 (stats.reviewers || []).map((rev) => {
-                                  const checked = selectedReviewerIds.includes(String(rev.id));
+                                  const declinedRev = (selectedSubForAction.reviews || []).find(
+                                    (r) => String(r.reviewer_id) === String(rev.id) && r.status === 'declined'
+                                  );
+                                  const checked = !declinedRev && selectedReviewerIds.includes(String(rev.id));
                                   return (
                                     <label
                                       key={rev.id}
-                                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition text-xs ${
-                                        checked
-                                          ? 'bg-[#FEF2F2] border-[#7A2222] shadow-2xs'
-                                          : 'bg-white border-slate-200 hover:bg-slate-50'
+                                      className={`flex items-start gap-3 p-3 rounded-xl border transition text-xs ${
+                                        declinedRev
+                                          ? 'bg-rose-50/50 border-rose-200/80 opacity-80 cursor-not-allowed'
+                                          : checked
+                                          ? 'bg-[#FEF2F2] border-[#7A2222] shadow-2xs cursor-pointer'
+                                          : 'bg-white border-slate-200 hover:bg-slate-50 cursor-pointer'
                                       }`}
                                     >
                                       <input
                                         type="checkbox"
                                         checked={checked}
-                                        onChange={() => toggleReviewerSelection(rev.id)}
-                                        className="mt-0.5 accent-[#7A2222] w-4 h-4 cursor-pointer"
+                                        disabled={!!declinedRev}
+                                        onChange={() => {
+                                          if (!declinedRev) toggleReviewerSelection(rev.id);
+                                        }}
+                                        className={`mt-0.5 accent-[#7A2222] w-4 h-4 ${
+                                          declinedRev ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                                        }`}
                                       />
-                                      <div className="min-w-0 flex-1">
-                                        <div className="font-bold text-slate-800">{rev.name}</div>
+                                      <div className="min-w-0 flex-1 space-y-1">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                          <span className={`font-bold ${declinedRev ? 'text-slate-500 line-through' : 'text-slate-800'}`}>
+                                            {rev.name}
+                                          </span>
+                                          {declinedRev && (
+                                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
+                                              🚫 Telah menolak pada naskah ini
+                                            </span>
+                                          )}
+                                        </div>
                                         <div className="text-[11px] text-slate-500 truncate">
                                           {rev.email} • {rev.specialty || rev.affiliation || 'Mitra Bestari'}
                                         </div>
+                                        {declinedRev?.comments && (
+                                          <div className="text-[11px] text-rose-700 italic">
+                                            Alasan: &ldquo;{declinedRev.comments}&rdquo;
+                                          </div>
+                                        )}
                                       </div>
                                     </label>
                                   );
@@ -3796,18 +3820,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         </div>
                                         <div className="flex items-center gap-2">
                                           {revDeclined ? (
-                                            <>
-                                              <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
-                                                🚫 MENOLAK UNDANGAN
-                                              </span>
-                                              <button
-                                                type="button"
-                                                onClick={() => handleRemoveReviewer(selectedSubForAction.id, rev.reviewer_id, revName)}
-                                                className="text-[10px] font-bold text-slate-500 hover:text-rose-600 hover:underline cursor-pointer"
-                                              >
-                                                Hapus Log
-                                              </button>
-                                            </>
+                                            <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
+                                              🚫 TELAH MENOLAK PADA NASKAH INI
+                                            </span>
                                           ) : revDone ? (
                                             <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
                                               rev.decision === 'accept'
@@ -3883,8 +3898,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 })}
                               </div>
 
-                              {/* Tambah Reviewer Tambahan / Pengganti / Penunjukan Reviewer ke-3 */}
-                              <div className="bg-white/95 p-4 rounded-2xl border border-dashed border-[#7A2222]/30 space-y-2.5 min-w-0">
+                              {/* Tambah Reviewer Tambahan / Pengganti (Checklist: Reviewer yang sudah menolak terkunci tidak bisa dicentang lagi) */}
+                              <div className="bg-white/95 p-4 rounded-2xl border border-dashed border-[#7A2222]/30 space-y-3 min-w-0">
                                 <div className="text-[11px] font-extrabold text-[#7A2222]">
                                   {declinedReviews.length > 0 && activeReviews.length < 2
                                     ? `+ Tunjuk Mitra Bestari Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
@@ -3892,47 +3907,116 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     ? `+ Tunjuk Reviewer ke-${activeReviews.length + 1} sebagai Penengah (Third Opinion / Adjudicator):`
                                     : `+ Tambah Mitra Bestari Tambahan (Reviewer Aktif ke-${activeReviews.length + 1}):`}
                                 </div>
-                                {unassignedReviewers.length > 0 ? (
-                                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0">
-                                    <select
-                                      value={extraReviewerId}
-                                      onChange={(e) => setExtraReviewerId(e.target.value)}
-                                      className="min-w-0 w-full sm:flex-1 bg-white border border-slate-300 focus:border-[#7A2222] rounded-full px-4 py-2 text-xs font-semibold text-slate-800 outline-none truncate"
-                                    >
-                                      <option value="">-- Pilih Mitra Bestari --</option>
-                                      {unassignedReviewers.map((r) => (
-                                        <option key={r.id} value={r.id}>
-                                          {r.name} ({r.specialty || r.email})
-                                          {declinedIds.includes(String(r.id)) ? ' [Sebelumnya Menolak]' : ''}
-                                        </option>
-                                      ))}
-                                    </select>
-                                    <button
-                                      type="button"
-                                      disabled={!extraReviewerId}
-                                      onClick={() => handleAddExtraReviewer(selectedSubForAction.id)}
-                                      className="px-5 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0 whitespace-nowrap shadow-xs transition"
-                                    >
-                                      + Undang Reviewer
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-                                    <span>Seluruh akun Reviewer yang tersedia sudah ditugaskan aktif pada naskah ini.</span>
-                                    {isAdmin && (
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          switchTab('users');
-                                          setShowAddUserModal(true);
-                                        }}
-                                        className="text-[#7A2222] font-bold hover:underline cursor-pointer"
-                                      >
-                                        + Tambah Akun Reviewer Baru →
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
+                                {(() => {
+                                  const eligibleCount = unassignedReviewers.filter(
+                                    (r) => !declinedIds.includes(String(r.id))
+                                  ).length;
+                                  return unassignedReviewers.length > 0 ? (
+                                    <div className="space-y-2.5">
+                                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                        {unassignedReviewers.map((r) => {
+                                          const declinedInfo = declinedReviews.find(
+                                            (d) => String(d.reviewer_id) === String(r.id)
+                                          );
+                                          const isDeclined = !!declinedInfo;
+                                          const isChecked = !isDeclined && selectedReviewerIds.includes(String(r.id));
+                                          return (
+                                            <label
+                                              key={r.id}
+                                              className={`flex items-start gap-3 p-3 rounded-xl border transition text-xs ${
+                                                isDeclined
+                                                  ? 'bg-rose-50/50 border-rose-200/80 opacity-80 cursor-not-allowed'
+                                                  : isChecked
+                                                  ? 'bg-[#FEF2F2] border-[#7A2222] shadow-2xs cursor-pointer'
+                                                  : 'bg-white border-slate-200 hover:bg-slate-50 cursor-pointer'
+                                              }`}
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                disabled={isDeclined}
+                                                onChange={() => {
+                                                  if (!isDeclined) toggleReviewerSelection(r.id);
+                                                }}
+                                                className={`mt-0.5 accent-[#7A2222] w-4 h-4 shrink-0 ${
+                                                  isDeclined ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                                                }`}
+                                              />
+                                              <div className="min-w-0 flex-1 space-y-1">
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                  <span className={`font-bold ${isDeclined ? 'text-slate-500 line-through' : 'text-slate-800'}`}>
+                                                    {r.name}
+                                                  </span>
+                                                  {isDeclined && (
+                                                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
+                                                      🚫 Telah menolak pada naskah ini
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <div className="text-[11px] text-slate-500 truncate">
+                                                  {r.email} • {r.specialty || r.affiliation || 'Mitra Bestari'}
+                                                </div>
+                                                {isDeclined && declinedInfo?.comments && (
+                                                  <div className="text-[11px] text-rose-700 italic">
+                                                    Alasan: &ldquo;{declinedInfo.comments}&rdquo;
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </label>
+                                          );
+                                        })}
+                                      </div>
+
+                                      {eligibleCount > 0 ? (
+                                        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                          <span className="text-[11px] font-bold text-[#7A2222]">
+                                            {selectedReviewerIds.length} Mitra Bestari pengganti dipilih
+                                          </span>
+                                          <button
+                                            type="button"
+                                            disabled={selectedReviewerIds.length === 0}
+                                            onClick={() => handleAssignReviewer(selectedSubForAction.id)}
+                                            className="px-5 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0 whitespace-nowrap shadow-xs transition"
+                                          >
+                                            + Undang {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-rose-700 bg-rose-50/80 px-3 py-2 rounded-xl border border-rose-200">
+                                          <span>Tidak ada Mitra Bestari tersisa yang dapat ditugaskan (seluruh akun lain telah ditugaskan atau telah menolak pada naskah ini).</span>
+                                          {isAdmin && (
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                switchTab('users');
+                                                setShowAddUserModal(true);
+                                              }}
+                                              className="text-[#7A2222] font-bold hover:underline cursor-pointer shrink-0"
+                                            >
+                                              + Tambah Akun Reviewer Baru →
+                                            </button>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                                      <span>Seluruh akun Reviewer yang tersedia sudah ditugaskan aktif pada naskah ini.</span>
+                                      {isAdmin && (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            switchTab('users');
+                                            setShowAddUserModal(true);
+                                          }}
+                                          className="text-[#7A2222] font-bold hover:underline cursor-pointer"
+                                        >
+                                          + Tambah Akun Reviewer Baru →
+                                        </button>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                               </div>
 
                               {/* Panel Keputusan Akhir Chief Editor jika Split Decision / Semua Reviewer Aktif Selesai */}

@@ -921,6 +921,21 @@ class SubmissionController extends Controller
             ], 422);
         }
 
+        // Cegah penugasan ulang Mitra Bestari yang sudah menolak pada naskah yang sama
+        $declinedExisting = Review::with('reviewer')
+            ->where('submission_id', $submission->id)
+            ->whereIn('reviewer_id', $reviewerIds)
+            ->where('status', 'declined')
+            ->first();
+
+        if ($declinedExisting) {
+            $revName = $declinedExisting->reviewer?->name ?? 'Mitra Bestari tersebut';
+            return response()->json([
+                'status' => 'error',
+                'message' => "{$revName} telah menolak pada naskah ini dan tidak dapat ditugaskan ulang pada naskah yang sama.",
+            ], 422);
+        }
+
         $submission->status = 'under_review';
         if ($request->filled('editor_notes')) {
             $submission->editor_notes = $request->editor_notes;
@@ -938,12 +953,6 @@ class SubmissionController extends Controller
                     'reviewer_id' => $revId,
                     'status' => 'assigned',
                 ]);
-                $addedCount++;
-            } elseif ($existing->status === 'declined') {
-                $existing->status = 'assigned';
-                $existing->comments = null;
-                $existing->decision = null;
-                $existing->save();
                 $addedCount++;
             }
         }
@@ -1013,9 +1022,20 @@ class SubmissionController extends Controller
     public function removeReviewer($id, $reviewerId)
     {
         $submission = Submission::findOrFail($id);
-        Review::where('submission_id', $submission->id)
+        $review = Review::where('submission_id', $submission->id)
             ->where('reviewer_id', $reviewerId)
-            ->delete();
+            ->first();
+
+        if ($review && $review->status === 'declined') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Riwayat penolakan reviewer pada naskah ini disimpan permanen agar reviewer tidak ditugaskan ulang secara tidak sengaja.',
+            ], 422);
+        }
+
+        if ($review) {
+            $review->delete();
+        }
 
         $remainingActive = Review::where('submission_id', $submission->id)
             ->where('status', '!=', 'declined')
