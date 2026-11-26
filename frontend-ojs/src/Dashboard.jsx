@@ -214,10 +214,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     }
   };
 
-  const isAdminOrEditor = currentUser?.role === 'admin' || currentUser?.role === 'editor';
+  const isAdmin = currentUser?.role === 'admin';
+  const isEditor = currentUser?.role === 'editor';
+  const isAdminOrEditor = isAdmin || isEditor;
   const isReviewer = currentUser?.role === 'reviewer';
   const isAuthor = currentUser?.role === 'author';
   const isGuest = currentUser?.role === 'guest';
+
+  // Pengaman: jika Editor/non-Admin pernah tersimpan di tab khusus Admin, kembalikan ke Dasbor
+  useEffect(() => {
+    if (!isAdmin && (activeTab === 'users' || activeTab === 'journals')) {
+      setActiveTab(isGuest ? 'portal' : 'dashboard');
+    }
+  }, [isAdmin, isGuest, activeTab]);
 
   // State & Handler Edit Metadata Naskah (Judul, Penulis, Abstrak)
   const [editSubmissionModal, setEditSubmissionModal] = useState(null);
@@ -280,13 +289,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     }
   };
 
-  // Handler Hapus Jurnal
+  // Handler Hapus Jurnal (Khusus Admin)
   const handleDeleteJournal = async (journal) => {
+    if (!isAdmin) {
+      toast.error('Hanya Administrator (Admin) yang dapat menghapus jurnal.');
+      return;
+    }
     const confirmMsg = `PERINGATAN: Apakah Anda yakin ingin menghapus jurnal:\n"${journal.title}" (${journal.abbreviation})?\nSeluruh data terbitan dan naskah di dalam jurnal ini juga akan terhapus.`;
     if (!window.confirm(confirmMsg)) return;
 
     try {
-      const res = await axios.delete(`${API_BASE}/journals/${journal.id}`);
+      const res = await axios.delete(`${API_BASE}/journals/${journal.id}`, {
+        headers: {
+          'X-Actor-Id': String(currentUser?.id || ''),
+          'X-Actor-Role': String(currentUser?.role || '')
+        }
+      });
       toast.success(res.data?.message || 'Jurnal berhasil dihapus!');
       if (String(selectedJournalId) === String(journal.id)) {
         setSelectedJournalId('all');
@@ -705,11 +723,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     }
   };
 
-  // Handler Tambah Jurnal Baru (Multi-Journal Proof)
+  // Handler Tambah Jurnal Baru (Khusus Admin)
   const handleCreateJournal = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      toast.error('Hanya Administrator (Admin) yang dapat menambah jurnal baru.');
+      return;
+    }
     try {
-      await axios.post(`${API_BASE}/journals`, newJournal);
+      await axios.post(`${API_BASE}/journals`, {
+        ...newJournal,
+        actor_id: currentUser?.id,
+        actor_role: currentUser?.role
+      });
       toast.success(`Jurnal "${newJournal.abbreviation}" berhasil ditambahkan ke Portal Multi-Journal!`);
       setShowAddJournalModal(false);
       setNewJournal({
@@ -893,6 +919,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   // Handler Tambah Pengguna Baru (Khusus Admin)
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      toast.error('Hanya Administrator (Admin) yang dapat menambah pengguna.');
+      return;
+    }
     if (!newUserForm.name.trim() || !newUserForm.email.trim() || newUserForm.password.length < 6) {
       toast.error('Nama, email, dan kata sandi (minimal 6 karakter) wajib diisi.');
       return;
@@ -904,7 +934,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         password: newUserForm.password,
         role: newUserForm.role,
         affiliation: newUserForm.affiliation.trim(),
-        specialty: newUserForm.specialty.trim()
+        specialty: newUserForm.specialty.trim(),
+        actor_id: currentUser?.id,
+        actor_role: currentUser?.role
       });
       toast.success(res.data?.message || 'Pengguna baru berhasil ditambahkan!');
       setShowAddUserModal(false);
@@ -921,17 +953,26 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
   // Handler Hapus Pengguna (Khusus Admin)
   const handleDeleteUser = async (u) => {
+    if (!isAdmin) {
+      toast.error('Hanya Administrator (Admin) yang dapat menghapus akun pengguna.');
+      return;
+    }
     if (String(u.id) === String(currentUser?.id)) {
       toast.error('Anda tidak dapat menghapus akun yang sedang Anda gunakan sendiri.');
       return;
     }
     if (!window.confirm(`Hapus akun pengguna "${u.name}" (${u.email})?`)) return;
     try {
-      await axios.delete(`${API_BASE}/users/${u.id}`);
+      await axios.delete(`${API_BASE}/users/${u.id}`, {
+        headers: {
+          'X-Actor-Id': String(currentUser?.id || ''),
+          'X-Actor-Role': String(currentUser?.role || '')
+        }
+      });
       toast.success(`Akun "${u.name}" berhasil dihapus.`);
       fetchAllData(selectedJournalId);
     } catch (err) {
-      toast.error('Gagal menghapus pengguna.');
+      toast.error(err.response?.data?.message || 'Gagal menghapus pengguna.');
     }
   };
 
@@ -1153,8 +1194,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </button>
           )}
 
-          {/* Menu Manajemen Multi-Jurnal khusus Admin/Editor */}
-          {isAdminOrEditor && (
+          {/* Menu Manajemen Multi-Jurnal khusus Admin */}
+          {isAdmin && (
             <button
               onClick={() => switchTab('journals')}
               className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
@@ -1168,8 +1209,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </button>
           )}
 
-          {/* Menu Manajemen Pengguna khusus Admin/Editor */}
-          {isAdminOrEditor && (
+          {/* Menu Manajemen Pengguna khusus Admin */}
+          {isAdmin && (
             <button
               onClick={() => switchTab('users')}
               className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
@@ -1235,7 +1276,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <span>AKSES: {currentUser?.role?.toUpperCase()}</span>
           </div>
           <p className="text-[11px] text-white/75 leading-relaxed">
-            {isAdminOrEditor && 'Akses Penuh: Kelola Multi-Jurnal, Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
+            {isAdmin && 'Akses Penuh Administrator: Kelola Multi-Jurnal, Akun Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
+            {isEditor && 'Akses Editor Jurnal: Seleksi naskah, tugaskan Multi-Reviewer, keputusan redaksi, & penerbitan DOI.'}
             {isReviewer && 'Akses Mitra Bestari: Konfirmasi undangan & telaah naskah secara independen.'}
             {isAuthor && 'Akses Penulis: Kirim naskah berstandar SINTA, pantau progress, & unggah revisi.'}
             {isGuest && 'Mode Pengunjung Publik: Jelajahi artikel Open Access & Trending Topik Riset.'}
@@ -1927,7 +1969,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       </p>
                     </div>
 
-                    {isAdminOrEditor && (
+                    {isAdmin && (
                       <button
                         onClick={() => setShowAddJournalModal(true)}
                         className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-sm transition cursor-pointer"
@@ -2603,9 +2645,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         )}
 
         {/* ===================================================================
-            TAB 3: MANAJEMEN MULTI-JURNAL (ADMIN/EDITOR)
+            TAB 3: MANAJEMEN MULTI-JURNAL (KHUSUS ADMIN)
            =================================================================== */}
-        {activeTab === 'journals' && isAdminOrEditor && (
+        {activeTab === 'journals' && isAdmin && (
           <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -2674,7 +2716,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       >
                         Buka Naskah →
                       </button>
-                      {isAdminOrEditor && (
+                      {isAdmin && (
                         <button
                           type="button"
                           onClick={() => handleDeleteJournal(j)}
@@ -3652,16 +3694,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 ) : (
                                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
                                     <span>Seluruh akun Reviewer yang tersedia sudah ditugaskan aktif pada naskah ini.</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setActiveTab('users');
-                                        setShowAddUserModal(true);
-                                      }}
-                                      className="text-[#7A2222] font-bold hover:underline cursor-pointer"
-                                    >
-                                      + Tambah Akun Reviewer Baru →
-                                    </button>
+                                    {isAdmin && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          switchTab('users');
+                                          setShowAddUserModal(true);
+                                        }}
+                                        className="text-[#7A2222] font-bold hover:underline cursor-pointer"
+                                      >
+                                        + Tambah Akun Reviewer Baru →
+                                      </button>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -4372,9 +4416,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         )}
 
         {/* ===================================================================
-            TAB 6: MANAJEMEN PENGGUNA (KHUSUS ADMIN/EDITOR)
+            TAB 6: MANAJEMEN PENGGUNA (KHUSUS ADMIN)
            =================================================================== */}
-        {activeTab === 'users' && isAdminOrEditor && (
+        {activeTab === 'users' && isAdmin && (
           <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -4725,7 +4769,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {/* =====================================================================
           MODAL TAMBAH JURNAL BARU (MULTI-JOURNAL PROOF)
           ===================================================================== */}
-      {showAddJournalModal && (
+      {isAdmin && showAddJournalModal && (
         <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
           <div className="bg-white rounded-[32px] max-w-xl w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
@@ -4842,7 +4886,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {/* =====================================================================
           MODAL TAMBAH PENGGUNA / REVIEWER BARU (KHUSUS ADMIN)
           ===================================================================== */}
-      {showAddUserModal && (
+      {isAdmin && showAddUserModal && (
         <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
           <div className="bg-white rounded-[32px] max-w-lg w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">

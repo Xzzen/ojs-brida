@@ -20,6 +20,32 @@ class SubmissionController extends Controller
         }
     }
 
+    private function ensureAdminActor(Request $request)
+    {
+        $actorId = $request->input('actor_id') ?? $request->header('X-Actor-Id');
+        $actorRole = strtolower((string) ($request->input('actor_role') ?? $request->header('X-Actor-Role') ?? ''));
+
+        if ($actorId) {
+            $actor = User::find($actorId);
+            if (!$actor || $actor->role !== 'admin') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akses ditolak: Tindakan ini hanya diizinkan untuk Administrator (Admin) Portal.'
+                ], 403);
+            }
+            return null;
+        }
+
+        if ($actorRole !== '' && $actorRole !== 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akses ditolak: Tindakan ini hanya diizinkan untuk Administrator (Admin) Portal.'
+            ], 403);
+        }
+
+        return null;
+    }
+
     private function formatUserPayload(User $user): array
     {
         $roleLabels = [
@@ -128,6 +154,10 @@ class SubmissionController extends Controller
 
     public function storeJournal(Request $request)
     {
+        if ($denied = $this->ensureAdminActor($request)) {
+            return $denied;
+        }
+
         $request->merge([
             'code' => strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', (string) $request->code)),
         ]);
@@ -205,8 +235,12 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function deleteJournal($id)
+    public function deleteJournal(Request $request, $id)
     {
+        if ($denied = $this->ensureAdminActor($request)) {
+            return $denied;
+        }
+
         $journal = Journal::findOrFail($id);
 
         if (Journal::count() <= 1) {
@@ -1146,6 +1180,10 @@ class SubmissionController extends Controller
 
     public function storeUser(Request $request)
     {
+        if ($denied = $this->ensureAdminActor($request)) {
+            return $denied;
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
@@ -1170,6 +1208,10 @@ class SubmissionController extends Controller
 
     public function updateUser(Request $request, $id)
     {
+        if ($denied = $this->ensureAdminActor($request)) {
+            return $denied;
+        }
+
         $user = User::findOrFail($id);
         if ($request->filled('name')) {
             $user->name = $request->name;
@@ -1189,9 +1231,21 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function deleteUser($id)
+    public function deleteUser(Request $request, $id)
     {
+        if ($denied = $this->ensureAdminActor($request)) {
+            return $denied;
+        }
+
         $user = User::findOrFail($id);
+
+        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak dapat menghapus akun Administrator terakhir di sistem.'
+            ], 422);
+        }
+
         $user->delete();
 
         return response()->json([
