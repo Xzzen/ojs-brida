@@ -14,6 +14,30 @@ import {
 } from 'lucide-react';
 import ForumTrending, { TrendingPortalWidget } from './ForumTrending';
 import InboxPanel from './InboxPanel';
+import {
+  IconDocClean,
+  IconDocUpload,
+  IconDocCheck,
+  IconDocReview,
+  IconDocRevision,
+  IconDocPublish,
+  IconPortalGlobe,
+  IconAnalytics,
+  IconInboxClean,
+  IconTrendingSpark,
+  IconJournalStack,
+  IconUsersGroup,
+  IconVerifiedBadge,
+  IconDeclinedBan,
+  IconAlertClean,
+  IconPinClean,
+  IconMailInvite,
+  IconScaleJudge,
+  IconLaunchClean,
+  IconInfoClean,
+  IconLockClean,
+  IconClockClean
+} from './BridaIcons';
 import { API_BASE, STORAGE_BASE, resolveFileUrl } from './config';
 
 const STATUS_BADGE = {
@@ -1201,7 +1225,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             }`}
           >
             <span className="flex items-center gap-3">
-              <Globe size={16} className={navTab === 'portal' ? 'text-[#7A2222]' : 'text-white/60'} />
+              <IconPortalGlobe size={17} className={navTab === 'portal' ? 'text-[#7A2222]' : 'text-white/70'} />
               Portal Publik Jurnal
             </span>
             <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
@@ -1221,7 +1245,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             }`}
           >
             <span className="flex items-center gap-3">
-              <Flame size={16} className={navTab === 'trending' ? 'text-amber-600' : 'text-amber-300'} />
+              <IconTrendingSpark size={17} className={navTab === 'trending' ? 'text-amber-600' : 'text-amber-300'} />
               Trending &amp; Forum
             </span>
             <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
@@ -1243,7 +1267,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }`}
             >
               <span className="flex items-center gap-3">
-                <LayoutDashboard size={16} className={navTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <IconAnalytics size={17} className={navTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/70'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
               <span className="flex items-center gap-1.5">
@@ -1274,7 +1298,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }`}
             >
               <span className="flex items-center gap-3">
-                <Mail size={16} className={navTab === 'inbox' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <IconInboxClean size={17} className={navTab === 'inbox' ? 'text-[#7A2222]' : 'text-white/70'} />
                 Kotak Masuk
               </span>
               {inboxUnreadCount > 0 ? (
@@ -1301,7 +1325,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
-              <BookOpen size={16} className={navTab === 'journals' ? 'text-[#7A2222]' : 'text-white/60'} />
+              <IconJournalStack size={17} className={navTab === 'journals' ? 'text-[#7A2222]' : 'text-white/70'} />
               Manajemen Multi-Jurnal
             </button>
           )}
@@ -1317,7 +1341,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }`}
             >
               <span className="flex items-center gap-3">
-                <Users size={16} className={navTab === 'users' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <IconUsersGroup size={17} className={navTab === 'users' ? 'text-[#7A2222]' : 'text-white/70'} />
                 Manajemen Pengguna
               </span>
               <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
@@ -1338,7 +1362,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
-              <FileUp size={16} className={navTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/60'} />
+              <IconDocUpload size={17} className={navTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/70'} />
               Unggah Naskah Baru
             </button>
           )}
@@ -1354,7 +1378,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }`}
             >
               <span className="flex items-center gap-3">
-                <CheckSquare size={16} className={navTab === 'review' ? 'text-[#7A2222]' : 'text-white/60'} />
+                <IconDocCheck size={17} className={navTab === 'review' ? 'text-[#7A2222]' : 'text-white/70'} />
                 {isReviewer ? 'Meja Evaluasi Review' : 'Evaluasi & Editorial'}
               </span>
               {reviewQueueBadgeCount > 0 && (
@@ -1438,7 +1462,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     : 'bg-white hover:bg-[#FDF7F7] text-[#7A2222] border-[#7A2222]/20'
                 }`}
               >
-                <Mail size={14} />
+                <IconInboxClean size={15} />
                 <span className="hidden sm:inline">Kotak Masuk</span>
                 {inboxUnreadCount > 0 && (
                   <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-extrabold tabular-nums leading-4">
@@ -1906,27 +1930,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       {
                         label: 'Submission',
                         sub: 'Validasi SINTA',
-                        icon: <FileUp size={24} className="text-white" />
+                        icon: <IconDocUpload size={26} className="text-white" />
                       },
                       {
                         label: 'Pre-Review',
                         sub: 'Seleksi Editor',
-                        icon: <BookOpen size={24} className="text-white" />
+                        icon: <IconDocReview size={26} className="text-white" />
                       },
                       {
                         label: 'Peer Review',
                         sub: 'Double-Blind',
-                        icon: <CheckSquare size={24} className="text-white" />
+                        icon: <IconDocCheck size={26} className="text-white" />
                       },
                       {
                         label: 'Revisi',
                         sub: 'Penyempurnaan',
-                        icon: <RefreshCw size={24} className="text-white" />
+                        icon: <IconDocRevision size={26} className="text-white" />
                       },
                       {
                         label: 'Terbit & DOI',
                         sub: 'Open Access',
-                        icon: <CheckCircle2 size={24} className="text-white" />
+                        icon: <IconDocPublish size={26} className="text-white" />
                       },
                     ].map((step, idx, arr) => (
                       <React.Fragment key={step.label}>
@@ -2067,7 +2091,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-semibold text-xs shadow-xs transition"
                             >
-                              <FileText size={12} /> Baca PDF
+                              <IconDocClean size={14} /> Baca PDF
                             </a>
                           )}
                         </div>
@@ -2149,17 +2173,24 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <span className="text-slate-600">{j.chief_editor}</span>
                               </div>
                               {currentIssue && (
-                                <div className="text-[#7A2222] font-bold pt-1 line-clamp-2">
-                                  📌 Terbitan Terkini: {currentIssue.volume} {currentIssue.number} ({currentIssue.year}) — {currentIssue.title}
+                                <div className="text-[#7A2222] font-bold pt-1 line-clamp-2 flex items-start gap-1.5">
+                                  <IconPinClean size={14} className="mt-0.5 text-[#7A2222]" />
+                                  <span>Terbitan Terkini: {currentIssue.volume} {currentIssue.number} ({currentIssue.year}) — {currentIssue.title}</span>
                                 </div>
                               )}
                             </div>
                           </div>
 
                           <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
-                              <span>📄 {j.submissions_count || 0} Naskah</span>
-                              <span className="text-[#7A2222]">✅ {j.published_count || 0} Terbit</span>
+                            <div className="flex items-center gap-3.5 text-xs font-bold text-slate-600">
+                              <span className="inline-flex items-center gap-1.5">
+                                <IconDocClean size={15} className="text-slate-500" />
+                                {j.submissions_count || 0} Naskah
+                              </span>
+                              <span className="inline-flex items-center gap-1.5 text-[#7A2222]">
+                                <IconVerifiedBadge size={15} className="text-[#7A2222]" />
+                                {j.published_count || 0} Terbit
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               {isAuthor && (
@@ -2489,8 +2520,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     {isAuthor ? 'Naskah Saya' : isReviewer ? 'Tugas Review Saya' : 'Total Naskah'}
                   </span>
-                  <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#7A2222] flex items-center justify-center border border-[#7A2222]/10">
-                    <FileText size={17} />
+                  <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#7A2222] flex items-center justify-center border border-[#7A2222]/15">
+                    <IconDocClean size={19} />
                   </div>
                 </div>
                 <p className="text-3xl font-extrabold text-[#7A2222] mt-3 tabular-nums tracking-tight">
@@ -2507,7 +2538,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     Dalam Proses Review
                   </span>
                   <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-200/70">
-                    <Clock size={17} />
+                    <IconClockClean size={19} />
                   </div>
                 </div>
                 <p className="text-3xl font-extrabold text-sky-700 mt-3 tabular-nums tracking-tight">
@@ -2524,7 +2555,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     Disetujui (Accepted)
                   </span>
                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/70">
-                    <CheckCircle2 size={17} />
+                    <IconVerifiedBadge size={19} />
                   </div>
                 </div>
                 <p className="text-3xl font-extrabold text-emerald-700 mt-3 tabular-nums tracking-tight">
@@ -2539,7 +2570,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     Resmi Terbit
                   </span>
                   <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center border border-indigo-200/70">
-                    <Award size={17} />
+                    <IconDocPublish size={19} />
                   </div>
                 </div>
                 <p className="text-3xl font-extrabold text-indigo-700 mt-3 tabular-nums tracking-tight">
@@ -2709,7 +2740,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           <td className="p-3 min-w-[180px]">
                             {isReviewer && myRev ? (
                               <div className="space-y-1">
-                                <span className={`inline-block text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
+                                <span className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
                                   myRev.status === 'assigned'
                                     ? 'bg-amber-50 text-amber-800 border-amber-300'
                                     : myRev.status === 'in_progress'
@@ -2718,13 +2749,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                                     : 'bg-rose-50 text-rose-800 border-rose-200'
                                 }`}>
-                                  {myRev.status === 'assigned'
-                                    ? '📩 UNDANGAN BARU'
-                                    : myRev.status === 'in_progress'
-                                    ? '📝 SEDANG ANDA TELAAH'
-                                    : myRev.status === 'completed'
-                                    ? '✅ BERHASIL ANDA REVIEW'
-                                    : '🚫 ANDA MENOLAK REVIEW'}
+                                  {myRev.status === 'assigned' ? (
+                                    <><IconMailInvite size={12} /> UNDANGAN BARU</>
+                                  ) : myRev.status === 'in_progress' ? (
+                                    <><IconDocReview size={12} /> SEDANG ANDA TELAAH</>
+                                  ) : myRev.status === 'completed' ? (
+                                    <><IconVerifiedBadge size={12} /> BERHASIL ANDA REVIEW</>
+                                  ) : (
+                                    <><IconDeclinedBan size={12} /> ANDA MENOLAK REVIEW</>
+                                  )}
                                 </span>
                                 <div className="text-[10px] text-slate-400">
                                   Status Naskah: {badge.label}
@@ -2747,7 +2780,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   <div className="text-[10px] text-slate-500 flex flex-wrap gap-1.5">
                                     <span>Reviewer: {prog.completedRevs.length}/{prog.activeRevs.length} selesai</span>
                                     {prog.declinedRevs.length > 0 && (
-                                      <span className="text-rose-600 font-bold">• ⚠ {prog.declinedRevs.length} menolak</span>
+                                      <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
+                                        • <IconAlertClean size={11} /> {prog.declinedRevs.length} menolak
+                                      </span>
                                     )}
                                   </div>
                                 )}
@@ -2760,9 +2795,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 href={resolveFileUrl(sub.file_path)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#7A2222] font-bold text-[11px] border border-blue-200"
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] hover:bg-[#7A2222] text-[#7A2222] hover:text-white font-bold text-[11px] border border-[#7A2222]/20 transition"
                               >
-                                <FileText size={13} /> Dokumen
+                                <IconDocClean size={14} /> Dokumen
                               </a>
                             ) : isReviewer && myRev?.status === 'assigned' ? (
                               <span className="text-amber-600 italic text-[11px] font-semibold">Terima undangan dulu</span>
@@ -2775,9 +2810,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <button
                                 onClick={() => {
                                   setSelectedSubForAction(sub);
-                                  setActiveTab('review');
+                                  switchTab('review');
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-[#7A2222] text-white font-bold text-[11px] hover:bg-[#661B1B] cursor-pointer"
+                                className="px-3 py-1 rounded-full bg-[#7A2222] text-white font-bold text-[11px] hover:bg-[#661B1B] cursor-pointer"
                               >
                                 Tugaskan Reviewer
                               </button>
@@ -2786,7 +2821,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             {isAdminOrEditor && sub.status === 'accepted' && (
                               <button
                                 onClick={() => handlePublishArticle(sub.id)}
-                                className="px-2.5 py-1 rounded-lg bg-purple-700 text-white font-bold text-[11px] hover:bg-purple-800 cursor-pointer"
+                                className="px-3 py-1 rounded-full bg-purple-700 text-white font-bold text-[11px] hover:bg-purple-800 cursor-pointer"
                               >
                                 Terbitkan + DOI
                               </button>
@@ -2795,9 +2830,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             {isOwnSubmission && sub.status === 'revision_required' && (
                               <button
                                 onClick={() => setDetailSubmission(sub)}
-                                className="px-2.5 py-1 rounded-lg bg-orange-600 text-white font-bold text-[11px] hover:bg-orange-700 cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-600 text-white font-bold text-[11px] hover:bg-orange-700 cursor-pointer"
                               >
-                                📤 Unggah Revisi
+                                <IconDocUpload size={12} /> Unggah Revisi
                               </button>
                             )}
 
@@ -2806,11 +2841,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 onClick={() => {
                                   setSelectedSubForAction(sub);
                                   setShowDeclineForm(false);
-                                  setActiveTab('review');
+                                  switchTab('review');
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-bold text-[11px] hover:bg-amber-700 cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-600 text-white font-bold text-[11px] hover:bg-amber-700 cursor-pointer"
                               >
-                                📩 Konfirmasi Undangan
+                                <IconMailInvite size={12} /> Konfirmasi Undangan
                               </button>
                             )}
 
@@ -3054,7 +3089,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 sm:p-5 space-y-2 text-xs">
                   <div className="flex items-center justify-between">
                     <div className="font-extrabold text-rose-800 flex items-center gap-2">
-                      <span>⛔ Pengunggahan Dicegat Sistem — Naskah Belum Memenuhi Standarisasi:</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <IconDeclinedBan size={15} className="text-rose-600" />
+                        Pengunggahan Dicegat Sistem — Naskah Belum Memenuhi Standarisasi:
+                      </span>
                     </div>
                     <button
                       type="button"
@@ -3312,7 +3350,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         : 'border-slate-300 hover:border-[#7A2222] bg-[#FDF7F7]/50'
                     }`}
                   >
-                    <FileUp size={34} className="text-[#7A2222] mb-2" />
+                    <IconDocUpload size={38} className="text-[#7A2222] mb-2" />
                     <p className="text-xs sm:text-sm text-slate-700 font-bold">
                       Drag &amp; drop file di sini atau <span className="text-[#7A2222] underline">klik untuk memilih</span>
                     </p>
@@ -3320,8 +3358,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       Server otomatis memeriksa keaslian biner (Magic Bytes) serta kelengkapan struktur <strong>IMRAD</strong> (Pendahuluan, Metode, Hasil &amp; Pembahasan, Kesimpulan, Daftar Pustaka).
                     </p>
                     {file && (
-                      <div className="mt-3 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
-                        ✓ File dipilih: {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                      <div className="mt-3 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1.5">
+                        <IconVerifiedBadge size={14} /> File dipilih: {file.name} ({(file.size / 1024).toFixed(1)} KB)
                       </div>
                     )}
                     <input
@@ -3336,7 +3374,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 {/* 4-Item OJS Submission Preparation Checklist */}
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-2.5 text-xs">
                   <div className="font-extrabold text-slate-800 flex items-center justify-between">
-                    <span>📋 Submission Preparation Checklist (Wajib Standar OJS)</span>
+                    <span className="inline-flex items-center gap-2">
+                      <IconDocCheck size={16} className="text-[#7A2222]" />
+                      Submission Preparation Checklist (Wajib Standar OJS)
+                    </span>
                     <span className={`text-[11px] font-bold ${isChecklistStandardOk ? 'text-emerald-700' : 'text-amber-700'}`}>
                       {checklistCheckedCount}/4 disetujui
                     </span>
@@ -3361,7 +3402,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   ].map((c) => (
                     <label
                       key={c.key}
-                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 cursor-pointer transition"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-[#7A2222]/35 cursor-pointer transition"
                     >
                       <input
                         type="checkbox"
@@ -3377,21 +3418,24 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  <div className="text-[11px] text-slate-500">
-                    {standardScoreCount === 6
-                      ? '✅ Seluruh kriteria pra-validasi terpenuhi. Siap dikirim & dipindai server!'
-                      : '⚠ Lengkapi seluruh kriteria standarisasi di atas agar tidak dicegat sistem.'}
+                  <div className="text-[11px] text-slate-500 inline-flex items-center gap-1.5">
+                    {standardScoreCount === 6 ? (
+                      <><IconVerifiedBadge size={14} className="text-emerald-600" /> Seluruh kriteria pra-validasi terpenuhi. Siap dikirim &amp; dipindai server!</>
+                    ) : (
+                      <><IconAlertClean size={14} className="text-amber-600" /> Lengkapi seluruh kriteria standarisasi di atas agar tidak dicegat sistem.</>
+                    )}
                   </div>
                   <button
                     type="submit"
                     disabled={submitLoading}
-                    className={`px-6 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-md transition cursor-pointer ${
+                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-xs sm:text-sm shadow-md transition cursor-pointer ${
                       standardScoreCount === 6
                         ? 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
                         : 'bg-slate-700 hover:bg-slate-800 text-white'
                     }`}
                   >
-                    {submitLoading ? 'Memindai Standar & Mengirim...' : '🚀 Validasi & Kirim Naskah'}
+                    <IconLaunchClean size={15} />
+                    <span>{submitLoading ? 'Memindai Standar & Mengirim...' : 'Validasi & Kirim Naskah'}</span>
                   </button>
                 </div>
               </form>
@@ -3472,23 +3516,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               {sub.journal?.abbreviation}
                             </span>
                             {isReviewer && myRev ? (
-                              <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${
-                                myRev.status === 'assigned'
-                                  ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                  : myRev.status === 'in_progress'
-                                  ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                  : myRev.status === 'completed'
-                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                  : 'bg-rose-100 text-rose-800 border-rose-200'
-                              }`}>
-                                {myRev.status === 'assigned'
-                                  ? '📩 UNDANGAN BARU'
-                                  : myRev.status === 'in_progress'
-                                  ? '📝 SEDANG DITELAAH'
-                                  : myRev.status === 'completed'
-                                  ? '✅ BERHASIL DIREVIEW'
-                                  : '🚫 DITOLAK ANDA'}
-                              </span>
+                                <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${
+                                  myRev.status === 'assigned'
+                                    ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                    : myRev.status === 'in_progress'
+                                    ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                    : myRev.status === 'completed'
+                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                    : 'bg-rose-100 text-rose-800 border-rose-200'
+                                }`}>
+                                  {myRev.status === 'assigned' ? (
+                                    <><IconMailInvite size={11} /> UNDANGAN BARU</>
+                                  ) : myRev.status === 'in_progress' ? (
+                                    <><IconDocReview size={11} /> SEDANG DITELAAH</>
+                                  ) : myRev.status === 'completed' ? (
+                                    <><IconVerifiedBadge size={11} /> BERHASIL DIREVIEW</>
+                                  ) : (
+                                    <><IconDeclinedBan size={11} /> DITOLAK ANDA</>
+                                  )}
+                                </span>
                             ) : (
                               <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
                                 {badge.label}
@@ -3501,9 +3547,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           <div className="flex items-center justify-between text-[11px] text-slate-500">
                             <span>Penulis: {sub.author?.name}</span>
                             {isAdminOrEditor && (prog.activeRevs.length > 0 || prog.declinedRevs.length > 0) && (
-                              <span className="text-[10px] font-bold text-[#7A2222]">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#7A2222]">
                                 {prog.completedRevs.length}/{prog.activeRevs.length} selesai
-                                {prog.declinedRevs.length > 0 ? ` • ⚠ ${prog.declinedRevs.length} tolak` : ''}
+                                {prog.declinedRevs.length > 0 && (
+                                  <span className="inline-flex items-center gap-0.5 text-rose-600">
+                                    • <IconAlertClean size={11} /> {prog.declinedRevs.length} tolak
+                                  </span>
+                                )}
                               </span>
                             )}
                             {isReviewer && (
@@ -3576,7 +3626,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     {/* Header Naskah */}
                     <div className="border-b border-slate-100 pb-5 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs font-extrabold text-[#7A2222] bg-[#FEF2F2] px-3 py-1 rounded-lg border border-blue-200">
+                        <span className="text-xs font-extrabold text-[#7A2222] bg-[#FEF2F2] px-3 py-1 rounded-full border border-[#7A2222]/20">
                           Jurnal: {selectedSubForAction.journal?.title}
                         </span>
                         <div className="flex items-center gap-2">
@@ -3585,16 +3635,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               href={resolveFileUrl(selectedSubForAction.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs font-bold text-[#7A2222] bg-[#FEF2F2] hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 flex items-center gap-1.5"
+                              className="text-xs font-bold text-[#7A2222] bg-[#FEF2F2] hover:bg-[#7A2222] hover:text-white px-3.5 py-1.5 rounded-full border border-[#7A2222]/20 flex items-center gap-1.5 transition"
                             >
-                              <FileText size={14} /> Buka Dokumen Naskah
+                              <IconDocClean size={15} /> Buka Dokumen Naskah
                             </a>
                           )}
                           {selectedSubForAction.file_path && isReviewer && !canOpenFileInReviewTab && (
-                            <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
-                              {myReviewHeader?.status === 'declined'
-                                ? '🚫 Akses Berkas Ditutup (Anda Menolak)'
-                                : '🔒 Terima Undangan untuk Buka Berkas'}
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
+                              {myReviewHeader?.status === 'declined' ? (
+                                <><IconDeclinedBan size={13} /> Akses Berkas Ditutup (Anda Menolak)</>
+                              ) : (
+                                <><IconLockClean size={13} /> Terima Undangan untuk Buka Berkas</>
+                              )}
                             </span>
                           )}
                           {isAdminOrEditor && (
@@ -3677,8 +3729,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                             {rev.name}
                                           </span>
                                           {declinedRev && (
-                                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
-                                              🚫 Telah menolak pada naskah ini
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
+                                              <IconDeclinedBan size={11} /> Telah menolak pada naskah ini
                                             </span>
                                           )}
                                         </div>
@@ -3728,7 +3780,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   onClick={() => handleAssignReviewer(selectedSubForAction.id)}
                                   className="bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition cursor-pointer flex items-center gap-2"
                                 >
-                                  📋 Tugaskan {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer (Mulai Telaah)
+                                  <IconDocCheck size={15} /> Tugaskan {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer (Mulai Telaah)
                                 </button>
                               </div>
                             </div>
@@ -3847,7 +3899,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               {declinedReviews.length > 0 && (
                                 <div className="bg-rose-50 border border-rose-300 rounded-xl p-3.5 text-xs text-rose-900 space-y-1">
                                   <div className="font-extrabold flex items-center gap-1.5">
-                                    <span>⚠️</span>
+                                    <IconAlertClean size={15} className="text-rose-600" />
                                     <span>
                                       {declinedReviews.length} Mitra Bestari Menolak Undangan Penelaahan!
                                     </span>
@@ -3897,23 +3949,29 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         </div>
                                         <div className="flex items-center gap-2">
                                           {revDeclined ? (
-                                            <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
-                                              🚫 TELAH MENOLAK PADA NASKAH INI
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
+                                              <IconDeclinedBan size={11} /> TELAH MENOLAK PADA NASKAH INI
                                             </span>
                                           ) : revDone ? (
-                                            <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
+                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
                                               rev.decision === 'accept'
                                                 ? 'bg-emerald-100 text-emerald-800'
                                                 : rev.decision === 'revise'
                                                 ? 'bg-amber-100 text-amber-800'
                                                 : 'bg-rose-100 text-rose-800'
                                             }`}>
-                                              {rev.decision === 'accept' ? '✅ SELESAI: DITERIMA' : rev.decision === 'revise' ? '⚠️ SELESAI: REVISI' : '❌ SELESAI: DITOLAK'}
+                                              {rev.decision === 'accept' ? (
+                                                <><IconVerifiedBadge size={11} /> SELESAI: DITERIMA</>
+                                              ) : rev.decision === 'revise' ? (
+                                                <><IconAlertClean size={11} /> SELESAI: REVISI</>
+                                              ) : (
+                                                <><IconDeclinedBan size={11} /> SELESAI: DITOLAK</>
+                                              )}
                                             </span>
                                           ) : revAssigned ? (
                                             <>
-                                              <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
-                                                📩 MENUNGGU KONFIRMASI REVIEWER
+                                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
+                                                <IconMailInvite size={11} /> MENUNGGU KONFIRMASI REVIEWER
                                               </span>
                                               <button
                                                 type="button"
@@ -3925,8 +3983,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                             </>
                                           ) : (
                                             <>
-                                              <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-blue-50 text-blue-700 border border-blue-200">
-                                                📝 SEDANG MENELAAH
+                                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-blue-50 text-blue-700 border border-blue-200">
+                                                <IconDocReview size={11} /> SEDANG MENELAAH
                                               </span>
                                               <button
                                                 type="button"
@@ -4025,8 +4083,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                                     {r.name}
                                                   </span>
                                                   {isDeclined && (
-                                                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
-                                                      🚫 Telah menolak pada naskah ini
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
+                                                      <IconDeclinedBan size={11} /> Telah menolak pada naskah ini
                                                     </span>
                                                   )}
                                                 </div>
@@ -4099,8 +4157,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               {/* Panel Keputusan Akhir Chief Editor jika Split Decision / Semua Reviewer Aktif Selesai */}
                               {allCompleted ? (
                                 <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 space-y-3">
-                                  <div className="text-xs font-extrabold text-amber-900">
-                                    ⚖️ Keputusan Akhir Dewan Redaksi (Chief Editor Tie-Breaker)
+                                  <div className="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
+                                    <IconScaleJudge size={15} className="text-amber-700" />
+                                    Keputusan Akhir Dewan Redaksi (Chief Editor Tie-Breaker)
                                   </div>
                                   <p className="text-[11px] text-amber-800 leading-relaxed">
                                     {declinedReviews.length > 0 && activeReviews.length === 1
@@ -4111,31 +4170,32 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     <button
                                       type="button"
                                       onClick={() => handleEditorDecision(selectedSubForAction.id, 'accept')}
-                                      className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs cursor-pointer"
+                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs cursor-pointer"
                                     >
-                                      ✅ Setujui (Accept)
+                                      <IconVerifiedBadge size={14} /> Setujui (Accept)
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleEditorDecision(selectedSubForAction.id, 'revise')}
-                                      className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs cursor-pointer"
+                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs cursor-pointer"
                                     >
-                                      ⚠️ Minta Revisi Penulis
+                                      <IconAlertClean size={14} /> Minta Revisi Penulis
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleEditorDecision(selectedSubForAction.id, 'reject')}
-                                      className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
+                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
                                     >
-                                      ❌ Tolak Naskah
+                                      <IconDeclinedBan size={14} /> Tolak Naskah
                                     </button>
                                   </div>
                                 </div>
                                 ) : (
                                   <div className="space-y-3">
                                     <div className="flex flex-wrap items-center justify-between gap-2">
-                                      <p className="text-[11px] text-slate-500 leading-relaxed italic flex-1 min-w-[200px]">
-                                        ℹ️ Reviewer yang baru diundang berstatus <strong>Menunggu Konfirmasi</strong> hingga mereka menyetujui atau menolak undangan review. Status naskah akan berlanjut setelah semua reviewer aktif selesai menilai.
+                                      <p className="text-[11px] text-slate-500 leading-relaxed italic flex-1 min-w-[200px] flex items-start gap-1.5">
+                                        <IconInfoClean size={14} className="mt-0.5 text-slate-400" />
+                                        <span>Reviewer yang baru diundang berstatus <strong>Menunggu Konfirmasi</strong> hingga mereka menyetujui atau menolak undangan review. Status naskah akan berlanjut setelah semua reviewer aktif selesai menilai.</span>
                                       </p>
                                       <button
                                         type="button"
@@ -4243,7 +4303,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               onClick={() => handlePublishArticle(selectedSubForAction.id)}
                               className="bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
                             >
-                              🚀 Terbitkan ke Terbitan Aktif &amp; Buat Nomor DOI
+                              <IconDocPublish size={16} /> Terbitkan ke Terbitan Aktif &amp; Buat Nomor DOI
                             </button>
                           </div>
                         )}
@@ -4332,8 +4392,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       Mitra Bestari: {revName}
                                     </span>
                                     {isDeclined ? (
-                                      <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
-                                        🚫 MENOLAK UNDANGAN REVIEW
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
+                                        <IconDeclinedBan size={11} /> MENOLAK UNDANGAN REVIEW
                                       </span>
                                     ) : isCompleted ? (
                                       <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
@@ -4346,8 +4406,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         Rekomendasi: {rev.decision === 'accept' ? 'DITERIMA (ACCEPT)' : rev.decision === 'revise' ? 'PERLU REVISI' : 'DITOLAK'}
                                       </span>
                                     ) : isAssigned ? (
-                                      <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-amber-100 text-amber-800 border border-amber-200">
-                                        📩 MENUNGGU KONFIRMASI
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-amber-100 text-amber-800 border border-amber-200">
+                                        <IconMailInvite size={11} /> MENUNGGU KONFIRMASI
                                       </span>
                                     ) : (
                                       <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1">
@@ -4440,7 +4500,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <span className="text-slate-700 uppercase tracking-wider">
                                 Progress Penelaahan Anda
                               </span>
-                              <span className={`px-2.5 py-0.5 rounded-full border text-[10px] ${
+                              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] ${
                                 isCompleted
                                   ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
                                   : isDeclined
@@ -4449,13 +4509,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   ? 'bg-blue-100 text-blue-800 border-blue-200'
                                   : 'bg-amber-100 text-amber-900 border-amber-300'
                               }`}>
-                                {isCompleted
-                                  ? '✅ 100% — BERHASIL ANDA REVIEW'
-                                  : isDeclined
-                                  ? '🚫 UNDANGAN DITOLAK'
-                                  : isInProgress
-                                  ? '📝 66% — SEDANG ANDA TELAAH'
-                                  : '📩 33% — MENUNGGU KONFIRMASI ANDA'}
+                                {isCompleted ? (
+                                  <><IconVerifiedBadge size={11} /> 100% — BERHASIL ANDA REVIEW</>
+                                ) : isDeclined ? (
+                                  <><IconDeclinedBan size={11} /> UNDANGAN DITOLAK</>
+                                ) : isInProgress ? (
+                                  <><IconDocReview size={11} /> 66% — SEDANG ANDA TELAAH</>
+                                ) : (
+                                  <><IconMailInvite size={11} /> 33% — MENUNGGU KONFIRMASI ANDA</>
+                                )}
                               </span>
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-bold">
@@ -4493,7 +4555,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             <div className="bg-amber-50/80 p-5 rounded-2xl border-2 border-amber-300 space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-950 flex items-center gap-2">
-                                  <span>📩</span> Undangan Penelaahan Sejawat (Review Request)
+                                  <IconMailInvite size={16} className="text-amber-700" /> Undangan Penelaahan Sejawat (Review Request)
                                 </h4>
                                 <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950">
                                   MENUNGGU KONFIRMASI ANDA
@@ -4521,14 +4583,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   onClick={() => handleRespondReviewInvitation(selectedSubForAction.id, 'accept')}
                                   className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
                                 >
-                                  ✅ Terima Undangan &amp; Mulai Review
+                                  <IconVerifiedBadge size={15} /> Terima Undangan &amp; Mulai Review
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setShowDeclineForm((prev) => !prev)}
                                   className="bg-white hover:bg-rose-50 text-rose-700 border border-rose-300 font-bold text-xs px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2"
                                 >
-                                  ❌ Tolak Undangan Review
+                                  <IconDeclinedBan size={15} /> Tolak Undangan Review
                                 </button>
                               </div>
 
@@ -4575,7 +4637,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       onClick={() => handleRespondReviewInvitation(selectedSubForAction.id, 'decline')}
                                       className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
                                     >
-                                      🚫 Kirim Penolakan Undangan
+                                      <IconDeclinedBan size={14} /> Kirim Penolakan Undangan
                                     </button>
                                   </div>
                                 </div>
@@ -4677,9 +4739,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     }
                                     className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold"
                                   >
-                                    <option value="accept">✅ Terima Naskah (Accept Submission)</option>
-                                    <option value="revise">⚠️ Perlu Revisi (Revisions Required)</option>
-                                    <option value="reject">❌ Tolak Naskah (Decline Submission)</option>
+                                    <option value="accept">Terima Naskah (Accept Submission)</option>
+                                    <option value="revise">Perlu Revisi (Revisions Required)</option>
+                                    <option value="reject">Tolak Naskah (Decline Submission)</option>
                                   </select>
                                 </div>
 
@@ -4734,7 +4796,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         onClick={() => handleRespondReviewInvitation(selectedSubForAction.id, 'decline')}
                                         className="px-4 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
                                       >
-                                        🚫 Konfirmasi Mundur / Tolak Review
+                                        <IconDeclinedBan size={14} /> Konfirmasi Mundur / Tolak Review
                                       </button>
                                     </div>
                                   </div>
@@ -4753,7 +4815,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   </div>
                                   <div>
                                     <h4 className="text-sm font-extrabold text-emerald-950">
-                                      ✅ Naskah Berhasil Anda Review!
+                                      <IconVerifiedBadge size={16} className="text-emerald-700" /> Naskah Berhasil Anda Review!
                                     </h4>
                                     <p className="text-[11px] text-emerald-800 mt-0.5">
                                       Terima kasih, <strong>{currentUser?.name}</strong>. Hasil evaluasi sejawat Anda telah tercatat resmi di sistem.
@@ -4810,7 +4872,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               {/* Info Lanjutan Progress Naskah */}
                               <div className="bg-white/90 p-3.5 rounded-xl border border-blue-200 space-y-2">
                                 <div className="flex items-center justify-between text-[11px] font-extrabold text-[#7A2222]">
-                                  <span>📌 Status Naskah Saat Ini:</span>
+                                  <span className="inline-flex items-center gap-1.5"><IconPinClean size={13} className="text-[#7A2222]" /> Status Naskah Saat Ini:</span>
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] border ${(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).bg}`}>
                                     {(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).label} ({subProgress.percent}%)
                                   </span>
@@ -4831,7 +4893,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             <div className="bg-rose-50/80 p-5 rounded-2xl border-2 border-rose-200 space-y-3 text-xs">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <h4 className="text-sm font-extrabold text-rose-900 flex items-center gap-2">
-                                  <span>🚫</span> Anda Telah Menolak Undangan Penelaahan Ini
+                                  <IconDeclinedBan size={16} className="text-rose-700" /> Anda Telah Menolak Undangan Penelaahan Ini
                                 </h4>
                                 <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
                                   DECLINED BY REVIEWER
@@ -5038,14 +5100,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         <span className="font-extrabold text-[#7A2222]">
                           {isAdminOrEditor && r.reviewer?.name ? r.reviewer.name : `Mitra Bestari #${i + 1} (Anonim)`}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] ${
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
                           r.decision === 'accept'
                             ? 'bg-emerald-100 text-emerald-800'
                             : r.decision === 'revise'
                             ? 'bg-amber-100 text-amber-800'
                             : 'bg-rose-100 text-rose-800'
                         }`}>
-                          {r.decision === 'accept' ? '✅ Diterima' : r.decision === 'revise' ? '⚠️ Perlu Revisi' : '❌ Ditolak'}
+                          {r.decision === 'accept' ? (
+                            <><IconVerifiedBadge size={11} /> Diterima</>
+                          ) : r.decision === 'revise' ? (
+                            <><IconAlertClean size={11} /> Perlu Revisi</>
+                          ) : (
+                            <><IconDeclinedBan size={11} /> Ditolak</>
+                          )}
                         </span>
                       </div>
                       <p className="italic">"{r.comments}"</p>
@@ -5059,7 +5127,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             {isAuthor && String(detailSubmission.author_id) === String(currentUser?.id) && detailSubmission.status === 'revision_required' && (
               <div className="bg-[#FEF2F2] border-2 border-dashed border-[#7A2222] rounded-2xl p-4 space-y-3">
                 <div className="text-xs font-extrabold text-[#7A2222] flex items-center gap-2">
-                  <FileUp size={16} />
+                  <IconDocUpload size={17} />
                   <span>Unggah Berkas Naskah Revisi (Perbaikan)</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
@@ -5070,15 +5138,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     type="file"
                     accept=".pdf,.doc,.docx"
                     onChange={(e) => setRevisionFile(e.target.files?.[0] || null)}
-                    className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#7A2222] file:text-white hover:file:bg-[#661B1B] cursor-pointer"
+                    className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#7A2222] file:text-white hover:file:bg-[#661B1B] cursor-pointer"
                   />
                   <button
                     type="button"
                     disabled={uploadingRevision || !revisionFile}
                     onClick={() => handleUploadRevision(detailSubmission.id)}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer disabled:opacity-50"
                   >
-                    {uploadingRevision ? 'Mengunggah...' : '📤 Kirim Revisi ke Reviewer'}
+                    <IconDocUpload size={14} />
+                    <span>{uploadingRevision ? 'Mengunggah...' : 'Kirim Revisi ke Reviewer'}</span>
                   </button>
                 </div>
               </div>

@@ -11,15 +11,12 @@ import {
   RefreshCw,
   Reply,
   PenSquare,
-  FileText,
   X,
   Clock,
   ShieldCheck,
-  ArrowRight,
-  AlertCircle,
-  Award,
-  UserCheck
+  ArrowRight
 } from 'lucide-react';
+import { IconDocClean, IconInboxClean } from './BridaIcons';
 
 const CATEGORY_STYLE = {
   invitation: {
@@ -290,7 +287,7 @@ export default function InboxPanel({
 
         <div className="relative z-10 space-y-1.5 max-w-2xl">
           <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] bg-white/10 border border-white/15 px-3.5 py-1 rounded-full text-amber-200">
-            <Mail size={12} className="text-amber-300" />
+            <IconInboxClean size={13} className="text-amber-300" />
             Kotak Masuk &amp; Notifikasi Terpadu OJS BRIDA
           </div>
           <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold tracking-tight">
@@ -593,7 +590,7 @@ export default function InboxPanel({
                     <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-[#7A2222]">
-                          <FileText size={13} /> Naskah Terkait ({selectedMsg.submission.journal?.abbreviation || 'OJS'})
+                          <IconDocClean size={14} /> Naskah Terkait ({selectedMsg.submission.journal?.abbreviation || 'OJS'})
                         </div>
                         <div className="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-2">
                           {selectedMsg.submission.title}

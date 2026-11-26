@@ -3,6 +3,19 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { resolveFileUrl } from './config';
 import {
+  IconDocClean,
+  IconJournalStack,
+  IconTrendingSpark,
+  IconVerifiedBadge,
+  IconPinClean,
+  IconCopyClean,
+  IconQuoteClean,
+  IconLockClean,
+  IconUsersGroup,
+  IconTipsSpark,
+  IconPortalGlobe
+} from './BridaIcons';
+import {
   Flame,
   Heart,
   MessageCircle,
@@ -26,22 +39,22 @@ import {
 const CATEGORY_META = {
   permasalahan: {
     label: 'Permasalahan Riset & Kota',
-    short: '🔥 Permasalahan',
+    short: 'Permasalahan',
     badge: 'bg-rose-50 text-rose-700 border-rose-200'
   },
   trending_jurnal: {
     label: 'Topik Jurnal',
-    short: '📘 Topik Jurnal',
-    badge: 'bg-blue-50 text-[#7A2222] border-blue-200'
+    short: 'Topik Jurnal',
+    badge: 'bg-[#FEF2F2] text-[#7A2222] border-[#7A2222]/20'
   },
   kolaborasi: {
     label: 'Cari Kolaborator',
-    short: '🤝 Kolaborasi',
+    short: 'Kolaborasi',
     badge: 'bg-emerald-50 text-emerald-700 border-emerald-200'
   },
   tips_publikasi: {
     label: 'Tips & Klinik SINTA',
-    short: '💡 Tips SINTA',
+    short: 'Tips SINTA',
     badge: 'bg-amber-50 text-amber-800 border-amber-200'
   }
 };
@@ -223,8 +236,8 @@ export function TrendingPortalWidget({ apiBase, preloadedData, onOpenForum }) {
                         </div>
                       </div>
                       {post.is_pinned && (
-                        <span className="text-[10px] font-bold text-[#7A2222] bg-blue-100 px-2 py-0.5 rounded-full shrink-0">
-                          📌 Pin
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#7A2222] bg-[#FEF2F2] border border-[#7A2222]/20 px-2 py-0.5 rounded-full shrink-0">
+                          <IconPinClean size={11} /> Pin
                         </span>
                       )}
                     </div>
@@ -798,8 +811,8 @@ export default function ForumTrending({
             {/* Active Topic / Search Banner Pill */}
             {(activeTag || searchTerm.trim()) && (
               <div className="flex flex-wrap items-center justify-between gap-2 bg-[#FEF2F2] border border-[#7A2222]/20 rounded-full px-4 py-2 text-xs">
-                <span className="font-bold text-[#7A2222]">
-                  🎯 Menampilkan topik: <strong className="underline">{activeTopicQuery || activeTag || searchTerm}</strong>
+                <span className="inline-flex items-center gap-1.5 font-bold text-[#7A2222]">
+                  <IconTrendingSpark size={14} /> Menampilkan topik: <strong className="underline">{activeTopicQuery || activeTag || searchTerm}</strong>
                 </span>
                 <button
                   type="button"
@@ -853,9 +866,9 @@ export default function ForumTrending({
                     <button
                       type="button"
                       onClick={() => setFeedView('threads')}
-                      className="px-4 py-2 rounded-full bg-[#FEF2F2] hover:bg-blue-100 text-[#7A2222] font-bold text-xs border border-blue-200 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#FEF2F2] hover:bg-[#7A2222] text-[#7A2222] hover:text-white font-bold text-xs border border-[#7A2222]/20 transition cursor-pointer"
                     >
-                      💬 Lihat Utas Diskusi Topik Ini
+                      <MessageCircle size={13} /> Lihat Utas Diskusi Topik Ini
                     </button>
                     {!isGuest && currentUser?.role === 'author' && onGoToSubmit && (
                       <button
@@ -885,11 +898,11 @@ export default function ForumTrending({
                         {/* Header Metadata Jurnal */}
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#7A2222] text-white">
-                              📘 {art.journal?.abbreviation || 'JURNAL BRIDA'}
+                            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#7A2222] text-white">
+                              <IconJournalStack size={11} /> {art.journal?.abbreviation || 'JURNAL BRIDA'}
                             </span>
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
-                              ✅ RESMI TERBIT
+                            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                              <IconVerifiedBadge size={11} /> RESMI TERBIT
                             </span>
                             {art.doi && (
                               <span className="text-[10px] font-mono font-bold text-[#7A2222] bg-[#FEF2F2] px-2 py-0.5 rounded-full">
@@ -954,9 +967,9 @@ export default function ForumTrending({
                                 href={resolveFileUrl(art.file_path)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs shadow-2xs transition"
+                                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs shadow-2xs transition"
                               >
-                                <FileText size={13} /> Baca PDF
+                                <IconDocClean size={14} /> Baca PDF
                               </a>
                             )}
                             {onOpenArticleDetail && (
@@ -1024,30 +1037,30 @@ export default function ForumTrending({
                                 <button
                                   type="button"
                                   onClick={() => handleShareArticle(art, 'copy')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 cursor-pointer flex items-center gap-2"
                                 >
-                                  📋 Salin Info &amp; Link Jurnal
+                                  <IconCopyClean size={13} /> Salin Info &amp; Link Jurnal
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleShareArticle(art, 'citation')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-[#7A2222] cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-[#FDF7F7] text-[#7A2222] cursor-pointer flex items-center gap-2"
                                 >
-                                  🎓 Salin Sitasi (APA)
+                                  <IconQuoteClean size={13} /> Salin Sitasi (APA)
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleShareArticle(art, 'whatsapp')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-700 cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-700 cursor-pointer flex items-center gap-2"
                                 >
-                                  💬 Bagikan ke WhatsApp
+                                  <MessageCircle size={13} /> Bagikan ke WhatsApp
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleShareArticle(art, 'x')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 text-slate-900 cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 text-slate-900 cursor-pointer flex items-center gap-2"
                                 >
-                                  𝕏 Bagikan ke X
+                                  <Share2 size={13} /> Bagikan ke X
                                 </button>
                               </div>
                             )}
@@ -1158,13 +1171,13 @@ export default function ForumTrending({
                               <span className="text-slate-600">
                                 Ingin ikut berkomentar pada jurnal ini?
                               </span>
-                              <button
-                                type="button"
-                                onClick={onRequireLogin}
-                                className="px-3.5 py-1.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-[11px] cursor-pointer shrink-0"
-                              >
-                                🔐 Masuk / Daftar
-                              </button>
+                                <button
+                                  type="button"
+                                  onClick={onRequireLogin}
+                                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-[11px] cursor-pointer shrink-0"
+                                >
+                                  <IconLockClean size={12} /> Masuk / Daftar
+                                </button>
                             </div>
                           )}
                         </div>
@@ -1214,10 +1227,10 @@ export default function ForumTrending({
                       onChange={(e) => setNewCategory(e.target.value)}
                       className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
                     >
-                      <option value="permasalahan">🔥 Permasalahan Riset &amp; Kota</option>
-                      <option value="trending_jurnal">📘 Topik Jurnal</option>
-                      <option value="kolaborasi">🤝 Cari Kolaborator</option>
-                      <option value="tips_publikasi">💡 Tips &amp; Klinik SINTA</option>
+                      <option value="permasalahan">Permasalahan Riset &amp; Kota</option>
+                      <option value="trending_jurnal">Topik Jurnal</option>
+                      <option value="kolaborasi">Cari Kolaborator</option>
+                      <option value="tips_publikasi">Tips &amp; Klinik SINTA</option>
                     </select>
 
                     <select
@@ -1225,10 +1238,10 @@ export default function ForumTrending({
                       onChange={(e) => setNewJournalId(e.target.value)}
                       className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none cursor-pointer"
                     >
-                      <option value="">🌐 Umum (Semua Jurnal)</option>
+                      <option value="">Umum (Semua Jurnal)</option>
                       {(journals || []).map((j) => (
                         <option key={j.id} value={j.id}>
-                          📘 {j.abbreviation}
+                          {j.abbreviation}
                         </option>
                       ))}
                     </select>
@@ -1289,23 +1302,24 @@ export default function ForumTrending({
           {/* Filter Kategori Khusus Utas Komunitas */}
           <div className="flex flex-wrap items-center gap-1.5">
             {[
-              { key: 'all', label: '🌐 Semua Topik' },
-              { key: 'permasalahan', label: '🔥 Permasalahan' },
-              { key: 'trending_jurnal', label: '📘 Topik Jurnal' },
-              { key: 'kolaborasi', label: '🤝 Kolaborasi' },
-              { key: 'tips_publikasi', label: '💡 Tips SINTA' }
+              { key: 'all', label: 'Semua Topik', icon: <IconPortalGlobe size={12} /> },
+              { key: 'permasalahan', label: 'Permasalahan', icon: <IconTrendingSpark size={12} /> },
+              { key: 'trending_jurnal', label: 'Topik Jurnal', icon: <IconJournalStack size={12} /> },
+              { key: 'kolaborasi', label: 'Kolaborasi', icon: <IconUsersGroup size={12} /> },
+              { key: 'tips_publikasi', label: 'Tips SINTA', icon: <IconTipsSpark size={12} /> }
             ].map((cat) => (
               <button
                 key={cat.key}
                 type="button"
                 onClick={() => setCategoryFilter(cat.key)}
-                className={`px-3 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition cursor-pointer ${
                   categoryFilter === cat.key
                     ? 'bg-[#7A2222] text-white border-[#7A2222]'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-[#7A2222]/35 hover:text-[#7A2222]'
                 }`}
               >
-                {cat.label}
+                {cat.icon}
+                <span>{cat.label}</span>
               </button>
             ))}
           </div>
@@ -1495,23 +1509,23 @@ export default function ForumTrending({
                                 <button
                                   type="button"
                                   onClick={() => handleShareThread(post, 'copy')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 cursor-pointer flex items-center gap-2"
                                 >
-                                  📋 Salin Teks &amp; Link
+                                  <IconCopyClean size={13} /> Salin Teks &amp; Link
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleShareThread(post, 'whatsapp')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-700 cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-emerald-50 text-emerald-700 cursor-pointer flex items-center gap-2"
                                 >
-                                  💬 Bagikan ke WhatsApp
+                                  <MessageCircle size={13} /> Bagikan ke WhatsApp
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleShareThread(post, 'x')}
-                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 text-slate-900 cursor-pointer"
+                                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 text-slate-900 cursor-pointer flex items-center gap-2"
                                 >
-                                  𝕏 Bagikan ke X
+                                  <Share2 size={13} /> Bagikan ke X
                                 </button>
                               </div>
                             )}
