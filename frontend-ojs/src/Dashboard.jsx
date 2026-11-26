@@ -53,34 +53,14 @@ const JOURNAL_THEME = {
 
 export default function Dashboard({ currentUser, initialTab = 'portal', onLogout }) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [isTabBlurring, setIsTabBlurring] = useState(false);
-  const tabTimerRef = useRef(null);
-  const tabEndTimerRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const switchTab = (nextTab) => {
     setMobileMenuOpen(false);
     if (nextTab === activeTab) return;
-    if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
-    if (tabEndTimerRef.current) clearTimeout(tabEndTimerRef.current);
-    setIsTabBlurring(true);
-    tabTimerRef.current = setTimeout(() => {
-      setActiveTab(nextTab);
-      window.scrollTo(0, 0);
-      tabEndTimerRef.current = setTimeout(() => {
-        requestAnimationFrame(() => {
-          setIsTabBlurring(false);
-        });
-      }, 65);
-    }, 180);
+    setActiveTab(nextTab);
+    window.scrollTo(0, 0);
   };
-
-  useEffect(() => {
-    return () => {
-      if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
-      if (tabEndTimerRef.current) clearTimeout(tabEndTimerRef.current);
-    };
-  }, []);
   const [journals, setJournals] = useState([]);
   const [selectedJournalId, setSelectedJournalId] = useState('all');
   const [portalSelectedJournal, setPortalSelectedJournal] = useState(null);
@@ -1310,25 +1290,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           </div>
         </header>
 
-        {/* GPU-COMPOSITED FROSTED GLASS VEIL + 60FPS VIEWPORT TRANSITION */}
-        <div className="relative flex-1 flex flex-col">
-          {/* Lightweight Frosted-Glass Blur Curtain (Hanya opacity di GPU, 0 re-rasterisasi DOM!) */}
-          <div
-            aria-hidden="true"
-            className={`pointer-events-none fixed inset-0 lg:left-[276px] top-[64px] z-20 bg-[#FDF7F7]/75 backdrop-blur-md transition-opacity ${
-              isTabBlurring
-                ? 'opacity-100 duration-[180ms] ease-out'
-                : 'opacity-0 duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
-            }`}
-          />
-
-          <div
-            className={`flex-1 flex flex-col transition-[opacity,transform] will-change-[opacity,transform] ${
-              isTabBlurring
-                ? 'opacity-0 translate-y-2 duration-[180ms] ease-out pointer-events-none'
-                : 'opacity-100 translate-y-0 duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
-            }`}
-          >
+        {/* PURE 60FPS SILK CROSSFADE VIEWPORT (ZERO VERTICAL JUMP / ZERO JITTER) */}
+        <div key={activeTab} className="flex-1 flex flex-col animate-tab-silk">
 
         {/* ===================================================================
             TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
@@ -4486,7 +4449,6 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
           </div>
         )}
-          </div>
         </div>
       </main>
 

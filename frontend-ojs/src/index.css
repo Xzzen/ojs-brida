@@ -71,20 +71,22 @@
   box-shadow: 0 8px 20px rgba(28, 10, 10, 0.05), 0 28px 54px -22px rgba(74, 19, 19, 0.24);
 }
 
-/* Ultra-Smooth 60fps GPU-Composited Content Entrance (Zero Blur-Raster Jitter) */
-@keyframes blurMorphIn {
+/* Ultra-Smooth 60fps Silk Fade (Zero Vertical Jump / Zero Jitter) */
+@keyframes tabSilkIn {
   0% {
     opacity: 0;
-    transform: translate3d(0, 6px, 0);
   }
   100% {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
   }
 }
 
+.animate-tab-silk {
+  animation: tabSilkIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .animate-blur-morph {
-  animation: blurMorphIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tabSilkIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes modalBackdropFade {
