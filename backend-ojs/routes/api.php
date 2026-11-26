@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\InboxController;
 use App\Services\CloudStorageService;
 
 // Health Check Endpoint untuk Cloud (Render / Uptime Monitor)
@@ -65,12 +66,25 @@ Route::get('/bootstrap', function (Request $request) {
     $statsData = $subCtrl->stats($request)->getData(true);
     $forumData = $forumCtrl->index($request)->getData(true);
 
+    $inboxUnread = 0;
+    if ($request->filled('user_id')) {
+        try {
+            InboxController::ensureInboxReady();
+            $inboxUnread = \App\Models\InboxMessage::where('recipient_id', (int) $request->query('user_id'))
+                ->where('is_read', false)
+                ->count();
+        } catch (\Throwable $e) {
+            $inboxUnread = 0;
+        }
+    }
+
     return response()->json([
         'status' => 'success',
         'journals' => $journalsData['data'] ?? [],
         'submissions' => $subsData['data'] ?? [],
         'stats' => $statsData,
         'forum' => $forumData['data'] ?? null,
+        'inbox_unread' => $inboxUnread,
     ]);
 });
 
@@ -113,3 +127,10 @@ Route::delete('/forum/posts/{id}', [ForumController::class, 'destroy']);
 Route::post('/submissions/{id}/like', [ForumController::class, 'toggleArticleLike']);
 Route::post('/submissions/{id}/comments', [ForumController::class, 'storeArticleComment']);
 Route::delete('/submissions/{id}/comments/{commentId}', [ForumController::class, 'destroyArticleComment']);
+
+// Kotak Masuk Terpadu Antar-Role (Email/Pesan Sistem & Komunikasi 2 Arah)
+Route::get('/inbox', [InboxController::class, 'index']);
+Route::post('/inbox', [InboxController::class, 'store']);
+Route::post('/inbox/read-all', [InboxController::class, 'markAllRead']);
+Route::post('/inbox/{id}/read', [InboxController::class, 'markRead']);
+Route::delete('/inbox/{id}', [InboxController::class, 'destroy']);

@@ -779,10 +779,30 @@ class SubmissionController extends Controller
                 'downloads_count' => 0,
             ]);
 
+            $submission->load(['journal', 'issue', 'author', 'reviews.reviewer']);
+            $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+
+            InboxController::notify(
+                InboxController::editorialStaffIds(),
+                "[{$jAbbr}] Naskah Baru Masuk: {$submission->title}",
+                "Penulis {$submission->author?->name} ({$submission->author?->email}) telah mengunggah naskah baru berjudul:\n\"{$submission->title}\"\n\nNaskah lolos validasi SINTA/OJS dan kini menunggu skrining Dewan Redaksi atau penugasan Mitra Bestari pada menu Evaluasi & Editorial.",
+                'submission',
+                $authorId,
+                $submission->id
+            );
+            InboxController::notify(
+                $authorId,
+                "[{$jAbbr}] Tanda Terima Naskah Berhasil Diunggah — {$submission->title}",
+                "Yth. {$submission->author?->name},\n\nNaskah Anda berjudul \"{$submission->title}\" telah berhasil diterima oleh sistem {$jAbbr} (Status: Menunggu Editor).\n\nAnda akan menerima pemberitahuan berikutnya di Kotak Masuk ini setelah Editor memproses naskah Anda.",
+                'submission',
+                null,
+                $submission->id
+            );
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Naskah lolos validasi standar SINTA/OJS dan berhasil diunggah ke jurnal tujuan!',
-                'data' => $submission->load(['journal', 'issue', 'author', 'reviews.reviewer'])
+                'data' => $submission
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Gagal menyimpan naskah baru', [
@@ -822,12 +842,29 @@ class SubmissionController extends Controller
         }
 
         // Reset status review para Mitra Bestari aktif (tidak termasuk yang menolak) agar bisa menelaah ulang berkas revisi
+        $activeReviewerIds = Review::where('submission_id', $submission->id)
+            ->where('status', '!=', 'declined')
+            ->pluck('reviewer_id')
+            ->all();
+
         Review::where('submission_id', $submission->id)
             ->where('status', '!=', 'declined')
             ->update([
                 'status' => 'in_progress',
                 'decision' => null,
             ]);
+
+        $submission->load(['journal', 'author']);
+        $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+        $notifyTargets = array_merge(InboxController::editorialStaffIds(), $activeReviewerIds);
+        InboxController::notify(
+            $notifyTargets,
+            "[{$jAbbr}] Berkas Revisi Diunggah Penulis — {$submission->title}",
+            "Penulis telah mengunggah berkas perbaikan (revisi) untuk naskah:\n\"{$submission->title}\"\n\nStatus naskah kini kembali ke Under Review. Silakan periksa dokumen revisi terbaru melalui Meja Evaluasi Review.",
+            'revision',
+            $submission->author_id,
+            $submission->id
+        );
 
         return response()->json([
             'status' => 'success',
@@ -943,6 +980,7 @@ class SubmissionController extends Controller
         $submission->save();
 
         $addedCount = 0;
+        $newlyAssignedIds = [];
         foreach ($reviewerIds as $revId) {
             $existing = Review::where('submission_id', $submission->id)
                 ->where('reviewer_id', $revId)
@@ -954,6 +992,34 @@ class SubmissionController extends Controller
                     'status' => 'assigned',
                 ]);
                 $addedCount++;
+                $newlyAssignedIds[] = $revId;
+            }
+        }
+
+        if (count($newlyAssignedIds) > 0) {
+            $submission->load(['journal', 'author']);
+            $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+            $senderEditorId = User::where('role', 'editor')->value('id') ?? User::where('role', 'admin')->value('id');
+            $noteLine = $submission->editor_notes ? "\nCatatan Pengantar Editor: \"{$submission->editor_notes}\"\n" : '';
+
+            InboxController::notify(
+                $newlyAssignedIds,
+                "[{$jAbbr}] Undangan Penelaahan (Peer-Review) — {$submission->title}",
+                "Yth. Mitra Bestari,\n\nDewan Redaksi {$jAbbr} mengundang Anda untuk menelaah naskah ilmiah berjudul:\n\"{$submission->title}\"{$noteLine}\nSilakan buka menu Meja Evaluasi Review untuk menyatakan Kesediaan (Terima) atau Menolak undangan beserta alasannya.",
+                'invitation',
+                $senderEditorId,
+                $submission->id
+            );
+
+            if ($submission->author_id) {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Naskah Memasuki Tahap Peer-Review — {$submission->title}",
+                    "Yth. {$submission->author?->name},\n\nNaskah Anda berjudul \"{$submission->title}\" telah diteruskan oleh Dewan Redaksi kepada Mitra Bestari independen untuk proses Double-Blind Peer Review.\n\nKami akan mengabarkan hasil penelaahan di Kotak Masuk ini setelah evaluasi selesai.",
+                    'submission',
+                    $senderEditorId,
+                    $submission->id
+                );
             }
         }
 
@@ -993,10 +1059,24 @@ class SubmissionController extends Controller
             ], 422);
         }
 
+        $submission->load('journal');
+        $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+        $reviewerUser = User::find($request->reviewer_id);
+        $revName = $reviewerUser?->name ?: 'Mitra Bestari';
+
         if ($request->action === 'accept') {
             $review->status = 'in_progress';
             $review->save();
             $msg = 'Undangan penelaahan diterima! Silakan unduh naskah dan isi lembar evaluasi sejawat.';
+
+            InboxController::notify(
+                InboxController::editorialStaffIds(),
+                "[{$jAbbr}] Mitra Bestari Menerima Undangan Review — {$submission->title}",
+                "{$revName} menyatakan BERSEDIA menelaah naskah berjudul:\n\"{$submission->title}\"\n\nProses penelaahan sejawat kini sedang berjalan.",
+                'invitation',
+                $reviewerUser?->id,
+                $submission->id
+            );
         } else {
             $reason = trim((string) $request->input('reason', ''));
             if ($reason === '') {
@@ -1010,6 +1090,15 @@ class SubmissionController extends Controller
             $review->decision = null;
             $review->save();
             $msg = 'Anda telah menolak undangan penelaahan. Alasan penolakan telah diteruskan ke Dewan Redaksi untuk penunjukan reviewer pengganti.';
+
+            InboxController::notify(
+                InboxController::editorialStaffIds(),
+                "[{$jAbbr}] ⚠️ Mitra Bestari Menolak Undangan Review — {$submission->title}",
+                "{$revName} menolak undangan penelaahan pada naskah:\n\"{$submission->title}\"\n\nAlasan penolakan:\n\"{$reason}\"\n\nSilakan buka menu Evaluasi & Editorial untuk menunjuk Mitra Bestari pengganti.",
+                'decline_notice',
+                $reviewerUser?->id,
+                $submission->id
+            );
         }
 
         return response()->json([
@@ -1079,6 +1168,43 @@ class SubmissionController extends Controller
             $submission->status = 'rejected';
         }
         $submission->save();
+
+        if ($submission->author_id) {
+            $submission->load(['journal', 'author']);
+            $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+            $senderEditorId = User::where('role', 'editor')->value('id') ?? User::where('role', 'admin')->value('id');
+            $authorName = $submission->author?->name ?: 'Penulis';
+            $reason = $submission->editor_notes ?: 'Tidak ada catatan tambahan dari Dewan Redaksi.';
+
+            if ($request->decision === 'reject') {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Keputusan Redaksi: Naskah Ditolak — {$submission->title}",
+                    "Yth. {$authorName},\n\nTerima kasih telah mengirimkan naskah \"{$submission->title}\" ke {$jAbbr}.\n\nSetelah melalui pemeriksaan Dewan Redaksi, naskah Anda dinyatakan DITOLAK dengan alasan:\n\"{$reason}\"\n\nAnda dapat menyesuaikan topik atau memperbaiki naskah lalu mengirimkannya kembali melalui menu Unggah Naskah Baru.",
+                    'decision',
+                    $senderEditorId,
+                    $submission->id
+                );
+            } elseif ($request->decision === 'revise') {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Permintaan Revisi Naskah — {$submission->title}",
+                    "Yth. {$authorName},\n\nDewan Redaksi {$jAbbr} meminta perbaikan (revisi) untuk naskah Anda:\n\"{$submission->title}\"\n\nCatatan Redaksi:\n\"{$reason}\"\n\nSilakan unggah berkas naskah revisi Anda melalui menu Dasbor Naskah Saya → Detail Naskah.",
+                    'revision',
+                    $senderEditorId,
+                    $submission->id
+                );
+            } else {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Naskah Disetujui (Accepted) — {$submission->title}",
+                    "Yth. {$authorName},\n\nSelamat! Naskah Anda berjudul \"{$submission->title}\" telah DISETUJUI (Accepted) oleh Dewan Redaksi {$jAbbr} dan kini menunggu tahap penerbitan resmi serta penerbitan nomor DOI.",
+                    'decision',
+                    $senderEditorId,
+                    $submission->id
+                );
+            }
+        }
 
         return response()->json([
             'status' => 'success',
@@ -1174,6 +1300,56 @@ class SubmissionController extends Controller
             $submission->save();
         }
 
+        // Kirim notifikasi hasil evaluasi ke Dewan Redaksi (Admin & Editor)
+        $submission->load(['journal', 'author']);
+        $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+        $decLabel = $request->decision === 'accept' ? 'DITERIMA (Accept)' : ($request->decision === 'revise' ? 'PERLU REVISI (Revise)' : 'DITOLAK (Reject)');
+
+        InboxController::notify(
+            InboxController::editorialStaffIds(),
+            "[{$jAbbr}] Hasil Penelaahan Mitra Bestari ({$decLabel}) — {$submission->title}",
+            "Mitra Bestari {$reviewer->name} telah menyelesaikan evaluasi naskah:\n\"{$submission->title}\"\n\nRekomendasi: {$decLabel}\nSkor: Orisinalitas {$request->score_originality} | Metodologi {$request->score_methodology} | Relevansi {$request->score_relevance}\nCatatan Reviewer: \"{$request->comments}\"\n\nStatus naskah saat ini: " . strtoupper($submission->status),
+            'decision',
+            $reviewer->id,
+            $submission->id
+        );
+
+        if ($submission->author_id && in_array($submission->status, ['revision_required', 'accepted', 'rejected'], true)) {
+            $senderEditorId = User::where('role', 'editor')->value('id') ?? User::where('role', 'admin')->value('id');
+            $authorName = $submission->author?->name ?: 'Penulis';
+            $allComments = $activeReviews->where('status', 'completed')->pluck('comments')->filter()->values();
+            $formattedNotes = $allComments->map(fn($c, $i) => 'Mitra Bestari #' . ($i + 1) . ': "' . $c . '"')->implode("\n");
+
+            if ($submission->status === 'revision_required') {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Permintaan Revisi Hasil Peer-Review — {$submission->title}",
+                    "Yth. {$authorName},\n\nProses Double-Blind Peer Review untuk naskah \"{$submission->title}\" telah selesai dengan rekomendasi PERLU REVISI.\n\nMasukan Mitra Bestari:\n{$formattedNotes}\n\nSilakan perbaiki dokumen Anda lalu unggah berkas revisi melalui Dasbor Naskah Saya → Detail Naskah.",
+                    'revision',
+                    $senderEditorId,
+                    $submission->id
+                );
+            } elseif ($submission->status === 'accepted') {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Selamat! Naskah Lolos Peer-Review (Accepted) — {$submission->title}",
+                    "Yth. {$authorName},\n\nSeluruh Mitra Bestari telah menyetujui naskah Anda berjudul \"{$submission->title}\".\n\nMasukan Penelaahan:\n{$formattedNotes}\n\nNaskah Anda kini siap diterbitkan ke edisi aktif beserta nomor DOI resmi.",
+                    'decision',
+                    $senderEditorId,
+                    $submission->id
+                );
+            } elseif ($submission->status === 'rejected') {
+                InboxController::notify(
+                    $submission->author_id,
+                    "[{$jAbbr}] Keputusan Peer-Review: Naskah Ditolak — {$submission->title}",
+                    "Yth. {$authorName},\n\nBerdasarkan hasil Double-Blind Peer Review, naskah \"{$submission->title}\" dinyatakan DITOLAK.\n\nCatatan Evaluasi:\n{$formattedNotes}\n\nTerima kasih atas partisipasi Anda di {$jAbbr}.",
+                    'decision',
+                    $senderEditorId,
+                    $submission->id
+                );
+            }
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => $msg,
@@ -1218,6 +1394,20 @@ class SubmissionController extends Controller
         $submission->pages = $request->input('pages') ?: '41-54';
         $submission->published_at = now();
         $submission->save();
+
+        if ($submission->author_id) {
+            $submission->load(['journal', 'author']);
+            $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
+            $senderEditorId = User::where('role', 'editor')->value('id') ?? User::where('role', 'admin')->value('id');
+            InboxController::notify(
+                $submission->author_id,
+                "[{$jAbbr}] 🎉 Artikel Resmi Terbit & Ber-DOI — {$submission->title}",
+                "Yth. {$submission->author?->name},\n\nSelamat! Artikel ilmiah Anda berjudul:\n\"{$submission->title}\"\n\ntelah RESMI TERBIT pada {$jAbbr} ({$issue->volume} {$issue->number}, {$issue->year}) dengan Nomor DOI: {$submission->doi}.\n\nArtikel Anda kini telah terindeks terbuka di Portal Publik Jurnal BRIDA Kota Makassar.",
+                'published',
+                $senderEditorId,
+                $submission->id
+            );
+        }
 
         return response()->json([
             'status' => 'success',

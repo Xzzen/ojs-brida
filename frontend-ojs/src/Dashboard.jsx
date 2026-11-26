@@ -10,9 +10,10 @@ import {
   BookOpen, Layers, Award, Search, PlusCircle, UserCheck, Eye,
   Download, CheckSquare, Building2, ShieldCheck,
   Send, X, RefreshCw, ChevronRight, Globe, Lock, ArrowRight, ExternalLink,
-  Trash2, Edit3, Users, UserPlus, Flame, Menu
+  Trash2, Edit3, Users, UserPlus, Flame, Menu, Mail
 } from 'lucide-react';
 import ForumTrending, { TrendingPortalWidget } from './ForumTrending';
+import InboxPanel from './InboxPanel';
 import { API_BASE, STORAGE_BASE, resolveFileUrl } from './config';
 
 const STATUS_BADGE = {
@@ -112,6 +113,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   const [forumThreadCount, setForumThreadCount] = useState(0);
   const [forumPreview, setForumPreview] = useState(null);
   const [forumInitialTag, setForumInitialTag] = useState('');
+
+  // State Kotak Masuk (Unread Badge)
+  const [inboxUnreadCount, setInboxUnreadCount] = useState(0);
 
   const handleOpenForum = (tag = '') => {
     setForumInitialTag(tag || '');
@@ -332,7 +336,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE}/bootstrap`, {
-        params: { journal_id: jId, sort: 'trending' }
+        params: {
+          journal_id: jId,
+          sort: 'trending',
+          user_id: currentUser?.id || undefined
+        }
       });
       const payload = res.data || {};
 
@@ -354,6 +362,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       if (payload.forum) {
         setForumPreview(payload.forum);
         setForumThreadCount(payload.forum.stats?.total_threads || 0);
+      }
+
+      if (typeof payload.inbox_unread === 'number') {
+        setInboxUnreadCount(payload.inbox_unread);
       }
     } catch (err) {
       console.error('Gagal mengambil data API:', err);
@@ -1252,6 +1264,33 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </button>
           )}
 
+          {!isGuest && (
+            <button
+              onClick={() => switchTab('inbox')}
+              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+                navTab === 'inbox'
+                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <Mail size={16} className={navTab === 'inbox' ? 'text-[#7A2222]' : 'text-white/60'} />
+                Kotak Masuk
+              </span>
+              {inboxUnreadCount > 0 ? (
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold tabular-nums shadow-xs">
+                  {inboxUnreadCount}
+                </span>
+              ) : (
+                <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
+                  navTab === 'inbox' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/75'
+                }`}>
+                  0
+                </span>
+              )}
+            </button>
+          )}
+
           {/* Menu Manajemen Multi-Jurnal khusus Admin */}
           {isAdmin && (
             <button
@@ -1387,6 +1426,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.75)]" />
               Layanan Aktif
             </span>
+
+            {!isGuest && (
+              <button
+                type="button"
+                onClick={() => switchTab('inbox')}
+                title="Buka Kotak Masuk Pesan & Notifikasi"
+                className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition cursor-pointer ${
+                  navTab === 'inbox'
+                    ? 'bg-[#7A2222] text-white border-[#7A2222] shadow-xs'
+                    : 'bg-white hover:bg-[#FDF7F7] text-[#7A2222] border-[#7A2222]/20'
+                }`}
+              >
+                <Mail size={14} />
+                <span className="hidden sm:inline">Kotak Masuk</span>
+                {inboxUnreadCount > 0 && (
+                  <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-extrabold tabular-nums leading-4">
+                    {inboxUnreadCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             {!isGuest && (
               <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3.5 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
@@ -2321,6 +2381,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             onThreadCountChange={setForumThreadCount}
             onOpenArticleDetail={(art) => setDetailSubmission(art)}
             onGoToSubmit={() => switchTab('unggah')}
+          />
+        )}
+
+        {/* ===================================================================
+            TAB 1C: KOTAK MASUK TERPADU ANTAR-ROLE (SEMUA AKUN LOGIN)
+           =================================================================== */}
+        {activeTab === 'inbox' && !isGuest && (
+          <InboxPanel
+            apiBase={API_BASE}
+            currentUser={currentUser}
+            submissions={roleScopedSubmissions}
+            onUnreadCountChange={setInboxUnreadCount}
+            onOpenSubmission={(sub) => setDetailSubmission(sub)}
+            onGoToReview={(sub) => {
+              if (sub) setSelectedSubForAction(sub);
+              switchTab('review');
+            }}
           />
         )}
 
