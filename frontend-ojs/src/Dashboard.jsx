@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
@@ -53,7 +53,32 @@ const JOURNAL_THEME = {
 
 export default function Dashboard({ currentUser, initialTab = 'portal', onLogout }) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [isTabBlurring, setIsTabBlurring] = useState(false);
+  const tabTimerRef = useRef(null);
+  const tabEndTimerRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const switchTab = (nextTab) => {
+    setMobileMenuOpen(false);
+    if (nextTab === activeTab) return;
+    if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+    if (tabEndTimerRef.current) clearTimeout(tabEndTimerRef.current);
+    setIsTabBlurring(true);
+    tabTimerRef.current = setTimeout(() => {
+      setActiveTab(nextTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 150);
+    tabEndTimerRef.current = setTimeout(() => {
+      setIsTabBlurring(false);
+    }, 220);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+      if (tabEndTimerRef.current) clearTimeout(tabEndTimerRef.current);
+    };
+  }, []);
   const [journals, setJournals] = useState([]);
   const [selectedJournalId, setSelectedJournalId] = useState('all');
   const [portalSelectedJournal, setPortalSelectedJournal] = useState(null);
@@ -87,8 +112,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
   const handleOpenForum = (tag = '') => {
     setForumInitialTag(tag || '');
-    setActiveTab('trending');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    switchTab('trending');
   };
 
   // Form Unggah Naskah Baru (Multi-Journal + Gatekeeper Standarisasi SINTA/OJS)
@@ -960,17 +984,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   });
 
   return (
-    <div className="min-h-screen flex bg-[#f8fafc] font-sans text-slate-900">
+    <div
+      className="min-h-screen flex font-sans text-slate-900 relative"
+      style={{
+        background: 'linear-gradient(145deg, #F9FAFB 0%, #FDF7F7 50%, #F3E9E9 100%)'
+      }}
+    >
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            borderRadius: '14px',
-            background: '#7A2222',
+            borderRadius: '999px',
+            background: '#4A1313',
             color: '#fff',
             fontSize: '12px',
             fontWeight: 600,
-            boxShadow: '0 16px 40px -12px rgba(7, 20, 38, 0.35)'
+            padding: '10px 18px',
+            boxShadow: '0 18px 44px -12px rgba(74, 19, 19, 0.45)'
           }
         }}
       />
@@ -979,56 +1009,64 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-xs lg:hidden"
+          className="fixed inset-0 z-40 bg-[#1a0909]/55 backdrop-blur-sm lg:hidden animate-backdrop-fade"
         />
       )}
 
       {/* =====================================================================
-          SIDEBAR NAVIGASI OJS MULTI-JOURNAL (SIGAP BRIDA ROYAL MAROON)
+          SIDEBAR NAVIGASI OJS MULTI-JOURNAL — KEMBARAN KARTU TIRAI LOGIN BRIDA
           ===================================================================== */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[272px] bg-gradient-to-b from-[#4A1313] via-[#661B1B] to-[#7A2222] text-white flex flex-col border-r border-white/[0.08] shadow-[4px_0_32px_rgba(74,19,19,0.22)] shrink-0 select-none transition-transform duration-300 ${
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[276px] bg-gradient-to-b from-[#7A2222] via-[#661B1B] to-[#4A1313] text-white flex flex-col border-r border-white/[0.1] shadow-[14px_0_48px_-14px_rgba(74,19,19,0.42)] shrink-0 select-none overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* Brand Header */}
-        <div className="px-5 py-5 border-b border-white/[0.08] space-y-2.5">
+        {/* Ambient Rings & Warm Gold Glow (Identik dengan Kartu Gelap Login) */}
+        <div className="pointer-events-none absolute -top-24 -left-24 w-[280px] h-[280px] rounded-full border border-white/[0.08]" />
+        <div className="pointer-events-none absolute top-[45%] -right-28 w-[320px] h-[320px] rounded-full border border-white/[0.06]" />
+        <div
+          className="pointer-events-none absolute top-[24%] left-1/2 -translate-x-1/2 w-[260px] h-[260px] rounded-full opacity-18 blur-3xl"
+          style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
+        />
+
+        {/* Brand Header — Floating White Capsule ala Login */}
+        <div className="relative z-10 px-5 py-5 border-b border-white/[0.1] space-y-2.5">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 bg-white rounded-xl px-3 py-2 shadow-[0_6px_20px_rgba(0,0,0,0.22)] ring-1 ring-white/90 flex items-center justify-center">
+            <div className="flex-1 bg-white/95 rounded-2xl px-3.5 py-2.5 shadow-[0_12px_28px_rgba(0,0,0,0.28)] ring-1 ring-white/80 flex items-center justify-center transition-transform duration-300 hover:scale-[1.01]">
               <img
                 src="/assets/brida-logo.png"
                 alt="Logo BRIDA Kota Makassar"
-                className="h-10 w-auto object-contain"
+                className="h-9 w-auto object-contain"
               />
             </div>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden p-2 rounded-xl text-slate-300 hover:bg-white/10 cursor-pointer"
+              className="lg:hidden p-2 rounded-full text-white/80 hover:bg-white/10 transition cursor-pointer"
               aria-label="Tutup menu"
             >
               <X size={18} />
             </button>
           </div>
-          <div className="flex items-center justify-between px-0.5">
+          <div className="flex items-center justify-between px-1">
             <h1 className="font-bold text-[11px] tracking-[0.14em] uppercase text-white/90">
               OJS BRIDA
             </h1>
-            <p className="text-[10px] text-amber-300/80 font-semibold tracking-wider uppercase">
+            <p className="text-[10px] text-amber-300/90 font-semibold tracking-wider uppercase">
               Multi-Journal
             </p>
           </div>
         </div>
 
-        {/* Multi-Journal Context Switcher inside Sidebar */}
-        <div className="px-5 pt-4 pb-4 border-b border-white/[0.08]">
-          <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-2 flex items-center gap-1.5">
+        {/* Multi-Journal Context Switcher — Pill Rounded ala Login */}
+        <div className="relative z-10 px-5 pt-4 pb-4 border-b border-white/[0.1]">
+          <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60 mb-2 flex items-center gap-1.5">
             <Layers size={12} className="text-amber-300" /> Konteks Jurnal Aktif
           </label>
           <select
             value={selectedJournalId}
             onChange={(e) => setSelectedJournalId(e.target.value)}
-            className="w-full bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] rounded-xl px-3 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-amber-300/70 transition cursor-pointer"
+            className="w-full bg-white/[0.09] hover:bg-white/[0.14] border border-white/[0.16] rounded-full px-4 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-amber-300/80 transition cursor-pointer"
           >
             <option value="all" className="text-slate-900 font-bold">
               Semua Jurnal ({journals.length} Jurnal)
@@ -1041,30 +1079,29 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           </select>
         </div>
 
-        {/* Main Navigation (Menyesuaikan Hak Akses RBAC) */}
-        <nav className="flex-1 px-3.5 py-4 space-y-1 overflow-y-auto">
-          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400/90">
+        {/* Main Navigation — Pill-Shaped Floating Active Items */}
+        <nav className="relative z-10 flex-1 px-3.5 py-4 space-y-1.5 overflow-y-auto">
+          <p className="px-3.5 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
             Navigasi • {currentUser?.label}
           </p>
 
           <button
             onClick={() => {
-              setActiveTab('portal');
               setPortalSelectedJournal(null);
-              setMobileMenuOpen(false);
+              switchTab('portal');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
               activeTab === 'portal'
-                ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Globe size={17} className={activeTab === 'portal' ? 'text-[#661B1B]' : 'text-slate-400'} />
+              <Globe size={16} className={activeTab === 'portal' ? 'text-[#7A2222]' : 'text-white/60'} />
               Portal Publik Jurnal
             </span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
-              activeTab === 'portal' ? 'bg-slate-100 text-[#7A2222]' : 'bg-white/10 text-slate-300'
+            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
+              activeTab === 'portal' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
             }`}>
               {journals.length}
             </span>
@@ -1072,24 +1109,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
           {/* Menu Trending & Forum Riset */}
           <button
-            onClick={() => {
-              setActiveTab('trending');
-              setMobileMenuOpen(false);
-            }}
-            className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+            onClick={() => switchTab('trending')}
+            className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
               activeTab === 'trending'
-                ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Flame size={17} className={activeTab === 'trending' ? 'text-amber-600' : 'text-amber-400/90'} />
+              <Flame size={16} className={activeTab === 'trending' ? 'text-amber-600' : 'text-amber-300'} />
               Trending &amp; Forum
             </span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
               activeTab === 'trending'
                 ? 'bg-amber-100 text-amber-800'
-                : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                : 'bg-amber-400/20 text-amber-300 border border-amber-300/30'
             }`}>
               {forumThreadCount > 0 ? forumThreadCount : 'HOT'}
             </span>
@@ -1097,22 +1131,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
           {!isGuest && (
             <button
-              onClick={() => {
-                setActiveTab('dashboard');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+              onClick={() => switchTab('dashboard')}
+              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
               <span className="flex items-center gap-3">
-                <LayoutDashboard size={17} className={activeTab === 'dashboard' ? 'text-[#661B1B]' : 'text-slate-400'} />
+                <LayoutDashboard size={16} className={activeTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/60'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
-                activeTab === 'dashboard' ? 'bg-slate-100 text-[#7A2222]' : 'bg-white/10 text-slate-300'
+              <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
+                activeTab === 'dashboard' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
               }`}>
                 {scopedStats.total}
               </span>
@@ -1122,17 +1153,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Manajemen Multi-Jurnal khusus Admin/Editor */}
           {isAdminOrEditor && (
             <button
-              onClick={() => {
-                setActiveTab('journals');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+              onClick={() => switchTab('journals')}
+              className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                 activeTab === 'journals'
-                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
-              <BookOpen size={17} className={activeTab === 'journals' ? 'text-[#661B1B]' : 'text-slate-400'} />
+              <BookOpen size={16} className={activeTab === 'journals' ? 'text-[#7A2222]' : 'text-white/60'} />
               Manajemen Multi-Jurnal
             </button>
           )}
@@ -1140,22 +1168,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Manajemen Pengguna khusus Admin/Editor */}
           {isAdminOrEditor && (
             <button
-              onClick={() => {
-                setActiveTab('users');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+              onClick={() => switchTab('users')}
+              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                 activeTab === 'users'
-                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Users size={17} className={activeTab === 'users' ? 'text-[#661B1B]' : 'text-slate-400'} />
+                <Users size={16} className={activeTab === 'users' ? 'text-[#7A2222]' : 'text-white/60'} />
                 Manajemen Pengguna
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
-                activeTab === 'users' ? 'bg-slate-100 text-[#7A2222]' : 'bg-white/10 text-slate-300'
+              <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
+                activeTab === 'users' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
               }`}>
                 {(stats.users || []).length}
               </span>
@@ -1165,17 +1190,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Unggah Naskah Baru untuk Author & Admin */}
           {(isAuthor || isAdminOrEditor) && (
             <button
-              onClick={() => {
-                setActiveTab('unggah');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+              onClick={() => switchTab('unggah')}
+              className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                 activeTab === 'unggah'
-                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
-              <FileUp size={17} className={activeTab === 'unggah' ? 'text-[#661B1B]' : 'text-slate-400'} />
+              <FileUp size={16} className={activeTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/60'} />
               Unggah Naskah Baru
             </button>
           )}
@@ -1183,22 +1205,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Evaluasi & Editorial khusus Reviewer & Admin/Editor */}
           {(isReviewer || isAdminOrEditor) && (
             <button
-              onClick={() => {
-                setActiveTab('review');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
+              onClick={() => switchTab('review')}
+              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
                 activeTab === 'review'
-                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
-                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
+                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
+                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
               }`}
             >
               <span className="flex items-center gap-3">
-                <CheckSquare size={17} className={activeTab === 'review' ? 'text-[#661B1B]' : 'text-slate-400'} />
+                <CheckSquare size={16} className={activeTab === 'review' ? 'text-[#7A2222]' : 'text-white/60'} />
                 {isReviewer ? 'Meja Evaluasi Review' : 'Evaluasi & Editorial'}
               </span>
               {reviewQueueBadgeCount > 0 && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold tabular-nums">
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold tabular-nums shadow-xs">
                   {reviewQueueBadgeCount}
                 </span>
               )}
@@ -1207,12 +1226,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         </nav>
 
         {/* RBAC Role Info Box at Bottom of Sidebar */}
-        <div className="p-4 m-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] text-xs space-y-1.5">
+        <div className="relative z-10 p-4 m-3.5 rounded-[24px] bg-white/[0.07] border border-white/[0.12] backdrop-blur-xs text-xs space-y-1.5">
           <div className="flex items-center gap-2 text-emerald-300 font-bold text-[11px] tracking-wide">
             <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             <span>AKSES: {currentUser?.role?.toUpperCase()}</span>
           </div>
-          <p className="text-[11px] text-slate-300/80 leading-relaxed">
+          <p className="text-[11px] text-white/75 leading-relaxed">
             {isAdminOrEditor && 'Akses Penuh: Kelola Multi-Jurnal, Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
             {isReviewer && 'Akses Mitra Bestari: Konfirmasi undangan & telaah naskah secara independen.'}
             {isAuthor && 'Akses Penulis: Kirim naskah berstandar SINTA, pantau progress, & unggah revisi.'}
@@ -1224,14 +1243,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {/* =====================================================================
           MAIN CONTENT AREA
           ===================================================================== */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* TOPBAR HEADER — IDENTIK SIGAP BRIDA */}
-        <header className="bg-white/90 backdrop-blur-xl border-b border-[#7A2222]/10 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30">
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative">
+        {/* TOPBAR HEADER — FROSTED GLASS & PILL CONTROLS ALA LOGIN */}
+        <header className="bg-white/80 backdrop-blur-xl border-b border-[#7A2222]/8 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30 shadow-[0_6px_24px_-16px_rgba(74,19,19,0.16)]">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl border border-gray-200 text-[#7A2222] hover:bg-[#FDF7F7] cursor-pointer shrink-0"
+              className="lg:hidden p-2 rounded-full border border-gray-200 text-[#7A2222] hover:bg-[#FDF7F7] transition cursor-pointer shrink-0"
               aria-label="Buka menu navigasi"
             >
               <Menu size={18} />
@@ -1241,7 +1260,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <h2 className="text-base sm:text-lg font-extrabold text-[#7A2222] tracking-tight">
                   OJS BRIDA
                 </h2>
-                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/15">
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/15">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   {activeJournalObj ? activeJournalObj.abbreviation : 'Portal Multi-Journal BRIDA'}
                 </span>
@@ -1259,10 +1278,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
           </div>
 
-          {/* Authenticated User Pill + SIGAP-Style Outlined Maroon Auth Button */}
+          {/* Authenticated User Pill + Pill-Shaped Maroon Auth Button */}
           <div className="flex items-center gap-2.5 flex-wrap">
             {!isGuest && (
-              <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
+              <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3.5 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
                 <ShieldCheck size={14} className="text-[#7A2222]" />
                 <span className="font-semibold text-[#7A2222]">{currentUser?.label}</span>
               </div>
@@ -1270,9 +1289,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             <button
               onClick={onLogout}
-              className={`flex items-center gap-1.5 font-bold text-xs px-4 py-2 rounded-xl border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 font-bold text-xs px-5 py-2 rounded-full border transition-all duration-300 active:scale-[0.97] cursor-pointer ${
                 isGuest
-                  ? 'bg-transparent hover:bg-[#7A2222] text-[#7A2222] hover:text-white border-[#7A2222]'
+                  ? 'bg-[#7A2222] hover:bg-[#661B1B] text-white border-[#7A2222] shadow-[0_10px_22px_-8px_rgba(122,34,34,0.5)]'
                   : 'bg-white text-gray-700 hover:bg-[#FEF2F2] hover:text-[#7A2222] hover:border-[#7A2222]/40 border-gray-200'
               }`}
             >
@@ -1289,44 +1308,61 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           </div>
         </header>
 
+        {/* SMOOTH BLUR-MORPH VIEWPORT WRAPPER (IDENTIK TRANSISI HALUS LOGIN PAGE) */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isTabBlurring
+              ? 'opacity-0 blur-md scale-[0.99] pointer-events-none'
+              : 'opacity-100 blur-0 scale-100'
+          }`}
+        >
+
         {/* ===================================================================
             TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
            =================================================================== */}
         {activeTab === 'portal' && (
-          <div className="flex-1 w-full relative overflow-x-hidden bg-[#f9fafb] pb-24">
+          <div className="flex-1 w-full relative overflow-x-hidden pb-24 animate-blur-morph">
             {!portalSelectedJournal ? (
               <>
-                {/* HERO BAND MAROON RESMI ALA SIGAP BRIDA KOTA MAKASSAR */}
-                <section className="relative bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313] border-b border-red-900/40 text-white px-5 sm:px-10 pt-8 pb-14">
-                  <div className="max-w-[1140px] mx-auto space-y-6">
-                    {/* Top Strip ala SIGAP */}
+                {/* HERO BAND MAROON — HARMONISASI DESIGN SYSTEM LOGIN BRIDA */}
+                <section className="relative overflow-hidden bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313] border-b border-white/10 text-white px-5 sm:px-10 pt-8 pb-16">
+                  {/* Ambient Rings & Warm Gold Glow (Identik dengan Kartu Gelap Login) */}
+                  <div className="pointer-events-none absolute -top-28 -right-20 w-[380px] h-[380px] rounded-full border border-white/[0.08]" />
+                  <div className="pointer-events-none absolute -bottom-36 -left-24 w-[440px] h-[440px] rounded-full border border-white/[0.06]" />
+                  <div
+                    className="pointer-events-none absolute top-1/2 left-1/3 -translate-y-1/2 w-[420px] h-[300px] rounded-full opacity-18 blur-3xl"
+                    style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
+                  />
+
+                  <div className="relative z-10 max-w-[1140px] mx-auto space-y-6">
+                    {/* Top Strip */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/15">
                       <div>
                         <h1 className="text-base sm:text-lg font-extrabold tracking-wide uppercase text-white">
                           OJS BRIDA KOTA MAKASSAR
                         </h1>
-                        <p className="text-xs text-white/80 mt-0.5">
+                        <p className="text-xs text-white/75 mt-0.5">
                           Portal Publikasi &amp; Repositori Jurnal Ilmiah Terpadu Badan Riset dan Inovasi Daerah
                         </p>
                       </div>
                       <div className="flex items-center gap-2.5">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#450a0a]/60 border border-white/15 text-[11px] font-semibold text-white/95">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.1] border border-white/15 text-[11px] font-semibold text-white/95 backdrop-blur-xs">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                           Layanan Aktif
                         </span>
                         {isGuest ? (
                           <button
                             type="button"
                             onClick={onLogout}
-                            className="px-4 py-1.5 rounded-lg bg-white hover:bg-gray-100 text-[#7A2222] font-bold text-xs shadow-xs transition cursor-pointer"
+                            className="px-5 py-1.5 rounded-full bg-white hover:bg-gray-100 active:scale-[0.98] text-[#7A2222] font-bold text-xs shadow-sm transition cursor-pointer"
                           >
                             Masuk / Daftar
                           </button>
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setActiveTab('dashboard')}
-                            className="px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-gray-900 font-bold text-xs shadow-xs transition cursor-pointer"
+                            onClick={() => switchTab('dashboard')}
+                            className="px-5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-gray-900 font-bold text-xs shadow-sm transition cursor-pointer"
                           >
                             Dashboard Saya →
                           </button>
@@ -1334,16 +1370,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       </div>
                     </div>
 
-                    {/* Split Hero Grid ala SIGAP: Kiri Kartu Pencarian Putih + Kanan Ringkasan & Akses Unggulan */}
+                    {/* Split Hero Grid: Kartu Pencarian Putih Rounded-[32px] + Ringkasan & Akses Unggulan */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                      {/* Kartu Kiri: Pencarian Terstruktur & Statistik Ringkas (Padat, Seimbang & Elegan ala SIGAP) */}
-                      <div className="lg:col-span-8 bg-white text-gray-900 rounded-2xl p-6 sm:p-7 shadow-[0_18px_40px_-14px_rgba(30,5,5,0.4)] flex flex-col justify-between gap-5">
+                      {/* Kartu Kiri: Pencarian Pill-Style & Statistik Ringkas */}
+                      <div className="lg:col-span-8 bg-white text-gray-900 rounded-[32px] p-6 sm:p-8 shadow-[0_30px_70px_-20px_rgba(28,10,10,0.48)] border border-white/80 flex flex-col justify-between gap-5">
                         {/* Header Judul */}
                         <div className="space-y-2.5">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[11px] font-extrabold uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[11px] font-extrabold uppercase tracking-wider border border-[#7A2222]/10">
                             <Search size={12} /> Pencarian Jurnal &amp; Artikel Ilmiah
                           </span>
-                          <h2 className="font-serif-editorial text-2xl sm:text-[30px] font-bold text-gray-900 leading-tight">
+                          <h2 className="font-serif-editorial text-2xl sm:text-[31px] font-bold text-gray-900 leading-tight">
                             Pusat Publikasi Ilmiah Resmi BRIDA Kota Makassar
                           </h2>
                           <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -1351,33 +1387,33 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </p>
                         </div>
 
-                        {/* Form Pencarian Terstruktur ala SIGAP */}
-                        <div className="bg-[#FDF7F7]/80 border border-[#7A2222]/12 rounded-2xl p-4 sm:p-5 space-y-3.5">
+                        {/* Form Pencarian Pill-Style ala Login */}
+                        <div className="bg-[#FDF7F7]/90 border border-[#7A2222]/12 rounded-[26px] p-4 sm:p-5 space-y-3.5">
                           <div>
-                            <label className="block text-[11px] font-bold text-gray-700 mb-1.5">
+                            <label className="block text-[11px] font-bold text-gray-700 mb-1.5 px-1">
                               Kata Kunci, Judul Artikel, Penulis, atau Nomor DOI
                             </label>
                             <div className="relative">
-                              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                               <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Contoh: Smart City, Inovasi Daerah, nama penulis, atau 10.31290/..."
-                                className="w-full bg-white border border-gray-300 focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none transition"
+                                className="w-full bg-white border border-gray-200 focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 rounded-full pl-11 pr-5 py-3 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none transition"
                               />
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                              <label className="block text-[11px] font-bold text-gray-700 mb-1 px-1">
                                 Filter Jurnal BRIDA
                               </label>
                               <select
                                 value={selectedJournalId}
                                 onChange={(e) => setSelectedJournalId(e.target.value)}
-                                className="w-full bg-white border border-gray-300 focus:border-[#7A2222] rounded-xl px-3 py-2 text-xs font-semibold text-gray-800 outline-none cursor-pointer"
+                                className="w-full bg-white border border-gray-200 focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 rounded-full px-4 py-2.5 text-xs font-semibold text-gray-800 outline-none cursor-pointer transition"
                               >
                                 <option value="all">Semua Jurnal ({journals.length} Jurnal Aktif)</option>
                                 {journals.map((j) => (
@@ -1389,7 +1425,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
 
                             <div>
-                              <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                              <label className="block text-[11px] font-bold text-gray-700 mb-1 px-1">
                                 Topik Pencarian Cepat
                               </label>
                               <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -1402,9 +1438,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       const el = document.getElementById('daftar-artikel');
                                       if (el) el.scrollIntoView({ behavior: 'smooth' });
                                     }}
-                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${
+                                    className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition-all duration-200 active:scale-95 cursor-pointer ${
                                       searchQuery.toLowerCase() === topic.toLowerCase()
-                                        ? 'bg-[#7A2222] text-white border-[#7A2222]'
+                                        ? 'bg-[#7A2222] text-white border-[#7A2222] shadow-xs'
                                         : 'bg-white text-gray-700 border-gray-200 hover:border-[#7A2222]/50 hover:text-[#7A2222]'
                                     }`}
                                   >
@@ -1415,7 +1451,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
                           </div>
 
-                          {/* Bar Tombol Aksi ala SIGAP */}
+                          {/* Bar Tombol Aksi Pill-Shaped */}
                           <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
                             <div className="flex items-center gap-2">
                               <button
@@ -1424,7 +1460,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   const el = document.getElementById('daftar-artikel');
                                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                                 }}
-                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#7A2222] hover:bg-[#991B1B] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer"
                               >
                                 <Search size={14} /> Cari Artikel
                               </button>
@@ -1435,7 +1471,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     setSearchQuery('');
                                     setSelectedJournalId('all');
                                   }}
-                                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 font-bold text-xs transition cursor-pointer"
+                                  className="px-4 py-2.5 rounded-full bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-xs transition cursor-pointer"
                                 >
                                   Reset
                                 </button>
@@ -1455,27 +1491,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
                         </div>
 
-                        {/* 4 Ringkasan Statistik Live Portal (Menghilangkan Ruang Kosong & Informatif) */}
+                        {/* 4 Ringkasan Statistik Live Portal */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                          <div className="rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5">
+                          <div className="rounded-2xl bg-[#FDF7F7]/70 border border-[#7A2222]/10 px-4 py-3 transition hover:-translate-y-0.5">
                             <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
                               {journals.length}
                             </div>
                             <div className="text-[10px] font-bold text-gray-500 mt-1">Jurnal Resmi</div>
                           </div>
-                          <div className="rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5">
+                          <div className="rounded-2xl bg-gray-50 border border-gray-200/80 px-4 py-3 transition hover:-translate-y-0.5">
                             <div className="text-lg font-extrabold text-gray-900 tabular-nums leading-none">
                               {publishedSubmissions.length}
                             </div>
                             <div className="text-[10px] font-bold text-gray-500 mt-1">Artikel Terbit</div>
                           </div>
-                          <div className="rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5">
+                          <div className="rounded-2xl bg-amber-50/70 border border-amber-200/80 px-4 py-3 transition hover:-translate-y-0.5">
                             <div className="text-lg font-extrabold text-amber-600 tabular-nums leading-none">
                               {forumThreadCount}
                             </div>
                             <div className="text-[10px] font-bold text-gray-500 mt-1">Diskusi Riset</div>
                           </div>
-                          <div className="rounded-xl bg-emerald-50/70 border border-emerald-200/80 px-3.5 py-2.5">
+                          <div className="rounded-2xl bg-emerald-50/70 border border-emerald-200/80 px-4 py-3 transition hover:-translate-y-0.5">
                             <div className="text-lg font-extrabold text-emerald-700 leading-none">
                               Rp 0
                             </div>
@@ -1483,7 +1519,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
                         </div>
 
-                        {/* Institutional Trust Bar ala SIGAP */}
+                        {/* Institutional Trust Bar */}
                         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 border-t border-gray-100 text-[11px] font-semibold text-gray-500">
                           <span className="inline-flex items-center gap-1.5">
                             <CheckCircle2 size={13} className="text-emerald-600" /> Diamond Open Access (Rp 0)
@@ -1497,16 +1533,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         </div>
                       </div>
 
-                      {/* Kartu Kanan: Ilustrasi + Akses Layanan Unggulan (Identik Layout SIGAP!) */}
+                      {/* Kartu Kanan: Ilustrasi + Akses Layanan Unggulan */}
                       <div className="lg:col-span-4 flex flex-col gap-4">
-                        <div className="bg-white text-gray-900 rounded-2xl p-6 shadow-[0_18px_40px_-14px_rgba(30,5,5,0.4)] flex-1 flex flex-col items-center justify-center text-center space-y-3">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[10px] font-extrabold uppercase tracking-wider">
+                        <div className="bg-white text-gray-900 rounded-[32px] p-6 shadow-[0_30px_70px_-20px_rgba(28,10,10,0.48)] border border-white/80 flex-1 flex flex-col items-center justify-center text-center space-y-3">
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[10px] font-extrabold uppercase tracking-wider border border-[#7A2222]/10">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#7A2222]" /> {journals.length} Jurnal Aktif
                           </span>
                           <img
                             src="/assets/hero-books.png"
                             alt="Koleksi Jurnal BRIDA"
-                            className="w-32 sm:w-36 object-contain drop-shadow-md"
+                            className="w-32 sm:w-36 object-contain drop-shadow-md transition-transform duration-500 hover:-translate-y-1"
                           />
                           <div>
                             <h3 className="font-serif-editorial text-lg font-bold text-gray-900">
@@ -1518,15 +1554,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
                           <button
                             type="button"
-                            onClick={() => (isGuest ? onLogout() : setActiveTab(isReviewer ? 'review' : 'unggah'))}
-                            className="w-full py-2.5 px-4 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                            onClick={() => (isGuest ? onLogout() : switchTab(isReviewer ? 'review' : 'unggah'))}
+                            className="w-full py-3 px-5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer"
                           >
                             {isGuest ? 'Kirim Naskah / Login →' : isReviewer ? 'Buka Meja Review →' : 'Unggah Naskah Baru →'}
                           </button>
                         </div>
 
-                        {/* Dark Maroon Sub-card ala SIGAP "Akses Layanan Unggulan" */}
-                        <div className="bg-[#450a0a]/60 border border-white/15 rounded-2xl p-4 space-y-2.5">
+                        {/* Dark Maroon Sub-card "Akses Layanan Unggulan" */}
+                        <div className="bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-[26px] p-4 space-y-2.5">
                           <div className="text-xs font-extrabold text-white">Akses Layanan Unggulan</div>
                           <p className="text-[11px] text-white/80 leading-relaxed">
                             Jelajahi topik riset terhangat atau unduh template resmi berstandar SINTA.
@@ -1535,13 +1571,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             <button
                               type="button"
                               onClick={() => handleOpenForum('')}
-                              className="py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-gray-900 font-extrabold text-[11px] transition cursor-pointer"
+                              className="py-2.5 px-3 rounded-full bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-gray-900 font-extrabold text-[11px] transition cursor-pointer"
                             >
                               Trending &amp; Forum
                             </button>
                             <a
                               href={`${API_BASE}/template-naskah`}
-                              className="py-2 px-3 rounded-xl bg-white hover:bg-gray-100 text-[#7A2222] font-extrabold text-[11px] text-center transition"
+                              className="py-2.5 px-3 rounded-full bg-white hover:bg-gray-100 active:scale-[0.98] text-[#7A2222] font-extrabold text-[11px] text-center transition"
                             >
                               Template SINTA
                             </a>
@@ -1560,11 +1596,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 {/* SECTION: PUSAT PUBLIKASI + INFORMASI JURNAL SPLIT CARD */}
                 <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                   {/* Left Card */}
-                  <div className="lg:col-span-4 card-luxury rounded-[26px] p-7 flex flex-col items-center justify-center text-center">
+                  <div className="lg:col-span-4 card-luxury card-luxury-hover rounded-[32px] p-7 flex flex-col items-center justify-center text-center">
                     <img
                       src="/assets/pusat-books.png"
                       alt="Pusat Publikasi & Riset Inovasi Daerah"
-                      className="w-44 sm:w-52 object-contain mb-5 drop-shadow-[0_16px_24px_rgba(12,32,61,0.14)]"
+                      className="w-44 sm:w-52 object-contain mb-5 drop-shadow-[0_16px_24px_rgba(74,19,19,0.16)] transition-transform duration-500 hover:-translate-y-1"
                     />
                     <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 mb-1.5">
                       Ekosistem Publikasi
@@ -1574,12 +1610,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     </h3>
                   </div>
 
-                  {/* Right Split Card */}
-                  <div className="lg:col-span-8 card-luxury rounded-[26px] overflow-hidden grid grid-cols-1 md:grid-cols-12">
-                    {/* Obsidian-Navy Left Sidebar */}
-                    <div className="md:col-span-4 bg-gradient-to-b from-[#4A1313] to-[#661B1B] text-white p-6 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300/80 block mb-1">
+                  {/* Right Split Card — Mirroring Login Split Card */}
+                  <div className="lg:col-span-8 card-luxury rounded-[32px] overflow-hidden grid grid-cols-1 md:grid-cols-12">
+                    {/* Royal Maroon Left Sidebar */}
+                    <div className="md:col-span-4 relative overflow-hidden bg-gradient-to-b from-[#7A2222] via-[#661B1B] to-[#4A1313] text-white p-6 flex flex-col justify-between">
+                      <div className="pointer-events-none absolute -top-12 -right-12 w-36 h-36 rounded-full border border-white/[0.08]" />
+                      <div className="relative z-10">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300/90 block mb-1">
                           Profil Redaksi
                         </span>
                         <h3 className="font-serif-editorial font-bold text-xl mb-5 tracking-tight">
@@ -1596,10 +1633,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               key={tab.key}
                               type="button"
                               onClick={() => setActiveInfoTab(tab.key)}
-                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer ${
+                              className={`w-full text-left px-4 py-2.5 rounded-full text-xs transition-all duration-300 ease-out cursor-pointer ${
                                 activeInfoTab === tab.key
-                                  ? 'bg-white text-[#7A2222] font-bold shadow-sm'
-                                  : 'text-slate-300 hover:bg-white/[0.08] hover:text-white font-medium'
+                                  ? 'bg-white text-[#7A2222] font-bold shadow-[0_8px_20px_-4px_rgba(0,0,0,0.3)] translate-x-0.5'
+                                  : 'text-white/80 hover:bg-white/[0.1] hover:text-white font-medium hover:translate-x-1'
                               }`}
                             >
                               {tab.label}
@@ -1608,7 +1645,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         </div>
                       </div>
 
-                      <div className="mt-6 pt-4 border-t border-white/15 text-[11px] text-blue-100/80">
+                      <div className="relative z-10 mt-6 pt-4 border-t border-white/15 text-[11px] text-white/75">
                         {activeJournalObj ? (
                           <>
                             <div className="font-bold text-white">{activeJournalObj.abbreviation}</div>
@@ -1623,10 +1660,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       </div>
                     </div>
 
-                    {/* White Right Content Box */}
-                    <div className="md:col-span-8 p-6 sm:p-8 flex flex-col justify-center bg-white/90">
+                    {/* White Right Content Box with Smooth Blur-Morph on Tab Switch */}
+                    <div className="md:col-span-8 p-6 sm:p-8 flex flex-col justify-center bg-white">
                       {activeInfoTab === 'fokus' && (
-                        <div>
+                        <div key="info-fokus" className="animate-blur-morph">
                           <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Fokus &amp; Ruang Lingkup
                           </h3>
@@ -1663,7 +1700,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       )}
 
                       {activeInfoTab === 'peer_review' && (
-                        <div>
+                        <div key="info-peer" className="animate-blur-morph">
                           <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Proses Peer Review
                           </h3>
@@ -1677,7 +1714,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       )}
 
                       {activeInfoTab === 'dewan_editor' && (
-                        <div>
+                        <div key="info-editor" className="animate-blur-morph">
                           <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Dewan Editor
                           </h3>
@@ -1694,7 +1731,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       )}
 
                       {activeInfoTab === 'apc' && (
-                        <div>
+                        <div key="info-apc" className="animate-blur-morph">
                           <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Kebijakan Akses &amp; APC
                           </h3>
@@ -1984,10 +2021,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <button
                                   onClick={() => {
                                     setFormJournalId(String(j.id));
-                                    setActiveTab('unggah');
+                                    switchTab('unggah');
                                     toast.success(`Jurnal tujuan disetel ke: ${j.abbreviation}`);
                                   }}
-                                  className="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
+                                  className="px-4 py-2 rounded-full border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
                                 >
                                   + Submit
                                 </button>
@@ -1997,7 +2034,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   setSelectedJournalId(j.id);
                                   setPortalSelectedJournal(j);
                                 }}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer ${theme.btn}`}
+                                className={`px-5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-[0.98] cursor-pointer ${theme.btn}`}
                               >
                                 Kunjungi Jurnal <ChevronRight size={15} />
                               </button>
@@ -2179,36 +2216,38 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 1B: TRENDING TOPIK & FORUM DISKUSI ALA THREADS / X (SEMUA ROLE & PUBLIK)
            =================================================================== */}
         {activeTab === 'trending' && (
-          <ForumTrending
-            apiBase={API_BASE}
-            storageBase={STORAGE_BASE}
-            currentUser={currentUser}
-            isGuest={isGuest}
-            isAdminOrEditor={isAdminOrEditor}
-            journals={journals}
-            selectedJournalId={selectedJournalId}
-            initialTag={forumInitialTag}
-            onClearInitialTag={() => setForumInitialTag('')}
-            onRequireLogin={onLogout}
-            onThreadCountChange={setForumThreadCount}
-            onOpenArticleDetail={(art) => setDetailSubmission(art)}
-            onGoToSubmit={() => setActiveTab('unggah')}
-          />
+          <div className="animate-blur-morph">
+            <ForumTrending
+              apiBase={API_BASE}
+              storageBase={STORAGE_BASE}
+              currentUser={currentUser}
+              isGuest={isGuest}
+              isAdminOrEditor={isAdminOrEditor}
+              journals={journals}
+              selectedJournalId={selectedJournalId}
+              initialTag={forumInitialTag}
+              onClearInitialTag={() => setForumInitialTag('')}
+              onRequireLogin={onLogout}
+              onThreadCountChange={setForumThreadCount}
+              onOpenArticleDetail={(art) => setDetailSubmission(art)}
+              onGoToSubmit={() => switchTab('unggah')}
+            />
+          </div>
         )}
 
         {/* ===================================================================
             TAB 2: DASBOR EKSEKUTIF & ANALITIK MULTI-JOURNAL
            =================================================================== */}
         {activeTab === 'dashboard' && !isGuest && (
-          <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto">
-            {/* Kartu Metrik Eksekutif — Modern Minimalist */}
+          <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto animate-blur-morph">
+            {/* Kartu Metrik Eksekutif — Floating Rounded-[28px] ala Login */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     {isAuthor ? 'Naskah Saya' : isReviewer ? 'Tugas Review Saya' : 'Total Naskah'}
                   </span>
-                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#7A2222] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#7A2222] flex items-center justify-center border border-[#7A2222]/10">
                     <FileText size={17} />
                   </div>
                 </div>
@@ -2220,12 +2259,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </p>
               </div>
 
-              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Dalam Proses Review
                   </span>
-                  <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-200/70">
                     <Clock size={17} />
                   </div>
                 </div>
@@ -2237,12 +2276,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </p>
               </div>
 
-              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Disetujui (Accepted)
                   </span>
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/70">
                     <CheckCircle2 size={17} />
                   </div>
                 </div>
@@ -2252,12 +2291,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <p className="text-xs text-slate-400 mt-1">Siap diterbitkan ke Nomor Issue</p>
               </div>
 
-              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     Resmi Terbit
                   </span>
-                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center border border-indigo-200/70">
                     <Award size={17} />
                   </div>
                 </div>
@@ -2270,7 +2309,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             {/* Grafik Analitik: BarChart Multi-Jurnal & PieChart Status */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-7 card-luxury p-6 rounded-2xl">
+              <div className="lg:col-span-7 card-luxury p-6 rounded-[28px]">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
                   <div>
                     <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700">
@@ -2289,14 +2328,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="Terbit" fill="#7A2222" radius={[6, 6, 0, 0]} />
-                      <Bar dataKey="Proses" fill="#F59E0B" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="Terbit" fill="#7A2222" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="Proses" fill="#F59E0B" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col justify-between">
+              <div className="lg:col-span-5 card-luxury p-6 rounded-[28px] flex flex-col justify-between">
                 <div className="mb-2 pb-3 border-b border-slate-100">
                   <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700">
                     Distribusi Status Naskah
@@ -2334,7 +2373,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
 
             {/* Tabel Daftar Naskah Multi-Journal */}
-            <section className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-6">
+            <section className="card-luxury rounded-[28px] p-6">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
                   <h3 className="text-lg font-extrabold text-slate-800">
@@ -2345,16 +2384,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   </p>
                 </div>
 
-                {/* Filter Bar */}
+                {/* Filter Bar Pill-Style */}
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative">
-                    <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
+                    <Search size={15} className="absolute left-3.5 top-2.5 text-slate-400" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Cari judul, penulis, DOI..."
-                      className="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#7A2222] w-56"
+                      className="pl-10 pr-4 py-2 rounded-full border border-slate-200 text-xs focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 w-60 transition"
                     />
                   </div>
 
@@ -2590,7 +2629,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 3: MANAJEMEN MULTI-JURNAL (ADMIN/EDITOR)
            =================================================================== */}
         {activeTab === 'journals' && isAdminOrEditor && (
-          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
+          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto animate-blur-morph">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-800">
@@ -2603,7 +2642,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
               <button
                 onClick={() => setShowAddJournalModal(true)}
-                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
+                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition cursor-pointer"
               >
                 <PlusCircle size={16} /> + Tambah Jurnal Baru
               </button>
@@ -2611,10 +2650,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {journals.map((j) => (
-                <div key={j.id} className="bg-white rounded-2xl shadow-xs border border-slate-200 p-6 space-y-4">
+                <div key={j.id} className="card-luxury card-luxury-hover rounded-[28px] p-6 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-[#7A2222] border border-blue-200">
+                      <span className="text-[11px] font-extrabold uppercase px-3 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/15">
                         {j.abbreviation}
                       </span>
                       <h4 className="text-lg font-extrabold text-slate-800 mt-2">{j.title}</h4>
@@ -2680,8 +2719,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 4: UNGGAH NASKAH BARU (GATEKEEPER STANDARISASI SINTA / OJS)
            =================================================================== */}
         {activeTab === 'unggah' && (isAuthor || isAdminOrEditor) && (
-          <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto">
-            <div className="bg-white rounded-[26px] p-6 sm:p-10 shadow-sm border border-slate-200 space-y-6">
+          <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto animate-blur-morph">
+            <div className="card-luxury rounded-[32px] p-6 sm:p-10 space-y-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-extrabold text-slate-900">Submit Naskah Ilmiah</h2>
@@ -2693,14 +2732,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   href={`${API_BASE}/template-naskah`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs transition shrink-0"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs transition shrink-0"
                 >
                   <Download size={15} /> Unduh Template Resmi (.docx IMRAD)
                 </a>
               </div>
 
               {/* Live Standarisasi Gatekeeper Panel */}
-              <div className="bg-[#FDF7F7] border border-blue-200 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="bg-[#FDF7F7] border border-[#7A2222]/15 rounded-[24px] p-4 sm:p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#7A2222]">
                     <ShieldCheck size={16} />
@@ -3122,10 +3161,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 5: MEJA EVALUASI PEER-REVIEW (REVIEWER & ADMIN)
            =================================================================== */}
         {activeTab === 'review' && (isReviewer || isAdminOrEditor) && (
-          <div className="p-6 sm:p-8 max-w-7xl w-full mx-auto">
+          <div className="p-6 sm:p-8 max-w-7xl w-full mx-auto animate-blur-morph">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Antrean Naskah di Kiri */}
-              <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 space-y-4 h-fit">
+              <div className="lg:col-span-5 card-luxury rounded-[28px] p-5 space-y-4 h-fit">
                 <div>
                   <h3 className="text-base font-extrabold text-slate-800">
                     {isReviewer ? 'Daftar Naskah Tugasan Review' : 'Antrean Editorial & Peer-Review'}
@@ -3178,10 +3217,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             setShowDeclineForm(false);
                             setDeclineReason('');
                           }}
-                          className={`p-4 rounded-xl border transition cursor-pointer space-y-2 ${
+                          className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer space-y-2 ${
                             active
-                              ? 'bg-[#FEF2F2] border-[#7A2222] ring-2 ring-blue-200'
-                              : 'bg-slate-50/60 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-[#FEF2F2] border-[#7A2222] ring-2 ring-[#7A2222]/20 shadow-xs'
+                              : 'bg-slate-50/70 border-slate-200/80 hover:bg-[#FDF7F7] hover:border-[#7A2222]/30'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -4359,7 +4398,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 6: MANAJEMEN PENGGUNA (KHUSUS ADMIN/EDITOR)
            =================================================================== */}
         {activeTab === 'users' && isAdminOrEditor && (
-          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
+          <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto animate-blur-morph">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-800">
@@ -4372,13 +4411,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               <button
                 type="button"
                 onClick={() => setShowAddUserModal(true)}
-                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
+                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition cursor-pointer"
               >
                 <UserPlus size={16} /> + Tambah Pengguna / Reviewer
               </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            <div className="card-luxury rounded-[28px] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
@@ -4436,17 +4475,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
           </div>
         )}
+        </div>
       </main>
 
       {/* =====================================================================
           MODAL DETAIL NASKAH LENGKAP & ALUR REVISI
           ===================================================================== */}
       {detailSubmission && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-[32px] max-w-2xl w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 max-h-[90vh] overflow-y-auto animate-modal-pop">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] font-bold text-xs border border-blue-200">
+                <span className="px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] font-bold text-xs border border-[#7A2222]/20">
                   {detailSubmission.journal?.title}
                 </span>
                 <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[detailSubmission.status] || STATUS_BADGE.pending).bg}`}>
@@ -4615,8 +4655,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL EDIT METADATA NASKAH (JUDUL, PENULIS, ABSTRAK)
           ===================================================================== */}
       {editSubmissionModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4">
+        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-[32px] max-w-lg w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
@@ -4688,14 +4728,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <button
                   type="button"
                   onClick={() => setEditSubmissionModal(null)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  className="px-5 py-2 rounded-full border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-5 py-2 rounded-xl bg-[#7A2222] hover:bg-[#0d2b57] text-white font-bold shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold shadow-[0_10px_22px_-8px_rgba(122,34,34,0.5)] transition cursor-pointer disabled:opacity-50"
                 >
                   {savingEdit ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
@@ -4709,8 +4749,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL TAMBAH JURNAL BARU (MULTI-JOURNAL PROOF)
           ===================================================================== */}
       {showAddJournalModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-4">
+        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-[32px] max-w-xl w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900">
@@ -4806,13 +4846,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <button
                   type="button"
                   onClick={() => setShowAddJournalModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 cursor-pointer"
+                  className="px-5 py-2 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#7A2222] text-white text-xs font-bold cursor-pointer"
+                  className="px-6 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-bold shadow-[0_10px_22px_-8px_rgba(122,34,34,0.5)] transition cursor-pointer"
                 >
                   Simpan Jurnal Baru
                 </button>
@@ -4826,8 +4866,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL TAMBAH PENGGUNA / REVIEWER BARU (KHUSUS ADMIN)
           ===================================================================== */}
       {showAddUserModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4">
+        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-[32px] max-w-lg w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
