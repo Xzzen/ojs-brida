@@ -1336,13 +1336,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                     {/* Split Hero Grid ala SIGAP: Kiri Kartu Pencarian Putih + Kanan Ringkasan & Akses Unggulan */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                      {/* Kartu Kiri: Pencarian Jurnal & Artikel Ilmiah */}
-                      <div className="lg:col-span-8 bg-white text-gray-900 rounded-2xl p-6 sm:p-7 shadow-[0_18px_40px_-14px_rgba(30,5,5,0.4)] flex flex-col justify-between space-y-5">
-                        <div className="space-y-3">
+                      {/* Kartu Kiri: Pencarian Terstruktur & Statistik Ringkas (Padat, Seimbang & Elegan ala SIGAP) */}
+                      <div className="lg:col-span-8 bg-white text-gray-900 rounded-2xl p-6 sm:p-7 shadow-[0_18px_40px_-14px_rgba(30,5,5,0.4)] flex flex-col justify-between gap-5">
+                        {/* Header Judul */}
+                        <div className="space-y-2.5">
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[11px] font-extrabold uppercase tracking-wider">
                             <Search size={12} /> Pencarian Jurnal &amp; Artikel Ilmiah
                           </span>
-                          <h2 className="font-serif-editorial text-2xl sm:text-[32px] font-bold text-gray-900 leading-tight">
+                          <h2 className="font-serif-editorial text-2xl sm:text-[30px] font-bold text-gray-900 leading-tight">
                             Pusat Publikasi Ilmiah Resmi BRIDA Kota Makassar
                           </h2>
                           <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -1350,65 +1351,140 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </p>
                         </div>
 
-                        {/* Search Bar + Filter Jurnal */}
-                        <div className="space-y-3">
-                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                            <div className="relative flex-1">
+                        {/* Form Pencarian Terstruktur ala SIGAP */}
+                        <div className="bg-[#FDF7F7]/80 border border-[#7A2222]/12 rounded-2xl p-4 sm:p-5 space-y-3.5">
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-700 mb-1.5">
+                              Kata Kunci, Judul Artikel, Penulis, atau Nomor DOI
+                            </label>
+                            <div className="relative">
                               <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                               <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Contoh: Smart City, Inovasi Daerah, nama penulis, atau DOI..."
+                                placeholder="Contoh: Smart City, Inovasi Daerah, nama penulis, atau 10.31290/..."
                                 className="w-full bg-white border border-gray-300 focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none transition"
                               />
                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                                Filter Jurnal BRIDA
+                              </label>
+                              <select
+                                value={selectedJournalId}
+                                onChange={(e) => setSelectedJournalId(e.target.value)}
+                                className="w-full bg-white border border-gray-300 focus:border-[#7A2222] rounded-xl px-3 py-2 text-xs font-semibold text-gray-800 outline-none cursor-pointer"
+                              >
+                                <option value="all">Semua Jurnal ({journals.length} Jurnal Aktif)</option>
+                                {journals.map((j) => (
+                                  <option key={j.id} value={j.id}>
+                                    {j.abbreviation} — {j.accreditation}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                                Topik Pencarian Cepat
+                              </label>
+                              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                                {['Smart City', 'Inovasi', 'Ekonomi', 'Kesehatan'].map((topic) => (
+                                  <button
+                                    key={topic}
+                                    type="button"
+                                    onClick={() => {
+                                      setSearchQuery(topic);
+                                      const el = document.getElementById('daftar-artikel');
+                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${
+                                      searchQuery.toLowerCase() === topic.toLowerCase()
+                                        ? 'bg-[#7A2222] text-white border-[#7A2222]'
+                                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#7A2222]/50 hover:text-[#7A2222]'
+                                    }`}
+                                  >
+                                    {topic}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bar Tombol Aksi ala SIGAP */}
+                          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const el = document.getElementById('daftar-artikel');
+                                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#7A2222] hover:bg-[#991B1B] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                              >
+                                <Search size={14} /> Cari Artikel
+                              </button>
+                              {(searchQuery || selectedJournalId !== 'all') && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSearchQuery('');
+                                    setSelectedJournalId('all');
+                                  }}
+                                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 font-bold text-xs transition cursor-pointer"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+
                             <button
                               type="button"
                               onClick={() => {
                                 const el = document.getElementById('daftar-artikel');
                                 if (el) el.scrollIntoView({ behavior: 'smooth' });
                               }}
-                              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#7A2222] hover:bg-[#991B1B] text-white font-bold text-xs sm:text-sm shadow-xs transition cursor-pointer shrink-0"
+                              className="text-xs font-extrabold text-[#7A2222] hover:underline cursor-pointer"
                             >
-                              <Search size={15} /> Cari Artikel
+                              Semua Artikel Terbit →
                             </button>
                           </div>
+                        </div>
 
-                          {/* Multi-Journal Quick Filter Pills */}
-                          {journals.length > 0 && (
-                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedJournalId('all')}
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-                                  selectedJournalId === 'all'
-                                    ? 'bg-[#7A2222] text-white border-[#7A2222]'
-                                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-[#FDF7F7] hover:border-[#7A2222]/40 hover:text-[#7A2222]'
-                                }`}
-                              >
-                                Semua Jurnal ({journals.length})
-                              </button>
-                              {journals.map((j) => (
-                                <button
-                                  key={j.id}
-                                  type="button"
-                                  onClick={() => setSelectedJournalId(j.id)}
-                                  className={`px-3 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-                                    String(selectedJournalId) === String(j.id)
-                                      ? 'bg-[#7A2222] text-white border-[#7A2222]'
-                                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-[#FDF7F7] hover:border-[#7A2222]/40 hover:text-[#7A2222]'
-                                  }`}
-                                >
-                                  {j.abbreviation}
-                                </button>
-                              ))}
+                        {/* 4 Ringkasan Statistik Live Portal (Menghilangkan Ruang Kosong & Informatif) */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                          <div className="rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5">
+                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
+                              {journals.length}
                             </div>
-                          )}
+                            <div className="text-[10px] font-bold text-gray-500 mt-1">Jurnal Resmi</div>
+                          </div>
+                          <div className="rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5">
+                            <div className="text-lg font-extrabold text-gray-900 tabular-nums leading-none">
+                              {publishedSubmissions.length}
+                            </div>
+                            <div className="text-[10px] font-bold text-gray-500 mt-1">Artikel Terbit</div>
+                          </div>
+                          <div className="rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5">
+                            <div className="text-lg font-extrabold text-amber-600 tabular-nums leading-none">
+                              {forumThreadCount}
+                            </div>
+                            <div className="text-[10px] font-bold text-gray-500 mt-1">Diskusi Riset</div>
+                          </div>
+                          <div className="rounded-xl bg-emerald-50/70 border border-emerald-200/80 px-3.5 py-2.5">
+                            <div className="text-lg font-extrabold text-emerald-700 leading-none">
+                              Rp 0
+                            </div>
+                            <div className="text-[10px] font-bold text-emerald-700/80 mt-1">Biaya Publikasi</div>
+                          </div>
                         </div>
 
                         {/* Institutional Trust Bar ala SIGAP */}
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3 border-t border-gray-100 text-[11px] font-semibold text-gray-500">
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 border-t border-gray-100 text-[11px] font-semibold text-gray-500">
                           <span className="inline-flex items-center gap-1.5">
                             <CheckCircle2 size={13} className="text-emerald-600" /> Diamond Open Access (Rp 0)
                           </span>
