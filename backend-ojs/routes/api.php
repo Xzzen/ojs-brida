@@ -55,6 +55,25 @@ Route::get('/setup-db', function () {
     }
 });
 
+// Bootstrap Gabungan (1 HTTP Call + 1 Koneksi DB untuk memuat Portal/Dasbor 4x lebih cepat)
+Route::get('/bootstrap', function (Request $request) {
+    $subCtrl = app(SubmissionController::class);
+    $forumCtrl = app(ForumController::class);
+
+    $journalsData = $subCtrl->journals()->getData(true);
+    $subsData = $subCtrl->index($request)->getData(true);
+    $statsData = $subCtrl->stats($request)->getData(true);
+    $forumData = $forumCtrl->index($request)->getData(true);
+
+    return response()->json([
+        'status' => 'success',
+        'journals' => $journalsData['data'] ?? [],
+        'submissions' => $subsData['data'] ?? [],
+        'stats' => $statsData,
+        'forum' => $forumData['data'] ?? null,
+    ]);
+});
+
 Route::post('/login', [SubmissionController::class, 'login']);
 Route::post('/register', [SubmissionController::class, 'register']);
 

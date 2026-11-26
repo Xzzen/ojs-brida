@@ -80,8 +80,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   // Landing Page Info Card Tabs
   const [activeInfoTab, setActiveInfoTab] = useState('fokus');
 
-  // State Forum & Trending Topik (Ala Threads / X)
+  // State Forum & Trending Topik
   const [forumThreadCount, setForumThreadCount] = useState(0);
+  const [forumPreview, setForumPreview] = useState(null);
   const [forumInitialTag, setForumInitialTag] = useState('');
 
   const handleOpenForum = (tag = '') => {
@@ -279,36 +280,30 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   const fetchAllData = async (jId = selectedJournalId) => {
     setLoading(true);
     try {
-      const [resJournals, resSubs, resStats] = await Promise.all([
-        axios.get(`${API_BASE}/journals`),
-        axios.get(`${API_BASE}/submissions`, {
-          params: { journal_id: jId }
-        }),
-        axios.get(`${API_BASE}/stats`, {
-          params: { journal_id: jId }
-        })
-      ]);
+      const res = await axios.get(`${API_BASE}/bootstrap`, {
+        params: { journal_id: jId, sort: 'trending' }
+      });
+      const payload = res.data || {};
 
-      const jList = resJournals.data?.data || [];
+      const jList = payload.journals || [];
       setJournals(jList);
       if (!formJournalId && jList.length > 0) {
         setFormJournalId(String(jList[0].id));
       }
 
-      const subList = resSubs.data?.data || [];
-      setSubmissions(subList);
+      setSubmissions(payload.submissions || []);
 
-      if (resStats.data) {
-        setStats(resStats.data);
-        if (!assignReviewerId && resStats.data.reviewers?.length > 0) {
-          setAssignReviewerId(String(resStats.data.reviewers[0].id));
+      if (payload.stats) {
+        setStats(payload.stats);
+        if (!assignReviewerId && payload.stats.reviewers?.length > 0) {
+          setAssignReviewerId(String(payload.stats.reviewers[0].id));
         }
       }
 
-      axios
-        .get(`${API_BASE}/forum/posts`, { params: { sort: 'trending' } })
-        .then((r) => setForumThreadCount(r.data?.data?.stats?.total_threads || 0))
-        .catch(() => {});
+      if (payload.forum) {
+        setForumPreview(payload.forum);
+        setForumThreadCount(payload.forum.stats?.total_threads || 0);
+      }
     } catch (err) {
       console.error('Gagal mengambil data API:', err);
       toast.error('Gagal terhubung ke server API backend. Pastikan server aktif.');
@@ -1484,7 +1479,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <div className="max-w-[1140px] mx-auto px-5 sm:px-10 pt-10 space-y-14">
 
                 {/* SECTION: TRENDING TOPIK & DISKUSI HANGAT */}
-                <TrendingPortalWidget apiBase={API_BASE} onOpenForum={handleOpenForum} />
+                <TrendingPortalWidget apiBase={API_BASE} preloadedData={forumPreview} onOpenForum={handleOpenForum} />
 
                 {/* SECTION: PUSAT PUBLIKASI + INFORMASI JURNAL SPLIT CARD */}
                 <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">

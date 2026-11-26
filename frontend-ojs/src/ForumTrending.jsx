@@ -108,11 +108,18 @@ function renderRichText(text, onTagClick) {
 // =========================================================================
 // WIDGET MINI UNTUK PORTAL PUBLIK (AGAR PENGUNJUNG LANGSUNG MELIHAT TRENDING)
 // =========================================================================
-export function TrendingPortalWidget({ apiBase, onOpenForum }) {
-  const [data, setData] = useState({ posts: [], trending_topics: [], stats: { total_threads: 0, total_replies: 0 } });
-  const [loading, setLoading] = useState(true);
+export function TrendingPortalWidget({ apiBase, preloadedData, onOpenForum }) {
+  const [data, setData] = useState(
+    preloadedData || { posts: [], trending_topics: [], stats: { total_threads: 0, total_replies: 0 } }
+  );
+  const [loading, setLoading] = useState(!preloadedData);
 
   useEffect(() => {
+    if (preloadedData) {
+      setData(preloadedData);
+      setLoading(false);
+      return;
+    }
     let mounted = true;
     axios
       .get(`${apiBase}/forum/posts`, { params: { sort: 'trending' } })
@@ -128,7 +135,7 @@ export function TrendingPortalWidget({ apiBase, onOpenForum }) {
     return () => {
       mounted = false;
     };
-  }, [apiBase]);
+  }, [apiBase, preloadedData]);
 
   if (loading) return null;
 
