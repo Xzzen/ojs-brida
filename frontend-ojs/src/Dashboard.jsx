@@ -715,6 +715,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       if (Array.isArray(serverViolations) && serverViolations.length > 0) {
         setSubmitViolations(serverViolations);
         toast.error('Pengunggahan dicegat server! Periksa kotak detail pelanggaran standarisasi di atas.');
+      } else if (err?.response?.status === 413) {
+        const msg = 'Ukuran berkas melebihi batas unggah server cloud (maksimal 4 MB). Silakan kompres PDF/DOCX Anda terlebih dahulu.';
+        setSubmitViolations([msg]);
+        toast.error(msg);
       } else {
         const msg = err?.response?.data?.message || 'Gagal mengunggah naskah. Periksa kelengkapan dokumen.';
         setSubmitViolations([msg]);

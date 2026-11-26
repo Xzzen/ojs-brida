@@ -41,7 +41,12 @@ class CloudStorageService
         $safeName = Str::random(36) . '.' . $ext;
         $objectPath = trim($folder, '/') . '/' . $safeName;
         $bytes = file_get_contents($file->getRealPath());
-        $mime = $file->getClientMimeType() ?: 'application/octet-stream';
+        $mimeMap = [
+            'pdf' => 'application/pdf',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'doc' => 'application/msword',
+        ];
+        $mime = $mimeMap[$ext] ?? ($file->getClientMimeType() ?: 'application/octet-stream');
 
         return self::uploadRawContent($objectPath, $bytes, $mime);
     }

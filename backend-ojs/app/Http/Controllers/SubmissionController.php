@@ -374,24 +374,41 @@ class SubmissionController extends Controller
                 ];
             }
 
-            // Ekstrak teks dari stream PDF (baik plain maupun FlateDecode terkompresi)
+            // Ekstrak teks aman dari stream PDF (tahan biner/gambar & selalu valid UTF-8)
             $extracted = '';
             $streams = [];
-            if (preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $raw, $m)) {
+            if (@preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $raw, $m)) {
+                $streamCount = 0;
                 foreach ($m[1] as $chunk) {
+                    if ($streamCount >= 80 || strlen($extracted) > 65000) {
+                        break;
+                    }
+                    if (strlen($chunk) > 350000) {
+                        continue; // Lewati stream gambar/bitmap raksasa
+                    }
                     $decoded = @gzuncompress($chunk);
                     if ($decoded === false) {
                         $decoded = @gzinflate($chunk);
                     }
-                    $streams[] = $decoded !== false ? $decoded : $chunk;
+                    $candidate = $decoded !== false ? $decoded : $chunk;
+                    if (strlen($candidate) <= 400000) {
+                        $streams[] = $candidate;
+                        $streamCount++;
+                    }
                 }
             }
-            $streams[] = $raw;
+            if (empty($streams) && strlen($raw) <= 300000) {
+                $streams[] = $raw;
+            }
 
             foreach ($streams as $st) {
-                if (preg_match_all('/\(((?:\\\\.|[^\\\\()])+)\)/', $st, $tm)) {
+                if (strlen($extracted) > 65000) {
+                    break;
+                }
+                if (@preg_match_all('/\(([^()]{2,200})\)/', $st, $tm)) {
                     foreach ($tm[1] as $seg) {
                         $clean = str_replace(['\\(', '\\)', '\\\\'], ['(', ')', '\\'], $seg);
+                        $clean = preg_replace('/[^\x20-\x7E]/', ' ', $clean) ?? '';
                         if (preg_match('/[a-zA-Z]{2,}/', $clean)) {
                             $extracted .= ' ' . $clean;
                         }
@@ -399,10 +416,15 @@ class SubmissionController extends Controller
                 }
             }
 
+            $cleanText = trim((string) preg_replace('/\s+/', ' ', $extracted));
+            if (function_exists('mb_convert_encoding')) {
+                $cleanText = mb_convert_encoding($cleanText, 'UTF-8', 'UTF-8');
+            }
+
             return [
                 'valid_signature' => true,
                 'signature_error' => null,
-                'text' => trim(preg_replace('/\s+/', ' ', $extracted)),
+                'text' => $cleanText,
                 'ext' => $ext,
             ];
         }
@@ -490,7 +512,7 @@ class SubmissionController extends Controller
         if (!$isRevision) {
             // 1. Standar Judul (5 - 20 kata, tidak ALL CAPS, tidak duplikat di jurnal yang sama)
             $title = trim((string) $request->input('title', ''));
-            $titleWords = preg_split('/\s+/u', $title, -1, PREG_SPLIT_NO_EMPTY);
+            $titleWords = preg_split('/\s+/u', $title, -1, PREG_SPLIT_NO_EMPTY) ?: [];
             $titleWordCount = count($titleWords);
 
             if ($titleWordCount < 5 || $titleWordCount > 20) {
@@ -512,7 +534,7 @@ class SubmissionController extends Controller
 
             // 2. Standar Abstrak (150 - 250 kata, 1 paragraf utuh, tanpa sitasi pustaka)
             $abstract = trim((string) $request->input('abstract', ''));
-            $abstractWords = preg_split('/\s+/u', $abstract, -1, PREG_SPLIT_NO_EMPTY);
+            $abstractWords = preg_split('/\s+/u', $abstract, -1, PREG_SPLIT_NO_EMPTY) ?: [];
             $abstractWordCount = count($abstractWords);
 
             if ($abstractWordCount < 150 || $abstractWordCount > 250) {
@@ -553,9 +575,16 @@ class SubmissionController extends Controller
             if (!$docCheck['valid_signature']) {
                 $violations[] = $docCheck['signature_error'];
             } else {
-                $text = $docCheck['text'];
+                $text = (string) ($docCheck['text'] ?? '');
+                if (function_exists('mb_convert_encoding')) {
+                    $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+                }
                 $ext = $docCheck['ext'];
-                $textWordCount = count(preg_split('/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY));
+                $wordsList = @preg_split('/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
+                if (!is_array($wordsList)) {
+                    $wordsList = preg_split('/\s+/', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                }
+                $textWordCount = count($wordsList);
 
                 // Untuk DOCX selalu wajib teks terbaca & struktur IMRAD lengkap;
                 // Untuk PDF/DOC, cek IMRAD apabila stream teks terbaca (>= 25 kata)
@@ -694,37 +723,47 @@ class SubmissionController extends Controller
             ], 422);
         }
 
-        $user = User::where('role', 'author')->first() ?? User::firstOrCreate(
-            ['email' => 'author@brida.com'],
-            ['name' => 'Andi Rahman', 'role' => 'author', 'password' => bcrypt('password')]
-        );
+        try {
+            $user = User::where('role', 'author')->first() ?? User::firstOrCreate(
+                ['email' => 'author@brida.com'],
+                ['name' => 'Andi Rahman', 'role' => 'author', 'password' => bcrypt('password')]
+            );
 
-        $filePath = null;
-        if ($request->hasFile('file')) {
-            $filePath = \App\Services\CloudStorageService::uploadUploadedFile($request->file('file'), 'submissions');
+            $filePath = null;
+            if ($request->hasFile('file')) {
+                $filePath = \App\Services\CloudStorageService::uploadUploadedFile($request->file('file'), 'submissions');
+            }
+
+            $authorId = $request->filled('author_id') ? (int) $request->author_id : $user->id;
+
+            $submission = Submission::create([
+                'journal_id' => $request->journal_id,
+                'author_id' => $authorId,
+                'co_authors' => $request->co_authors,
+                'title' => trim($request->title),
+                'abstract' => trim($request->abstract),
+                'keywords' => trim($request->keywords),
+                'section' => $request->section ?: 'Original Research',
+                'file_path' => $filePath,
+                'status' => 'pending',
+                'views_count' => 1,
+                'downloads_count' => 0,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Naskah lolos validasi standar SINTA/OJS dan berhasil diunggah ke jurnal tujuan!',
+                'data' => $submission->load(['journal', 'issue', 'author', 'reviews.reviewer'])
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal menyimpan naskah baru', [
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kendala saat menyimpan berkas naskah: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $authorId = $request->filled('author_id') ? (int) $request->author_id : $user->id;
-
-        $submission = Submission::create([
-            'journal_id' => $request->journal_id,
-            'author_id' => $authorId,
-            'co_authors' => $request->co_authors,
-            'title' => trim($request->title),
-            'abstract' => trim($request->abstract),
-            'keywords' => trim($request->keywords),
-            'section' => $request->section ?: 'Original Research',
-            'file_path' => $filePath,
-            'status' => 'pending',
-            'views_count' => 1,
-            'downloads_count' => 0,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Naskah lolos validasi standar SINTA/OJS dan berhasil diunggah ke jurnal tujuan!',
-            'data' => $submission->load(['journal', 'issue', 'author', 'reviews.reviewer'])
-        ]);
     }
 
     public function reuploadRevision(Request $request, $id)
