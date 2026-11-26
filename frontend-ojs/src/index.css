@@ -71,22 +71,20 @@
   box-shadow: 0 8px 20px rgba(28, 10, 10, 0.05), 0 28px 54px -22px rgba(74, 19, 19, 0.24);
 }
 
-/* Signature Login-Inspired Blur-Morph Content Entrance (Ultra-Smooth, Zero Jitter) */
+/* Ultra-Smooth 60fps GPU-Composited Content Entrance (Zero Blur-Raster Jitter) */
 @keyframes blurMorphIn {
   0% {
     opacity: 0;
-    filter: blur(5px);
-    transform: translateY(4px);
+    transform: translate3d(0, 6px, 0);
   }
   100% {
     opacity: 1;
-    filter: blur(0);
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 .animate-blur-morph {
-  animation: blurMorphIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: blurMorphIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes modalBackdropFade {
@@ -101,37 +99,33 @@
 @keyframes modalPopBlur {
   0% {
     opacity: 0;
-    filter: blur(10px);
-    transform: translateY(16px) scale(0.96);
+    transform: translate3d(0, 12px, 0) scale(0.97);
   }
   100% {
     opacity: 1;
-    filter: blur(0);
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 .animate-backdrop-fade {
-  animation: modalBackdropFade 0.28s ease-out both;
+  animation: modalBackdropFade 0.24s ease-out both;
 }
 
 .animate-modal-pop {
-  animation: modalPopBlur 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: modalPopBlur 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes fadeSlideSoft {
   from {
     opacity: 0;
-    filter: blur(5px);
-    transform: translateY(8px);
+    transform: translate3d(0, 8px, 0);
   }
   to {
     opacity: 1;
-    filter: blur(0);
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 .animate-fade-slide {
-  animation: fadeSlideSoft 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fadeSlideSoft 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

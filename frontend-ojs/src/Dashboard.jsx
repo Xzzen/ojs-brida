@@ -67,9 +67,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     tabTimerRef.current = setTimeout(() => {
       setActiveTab(nextTab);
       window.scrollTo(0, 0);
-    }, 140);
-    tabEndTimerRef.current = setTimeout(() => {
-      setIsTabBlurring(false);
+      tabEndTimerRef.current = setTimeout(() => {
+        requestAnimationFrame(() => {
+          setIsTabBlurring(false);
+        });
+      }, 65);
     }, 180);
   };
 
@@ -1308,14 +1310,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           </div>
         </header>
 
-        {/* SMOOTH BLUR-MORPH VIEWPORT WRAPPER (SATU LAPIS TRANSISI HALUS, TANPA GETAR) */}
-        <div
-          className={`flex-1 flex flex-col transition-[opacity,filter,transform] duration-300 ease-out will-change-[opacity,filter,transform] ${
-            isTabBlurring
-              ? 'opacity-0 blur-[6px] translate-y-1 pointer-events-none'
-              : 'opacity-100 blur-0 translate-y-0'
-          }`}
-        >
+        {/* GPU-COMPOSITED FROSTED GLASS VEIL + 60FPS VIEWPORT TRANSITION */}
+        <div className="relative flex-1 flex flex-col">
+          {/* Lightweight Frosted-Glass Blur Curtain (Hanya opacity di GPU, 0 re-rasterisasi DOM!) */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none fixed inset-0 lg:left-[276px] top-[64px] z-20 bg-[#FDF7F7]/75 backdrop-blur-md transition-opacity ${
+              isTabBlurring
+                ? 'opacity-100 duration-[180ms] ease-out'
+                : 'opacity-0 duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+            }`}
+          />
+
+          <div
+            className={`flex-1 flex flex-col transition-[opacity,transform] will-change-[opacity,transform] ${
+              isTabBlurring
+                ? 'opacity-0 translate-y-2 duration-[180ms] ease-out pointer-events-none'
+                : 'opacity-100 translate-y-0 duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+            }`}
+          >
 
         {/* ===================================================================
             TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
@@ -4473,6 +4486,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
           </div>
         )}
+          </div>
         </div>
       </main>
 
