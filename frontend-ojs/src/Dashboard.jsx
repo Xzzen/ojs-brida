@@ -10,49 +10,50 @@ import {
   BookOpen, Layers, Award, Search, PlusCircle, UserCheck, Eye,
   Download, CheckSquare, Building2, ShieldCheck,
   Send, X, RefreshCw, ChevronRight, Globe, Lock, ArrowRight, ExternalLink,
-  Trash2, Edit3, Users, UserPlus, Flame
+  Trash2, Edit3, Users, UserPlus, Flame, Menu
 } from 'lucide-react';
 import ForumTrending, { TrendingPortalWidget } from './ForumTrending';
 import { API_BASE, STORAGE_BASE, resolveFileUrl } from './config';
 
 const STATUS_BADGE = {
-  pending: { label: 'MENUNGGU EDITOR', bg: 'bg-amber-50 text-amber-800 border-amber-200' },
-  under_review: { label: 'SEDANG DIREVIEW', bg: 'bg-blue-50 text-blue-800 border-blue-200' },
-  revision_required: { label: 'PERLU REVISI', bg: 'bg-orange-50 text-orange-800 border-orange-200' },
-  accepted: { label: 'DISETUJUI (ACCEPTED)', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-  published: { label: 'TERBIT (PUBLISHED)', bg: 'bg-purple-50 text-purple-800 border-purple-200' },
-  rejected: { label: 'DITOLAK', bg: 'bg-rose-50 text-rose-800 border-rose-200' }
+  pending: { label: 'MENUNGGU EDITOR', bg: 'bg-amber-50/90 text-amber-800 border-amber-200/80' },
+  under_review: { label: 'SEDANG DIREVIEW', bg: 'bg-sky-50/90 text-sky-800 border-sky-200/80' },
+  revision_required: { label: 'PERLU REVISI', bg: 'bg-orange-50/90 text-orange-800 border-orange-200/80' },
+  accepted: { label: 'DISETUJUI', bg: 'bg-emerald-50/90 text-emerald-800 border-emerald-200/80' },
+  published: { label: 'RESMI TERBIT', bg: 'bg-indigo-50/90 text-indigo-800 border-indigo-200/80' },
+  rejected: { label: 'DITOLAK', bg: 'bg-rose-50/90 text-rose-800 border-rose-200/80' }
 };
 
 const JOURNAL_THEME = {
   blue: {
-    border: 'border-[#153e75]',
-    bgHeader: 'from-[#0b2447] via-[#153e75] to-[#1e4b85]',
-    badge: 'bg-blue-50 text-[#153e75] border-blue-200',
-    btn: 'bg-[#153e75] hover:bg-[#0d2b57] text-white'
+    border: 'border-[#0c203d]',
+    bgHeader: 'from-[#071426] via-[#0e274a] to-[#173c6e]',
+    badge: 'bg-slate-50 text-[#0c203d] border-slate-200',
+    btn: 'bg-[#0c203d] hover:bg-[#153563] text-white'
   },
   red: {
-    border: 'border-[#1e4b85]',
-    bgHeader: 'from-[#0d2b57] via-[#1a4b88] to-[#2563eb]',
-    badge: 'bg-blue-50 text-[#1e4b85] border-blue-200',
-    btn: 'bg-[#1e4b85] hover:bg-[#153e75] text-white'
+    border: 'border-[#153563]',
+    bgHeader: 'from-[#0b1f3a] via-[#153563] to-[#1e4b85]',
+    badge: 'bg-blue-50/70 text-[#153563] border-blue-200/80',
+    btn: 'bg-[#153563] hover:bg-[#0c203d] text-white'
   },
   emerald: {
-    border: 'border-teal-700',
-    bgHeader: 'from-[#042f2e] via-[#0f766e] to-[#0d9488]',
-    badge: 'bg-teal-50 text-teal-800 border-teal-200',
-    btn: 'bg-[#0f766e] hover:bg-[#042f2e] text-white'
+    border: 'border-teal-800',
+    bgHeader: 'from-[#042423] via-[#0a4a46] to-[#0f6b64]',
+    badge: 'bg-teal-50/70 text-teal-900 border-teal-200/80',
+    btn: 'bg-[#0a4a46] hover:bg-[#042423] text-white'
   },
   amber: {
-    border: 'border-indigo-700',
-    bgHeader: 'from-[#1e1b4b] via-[#312e81] to-[#3730a3]',
-    badge: 'bg-indigo-50 text-indigo-800 border-indigo-200',
-    btn: 'bg-[#312e81] hover:bg-[#1e1b4b] text-white'
+    border: 'border-slate-800',
+    bgHeader: 'from-[#14172b] via-[#22284a] to-[#323a68]',
+    badge: 'bg-indigo-50/70 text-indigo-900 border-indigo-200/80',
+    btn: 'bg-[#22284a] hover:bg-[#14172b] text-white'
   }
 };
 
 export default function Dashboard({ currentUser, initialTab = 'portal', onLogout }) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [journals, setJournals] = useState([]);
   const [selectedJournalId, setSelectedJournalId] = useState('all');
   const [portalSelectedJournal, setPortalSelectedJournal] = useState(null);
@@ -964,95 +965,136 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   });
 
   return (
-    <div className="min-h-screen flex bg-[#f0f5fb] font-sans text-slate-800">
-      <Toaster position="top-right" />
+    <div className="min-h-screen flex bg-[#f8fafc] font-sans text-slate-900">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            borderRadius: '14px',
+            background: '#0c203d',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: 600,
+            boxShadow: '0 16px 40px -12px rgba(7, 20, 38, 0.35)'
+          }
+        }}
+      />
+
+      {/* Mobile Sidebar Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-xs lg:hidden"
+        />
+      )}
 
       {/* =====================================================================
-          SIDEBAR NAVIGASI OJS MULTI-JOURNAL (THEME: DEEP ACADEMIC BLUE)
+          SIDEBAR NAVIGASI OJS MULTI-JOURNAL (OBSIDIAN ACADEMIC NAVY)
           ===================================================================== */}
-      <aside className="w-72 bg-gradient-to-b from-[#0a2347] via-[#153e75] to-[#0f2e5a] text-white flex flex-col shadow-2xl shrink-0 select-none">
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[272px] bg-gradient-to-b from-[#071426] via-[#0c203d] to-[#08172c] text-white flex flex-col border-r border-white/[0.06] shadow-[4px_0_32px_rgba(7,20,38,0.16)] shrink-0 select-none transition-transform duration-300 ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
         {/* Brand Header */}
-        <div className="px-5 py-4 border-b border-white/10 space-y-2">
-          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-white/80 flex items-center justify-center">
-            <img
-              src="/assets/brida-logo.png"
-              alt="Logo BRIDA Kota Makassar"
-              className="h-11 w-auto object-contain"
-            />
+        <div className="px-5 py-5 border-b border-white/[0.08] space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 bg-white rounded-xl px-3 py-2 shadow-[0_6px_20px_rgba(0,0,0,0.22)] ring-1 ring-white/90 flex items-center justify-center">
+              <img
+                src="/assets/brida-logo.png"
+                alt="Logo BRIDA Kota Makassar"
+                className="h-10 w-auto object-contain"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden p-2 rounded-xl text-slate-300 hover:bg-white/10 cursor-pointer"
+              aria-label="Tutup menu"
+            >
+              <X size={18} />
+            </button>
           </div>
           <div className="flex items-center justify-between px-0.5">
-            <h1 className="font-extrabold text-xs tracking-wide leading-none text-white">
+            <h1 className="font-bold text-[11px] tracking-[0.14em] uppercase text-white/90">
               OJS BRIDA
             </h1>
-            <p className="text-[10px] text-blue-200 font-bold tracking-wider uppercase">
-              Multi-Journal System
+            <p className="text-[10px] text-sky-300/80 font-semibold tracking-wider uppercase">
+              Multi-Journal
             </p>
           </div>
         </div>
 
         {/* Multi-Journal Context Switcher inside Sidebar */}
-        <div className="px-5 pt-5 pb-3 border-b border-white/10">
-          <label className="block text-[11px] font-bold uppercase tracking-wider text-blue-200 mb-2 flex items-center gap-1.5">
-            <Layers size={13} /> Konteks Jurnal Aktif:
+        <div className="px-5 pt-4 pb-4 border-b border-white/[0.08]">
+          <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-2 flex items-center gap-1.5">
+            <Layers size={12} className="text-sky-300" /> Konteks Jurnal Aktif
           </label>
           <select
             value={selectedJournalId}
             onChange={(e) => setSelectedJournalId(e.target.value)}
-            className="w-full bg-black/25 border border-white/20 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-blue-300 cursor-pointer"
+            className="w-full bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] rounded-xl px-3 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-sky-400/70 transition cursor-pointer"
           >
             <option value="all" className="text-slate-900 font-bold">
-              🌐 Semua Jurnal ({journals.length} Jurnal)
+              Semua Jurnal ({journals.length} Jurnal)
             </option>
             {journals.map((j) => (
               <option key={j.id} value={j.id} className="text-slate-900 font-semibold">
-                📘 {j.abbreviation} — {j.accreditation}
+                {j.abbreviation} — {j.accreditation}
               </option>
             ))}
           </select>
         </div>
 
         {/* Main Navigation (Menyesuaikan Hak Akses RBAC) */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-300/80">
-            Menu Akses ({currentUser?.label})
+        <nav className="flex-1 px-3.5 py-4 space-y-1 overflow-y-auto">
+          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400/90">
+            Navigasi • {currentUser?.label}
           </p>
 
           <button
             onClick={() => {
               setActiveTab('portal');
               setPortalSelectedJournal(null);
+              setMobileMenuOpen(false);
             }}
-            className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+            className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
               activeTab === 'portal'
-                ? 'bg-white text-[#153e75] shadow-md'
-                : 'text-blue-100 hover:bg-white/10'
+                ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Globe size={18} /> Portal Publik Jurnal
+              <Globe size={17} className={activeTab === 'portal' ? 'text-[#153563]' : 'text-slate-400'} />
+              Portal Publik Jurnal
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1e4b85] text-white">
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+              activeTab === 'portal' ? 'bg-slate-100 text-[#0c203d]' : 'bg-white/10 text-slate-300'
+            }`}>
               {journals.length}
             </span>
           </button>
 
-          {/* Menu Trending & Forum Riset (Ala Threads / X — Terbuka untuk Semua Role & Pengunjung Publik) */}
+          {/* Menu Trending & Forum Riset */}
           <button
-            onClick={() => setActiveTab('trending')}
-            className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+            onClick={() => {
+              setActiveTab('trending');
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
               activeTab === 'trending'
-                ? 'bg-white text-[#153e75] shadow-md'
-                : 'text-blue-100 hover:bg-white/10'
+                ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Flame size={18} className={activeTab === 'trending' ? 'text-orange-500' : 'text-amber-300'} />
+              <Flame size={17} className={activeTab === 'trending' ? 'text-amber-600' : 'text-amber-400/90'} />
               Trending &amp; Forum
             </span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
               activeTab === 'trending'
-                ? 'bg-orange-100 text-orange-700'
-                : 'bg-amber-400 text-slate-950'
+                ? 'bg-amber-100 text-amber-800'
+                : 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
             }`}>
               {forumThreadCount > 0 ? forumThreadCount : 'HOT'}
             </span>
@@ -1060,18 +1102,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
           {!isGuest && (
             <button
-              onClick={() => setActiveTab('dashboard')}
-              className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              onClick={() => {
+                setActiveTab('dashboard');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'bg-white text-[#153e75] shadow-md'
-                  : 'text-blue-100 hover:bg-white/10'
+                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <LayoutDashboard size={18} />
+                <LayoutDashboard size={17} className={activeTab === 'dashboard' ? 'text-[#153563]' : 'text-slate-400'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                activeTab === 'dashboard' ? 'bg-slate-100 text-[#0c203d]' : 'bg-white/10 text-slate-300'
+              }`}>
                 {scopedStats.total}
               </span>
             </button>
@@ -1080,31 +1127,41 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Manajemen Multi-Jurnal khusus Admin/Editor */}
           {isAdminOrEditor && (
             <button
-              onClick={() => setActiveTab('journals')}
-              className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              onClick={() => {
+                setActiveTab('journals');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'journals'
-                  ? 'bg-white text-[#153e75] shadow-md'
-                  : 'text-blue-100 hover:bg-white/10'
+                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
-              <BookOpen size={18} /> Manajemen Multi-Jurnal
+              <BookOpen size={17} className={activeTab === 'journals' ? 'text-[#153563]' : 'text-slate-400'} />
+              Manajemen Multi-Jurnal
             </button>
           )}
 
           {/* Menu Manajemen Pengguna khusus Admin/Editor */}
           {isAdminOrEditor && (
             <button
-              onClick={() => setActiveTab('users')}
-              className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              onClick={() => {
+                setActiveTab('users');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'users'
-                  ? 'bg-white text-[#153e75] shadow-md'
-                  : 'text-blue-100 hover:bg-white/10'
+                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Users size={18} /> Manajemen Pengguna
+                <Users size={17} className={activeTab === 'users' ? 'text-[#153563]' : 'text-slate-400'} />
+                Manajemen Pengguna
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                activeTab === 'users' ? 'bg-slate-100 text-[#0c203d]' : 'bg-white/10 text-slate-300'
+              }`}>
                 {(stats.users || []).length}
               </span>
             </button>
@@ -1113,33 +1170,40 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Unggah Naskah Baru untuk Author & Admin */}
           {(isAuthor || isAdminOrEditor) && (
             <button
-              onClick={() => setActiveTab('unggah')}
-              className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              onClick={() => {
+                setActiveTab('unggah');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'unggah'
-                  ? 'bg-white text-[#153e75] shadow-md'
-                  : 'text-blue-100 hover:bg-white/10'
+                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
-              <FileUp size={18} /> + Unggah Naskah Baru
+              <FileUp size={17} className={activeTab === 'unggah' ? 'text-[#153563]' : 'text-slate-400'} />
+              Unggah Naskah Baru
             </button>
           )}
 
           {/* Menu Evaluasi & Editorial khusus Reviewer & Admin/Editor */}
           {(isReviewer || isAdminOrEditor) && (
             <button
-              onClick={() => setActiveTab('review')}
-              className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer ${
+              onClick={() => {
+                setActiveTab('review');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'review'
-                  ? 'bg-white text-[#153e75] shadow-md'
-                  : 'text-blue-100 hover:bg-white/10'
+                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <CheckSquare size={18} />
+                <CheckSquare size={17} className={activeTab === 'review' ? 'text-[#153563]' : 'text-slate-400'} />
                 {isReviewer ? 'Meja Evaluasi Review' : 'Evaluasi & Editorial'}
               </span>
               {reviewQueueBadgeCount > 0 && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold tabular-nums">
                   {reviewQueueBadgeCount}
                 </span>
               )}
@@ -1148,16 +1212,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         </nav>
 
         {/* RBAC Role Info Box at Bottom of Sidebar */}
-        <div className="p-4 m-4 rounded-2xl bg-black/25 border border-white/10 text-xs space-y-2">
-          <div className="flex items-center gap-2 text-emerald-300 font-bold">
-            <ShieldCheck size={16} />
+        <div className="p-4 m-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.08] text-xs space-y-1.5">
+          <div className="flex items-center gap-2 text-emerald-300 font-bold text-[11px] tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             <span>AKSES: {currentUser?.role?.toUpperCase()}</span>
           </div>
-          <p className="text-[11px] text-blue-100/80 leading-relaxed">
-            {isAdminOrEditor && 'Akses Penuh: Kelola Multi-Jurnal, Pengguna, Tugaskan Multi-Reviewer, & Terbitkan DOI.'}
-            {isReviewer && 'Akses Mitra Bestari: Menelaah naskah yang ditugaskan kepada akun Anda secara independen.'}
-            {isAuthor && 'Akses Penulis: Kirim naskah baru, pantau status review, & unggah berkas revisi.'}
-            {isGuest && 'Mode Pengunjung Publik: Baca dan unduh PDF artikel ilmiah terbit secara terbuka (Open Access).'}
+          <p className="text-[11px] text-slate-300/80 leading-relaxed">
+            {isAdminOrEditor && 'Akses Penuh: Kelola Multi-Jurnal, Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
+            {isReviewer && 'Akses Mitra Bestari: Konfirmasi undangan & telaah naskah secara independen.'}
+            {isAuthor && 'Akses Penulis: Kirim naskah berstandar SINTA, pantau progress, & unggah revisi.'}
+            {isGuest && 'Mode Pengunjung Publik: Jelajahi artikel Open Access & Trending Topik Riset.'}
           </p>
         </div>
       </aside>
@@ -1166,54 +1230,64 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MAIN CONTENT AREA
           ===================================================================== */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* TOPBAR HEADER */}
-        <header className="bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-6 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-30 shadow-xs">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#102a4c]">
-                Sistem Inovasi OJS
-              </h2>
-              <span className="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-[#eaf2fb] text-[#153e75] border border-blue-200">
-                {activeJournalObj ? activeJournalObj.abbreviation : 'Portal Multi-Journal BRIDA'}
-              </span>
+        {/* TOPBAR HEADER — MINIMALIST GLASSMORPHIC */}
+        <header className="bg-white/85 backdrop-blur-xl border-b border-slate-200/75 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer shrink-0"
+              aria-label="Buka menu navigasi"
+            >
+              <Menu size={18} />
+            </button>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h2 className="text-base sm:text-lg font-extrabold text-[#0c203d] tracking-tight">
+                  Sistem Publikasi OJS
+                </h2>
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  {activeJournalObj ? activeJournalObj.abbreviation : 'Portal Multi-Journal BRIDA'}
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 truncate">
+                {isGuest ? (
+                  <span>Pengunjung Publik • Open Access Portal</span>
+                ) : (
+                  <>
+                    <strong className="text-slate-800 font-semibold">{currentUser?.name}</strong>{' '}
+                    <span className="hidden sm:inline text-slate-400">({currentUser?.email})</span>
+                  </>
+                )}
+              </p>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {isGuest ? (
-                <span>Mode Publik (Belum Masuk)</span>
-              ) : (
-                <>
-                  Akun Aktif: <strong className="text-slate-800">{currentUser?.name}</strong>{' '}
-                  <span className="text-slate-400">({currentUser?.email})</span> •{' '}
-                  <span className="font-bold text-[#153e75]">{currentUser?.label}</span>
-                </>
-              )}
-            </p>
           </div>
 
-          {/* Authenticated User Pill + Logout / Login Button (TANPA SIMULASI ROLE SWITCHER) */}
-          <div className="flex items-center gap-3 flex-wrap">
+          {/* Authenticated User Pill + Logout / Login Button */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             {!isGuest && (
-              <div className="hidden sm:flex items-center gap-2 bg-[#eaf2fb] px-3.5 py-2 rounded-xl border border-blue-200/80 text-xs">
-                <ShieldCheck size={14} className="text-[#153e75]" />
-                <span className="font-bold text-[#153e75]">{currentUser?.label}</span>
+              <div className="hidden md:flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200/90 text-xs">
+                <ShieldCheck size={14} className="text-[#0c203d]" />
+                <span className="font-semibold text-slate-700">{currentUser?.label}</span>
               </div>
             )}
 
             <button
               onClick={onLogout}
-              className={`flex items-center gap-1.5 font-bold text-xs px-4 py-2 rounded-xl border transition cursor-pointer ${
+              className={`flex items-center gap-1.5 font-semibold text-xs px-4 py-2 rounded-full border transition-all cursor-pointer ${
                 isGuest
-                  ? 'bg-[#153e75] hover:bg-[#0f2e5a] text-white border-[#153e75] shadow-xs'
-                  : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-200'
+                  ? 'bg-[#0c203d] hover:bg-[#153563] text-white border-[#0c203d] shadow-[0_4px_14px_rgba(12,32,61,0.22)]'
+                  : 'bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 border-slate-200'
               }`}
             >
               {isGuest ? (
                 <>
-                  <Lock size={14} /> Masuk / Daftar Akun
+                  <Lock size={13} /> Masuk / Daftar
                 </>
               ) : (
                 <>
-                  <LogOut size={14} /> Keluar Akun
+                  <LogOut size={13} /> Keluar
                 </>
               )}
             </button>
@@ -1221,51 +1295,53 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         </header>
 
         {/* ===================================================================
-            TAB 1: PORTAL PUBLIK MULTI-JOURNAL (THEME & DESIGN FROM PDF)
+            TAB 1: PORTAL PUBLIK MULTI-JOURNAL — EDITORIAL LUXURY EDITION
            =================================================================== */}
         {activeTab === 'portal' && (
           <div
-            className="flex-1 w-full relative overflow-x-hidden p-6 sm:p-10 pb-20"
+            className="flex-1 w-full relative overflow-x-hidden px-5 sm:px-10 pt-8 pb-24"
             style={{
               background:
-                'linear-gradient(180deg, #91bae1 0%, #bad5f0 22%, #ddebf8 48%, #c5dcf3 75%, #9ec3e7 100%)',
+                'radial-gradient(ellipse 85% 45% at 50% 0%, #dce8f8 0%, #f1f5fb 38%, #f8fafc 78%)',
             }}
           >
             {!portalSelectedJournal ? (
-              <div className="max-w-[1120px] mx-auto space-y-12">
-                {/* HERO SECTION — Giant "JOURNAL" + 3D Blue Stacked Books + Search Bar Pill */}
-                <section className="relative pt-4 pb-8 flex flex-col items-center justify-center">
-                  {/* Giant Serif "JOURNAL" Text */}
-                  <div className="relative w-full flex justify-center pt-2">
+              <div className="max-w-[1140px] mx-auto space-y-14">
+                {/* HERO SECTION — Editorial Serif "JOURNAL" + 3D Books + Luxury Search Pill */}
+                <section className="relative pt-2 pb-6 flex flex-col items-center justify-center">
+                  {/* Official Institutional Eyebrow Pill */}
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs text-[11px] font-bold tracking-[0.14em] uppercase text-[#0c203d] mb-4">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Badan Riset &amp; Inovasi Daerah • Kota Makassar
+                  </div>
+
+                  {/* Giant Editorial Serif "JOURNAL" Text */}
+                  <div className="relative w-full flex justify-center">
                     <h1
-                      className="text-center font-normal tracking-[0.05em] text-[68px] sm:text-[128px] md:text-[168px] lg:text-[192px] leading-none text-white/80 select-none pointer-events-none"
-                      style={{
-                        fontFamily: "'Times New Roman', Georgia, serif",
-                        textShadow: '0 8px 32px rgba(35, 78, 138, 0.12)',
-                      }}
+                      className="font-serif-editorial text-center font-bold tracking-[0.06em] text-[64px] sm:text-[124px] md:text-[164px] lg:text-[184px] leading-none select-none pointer-events-none bg-gradient-to-b from-[#0c203d]/20 via-[#153563]/14 to-transparent bg-clip-text text-transparent"
                     >
                       JOURNAL
                     </h1>
 
-                    {/* 3D Floating Stacked Blue Books — Anchored cleanly below top of text */}
+                    {/* 3D Floating Stacked Blue Books */}
                     <img
                       src="/assets/hero-books.png"
-                      alt="3D Journal Books"
-                      className="absolute top-12 sm:top-20 md:top-24 z-10 w-[190px] sm:w-[270px] md:w-[330px] object-contain pointer-events-none drop-shadow-[0_26px_35px_rgba(19,59,118,0.28)]"
+                      alt="Koleksi Jurnal BRIDA"
+                      className="absolute top-8 sm:top-16 md:top-20 z-10 w-[180px] sm:w-[255px] md:w-[310px] object-contain pointer-events-none drop-shadow-[0_30px_40px_rgba(12,32,61,0.22)]"
                     />
                   </div>
 
-                  {/* Search Bar Pill Overlapping the Lower Books */}
-                  <div className="relative z-20 w-full max-w-[560px] mt-24 sm:mt-36 md:mt-44">
-                    <div className="w-full bg-white/95 backdrop-blur-md rounded-full p-1.5 pl-4 sm:pl-5 shadow-[0_12px_35px_rgba(21,62,117,0.22)] border border-white flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                        <Search size={16} className="text-slate-400 shrink-0" />
+                  {/* Luxury Search Bar Pill */}
+                  <div className="relative z-20 w-full max-w-[600px] mt-24 sm:mt-36 md:mt-44">
+                    <div className="w-full bg-white/95 backdrop-blur-xl rounded-full p-2 pl-5 shadow-[0_8px_30px_rgba(12,32,61,0.10),0_1px_2px_rgba(15,23,42,0.04)] border border-slate-200/90 focus-within:border-[#0c203d]/40 focus-within:ring-4 focus-within:ring-[#0c203d]/5 flex items-center justify-between gap-2 transition-all">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <Search size={17} className="text-slate-400 shrink-0" />
                         <input
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Cari judul jurnal, nama penulis, atau abstrak..."
-                          className="w-full bg-transparent text-xs sm:text-sm text-slate-700 placeholder-slate-400 focus:outline-none"
+                          placeholder="Cari judul artikel ilmiah, penulis, DOI, atau topik riset..."
+                          className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
                         />
                       </div>
                       <button
@@ -1274,9 +1350,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           const el = document.getElementById('daftar-artikel');
                           if (el) el.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className="px-6 sm:px-7 py-2 rounded-full bg-[#234e8a] hover:bg-[#193b6b] text-white font-bold text-xs sm:text-sm shadow-sm transition cursor-pointer shrink-0"
+                        className="px-6 sm:px-7 py-2.5 rounded-full bg-[#0c203d] hover:bg-[#153563] text-white font-semibold text-xs sm:text-sm shadow-sm transition cursor-pointer shrink-0"
                       >
-                        Cari
+                        Telusuri
                       </button>
                     </div>
 
@@ -1286,10 +1362,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         <button
                           type="button"
                           onClick={() => setSelectedJournalId('all')}
-                          className={`px-3.5 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                          className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
                             selectedJournalId === 'all'
-                              ? 'bg-[#234e8a] text-white shadow-sm'
-                              : 'bg-white/80 text-[#1e4b85] hover:bg-white'
+                              ? 'bg-[#0c203d] text-white border-[#0c203d] shadow-xs'
+                              : 'bg-white/90 text-slate-700 border-slate-200/90 hover:border-slate-300 hover:bg-white'
                           }`}
                         >
                           Semua Jurnal ({journals.length})
@@ -1299,10 +1375,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             key={j.id}
                             type="button"
                             onClick={() => setSelectedJournalId(j.id)}
-                            className={`px-3.5 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                            className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
                               String(selectedJournalId) === String(j.id)
-                                ? 'bg-[#234e8a] text-white shadow-sm'
-                                : 'bg-white/80 text-[#1e4b85] hover:bg-white'
+                                ? 'bg-[#0c203d] text-white border-[#0c203d] shadow-xs'
+                                : 'bg-white/90 text-slate-700 border-slate-200/90 hover:border-slate-300 hover:bg-white'
                             }`}
                           >
                             {j.abbreviation}
@@ -1310,35 +1386,54 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         ))}
                       </div>
                     )}
+
+                    {/* Institutional Trust Bar */}
+                    <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-medium text-slate-500">
+                      <span className="inline-flex items-center gap-1.5">
+                        <CheckCircle2 size={13} className="text-emerald-600" /> Diamond Open Access (Rp 0)
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <ShieldCheck size={13} className="text-[#0c203d]" /> Double-Blind Peer Review
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Award size={13} className="text-amber-600" /> Terindeks SINTA &amp; DOI Resmi
+                      </span>
+                    </div>
                   </div>
                 </section>
 
-                {/* SECTION: TRENDING TOPIK & DISKUSI HANGAT (ALA THREADS / X) */}
+                {/* SECTION: TRENDING TOPIK & DISKUSI HANGAT */}
                 <TrendingPortalWidget apiBase={API_BASE} onOpenForum={handleOpenForum} />
 
                 {/* SECTION: PUSAT PUBLIKASI + INFORMASI JURNAL SPLIT CARD */}
                 <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                   {/* Left Card */}
-                  <div className="lg:col-span-4 bg-white/95 rounded-[26px] shadow-[0_18px_45px_rgba(21,62,117,0.14)] border border-white p-6 flex flex-col items-center justify-center text-center">
+                  <div className="lg:col-span-4 card-luxury rounded-[26px] p-7 flex flex-col items-center justify-center text-center">
                     <img
                       src="/assets/pusat-books.png"
                       alt="Pusat Publikasi & Riset Inovasi Daerah"
-                      className="w-48 sm:w-56 object-contain mb-4 drop-shadow-md"
+                      className="w-44 sm:w-52 object-contain mb-5 drop-shadow-[0_16px_24px_rgba(12,32,61,0.14)]"
                     />
-                    <h3 className="text-[#1a3e72] font-extrabold text-lg sm:text-[21px] leading-snug max-w-[230px]">
-                      Pusat publikasi &amp; Riset Inovasi Daerah
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 mb-1.5">
+                      Ekosistem Publikasi
+                    </span>
+                    <h3 className="font-serif-editorial text-[#0c203d] font-bold text-xl leading-snug max-w-[240px]">
+                      Pusat Publikasi &amp; Riset Inovasi Daerah
                     </h3>
                   </div>
 
                   {/* Right Split Card */}
-                  <div className="lg:col-span-8 bg-white/95 rounded-[26px] shadow-[0_18px_45px_rgba(21,62,117,0.14)] border border-white overflow-hidden grid grid-cols-1 md:grid-cols-12">
-                    {/* Dark-Blue Left Sidebar */}
-                    <div className="md:col-span-4 bg-[#234e8a] text-white p-6 flex flex-col justify-between">
+                  <div className="lg:col-span-8 card-luxury rounded-[26px] overflow-hidden grid grid-cols-1 md:grid-cols-12">
+                    {/* Obsidian-Navy Left Sidebar */}
+                    <div className="md:col-span-4 bg-gradient-to-b from-[#071426] to-[#0e2647] text-white p-6 flex flex-col justify-between">
                       <div>
-                        <h3 className="font-extrabold text-lg sm:text-xl mb-5 tracking-tight">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-300/80 block mb-1">
+                          Profil Redaksi
+                        </span>
+                        <h3 className="font-serif-editorial font-bold text-xl mb-5 tracking-tight">
                           Informasi Jurnal
                         </h3>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                           {[
                             { key: 'fokus', label: 'Fokus & Ruang Lingkup' },
                             { key: 'peer_review', label: 'Proses Peer Review' },
@@ -1349,10 +1444,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               key={tab.key}
                               type="button"
                               onClick={() => setActiveInfoTab(tab.key)}
-                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs sm:text-[13px] transition cursor-pointer ${
+                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer ${
                                 activeInfoTab === tab.key
-                                  ? 'bg-white text-[#1a3e72] font-extrabold shadow-sm'
-                                  : 'text-white/85 hover:bg-white/10 font-medium'
+                                  ? 'bg-white text-[#0c203d] font-bold shadow-sm'
+                                  : 'text-slate-300 hover:bg-white/[0.08] hover:text-white font-medium'
                               }`}
                             >
                               {tab.label}
@@ -1463,46 +1558,60 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   </div>
                 </section>
 
-                {/* SECTION: 5-CIRCLE ALUR PENERBITAN NASKAH */}
-                <section className="text-center">
-                  <h2 className="text-[#1a3e72] font-extrabold text-xl sm:text-[28px] tracking-tight mb-10">
-                    Panduan Penulis / Alur Penerbitan Naskah
+                {/* SECTION: 5-STEP ALUR PENERBITAN NASKAH */}
+                <section className="card-luxury rounded-[28px] px-6 sm:px-10 py-10 text-center">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-2">
+                    Standar Publikasi OJS
+                  </span>
+                  <h2 className="font-serif-editorial text-[#0c203d] font-bold text-2xl sm:text-3xl tracking-tight mb-10">
+                    Alur Penerbitan Naskah Ilmiah
                   </h2>
 
-                  <div className="max-w-[920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-0 px-4">
+                  <div className="max-w-[920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-0 px-2">
                     {[
                       {
                         label: 'Submission',
-                        icon: <FileUp size={28} className="text-white" />
+                        sub: 'Validasi SINTA',
+                        icon: <FileUp size={24} className="text-white" />
                       },
                       {
                         label: 'Pre-Review',
-                        icon: <BookOpen size={28} className="text-white" />
+                        sub: 'Seleksi Editor',
+                        icon: <BookOpen size={24} className="text-white" />
                       },
                       {
                         label: 'Peer Review',
-                        icon: <CheckSquare size={28} className="text-white" />
+                        sub: 'Double-Blind',
+                        icon: <CheckSquare size={24} className="text-white" />
                       },
                       {
                         label: 'Revisi',
-                        icon: <RefreshCw size={28} className="text-white" />
+                        sub: 'Penyempurnaan',
+                        icon: <RefreshCw size={24} className="text-white" />
                       },
                       {
-                        label: 'Terbit',
-                        icon: <CheckCircle2 size={28} className="text-white" />
+                        label: 'Terbit & DOI',
+                        sub: 'Open Access',
+                        icon: <CheckCircle2 size={24} className="text-white" />
                       },
                     ].map((step, idx, arr) => (
                       <React.Fragment key={step.label}>
-                        <div className="flex flex-col items-center">
-                          <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full bg-[#234e8a] border-[4px] border-white shadow-[0_0_0_2px_#234e8a,0_12px_25px_rgba(21,62,117,0.25)] flex items-center justify-center transition transform hover:scale-105">
+                        <div className="flex flex-col items-center group">
+                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#0c203d] to-[#1a3e72] ring-4 ring-slate-100 shadow-[0_12px_26px_-8px_rgba(12,32,61,0.35)] flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
                             {step.icon}
+                            <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-[#0c203d] border border-slate-200 text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                              {idx + 1}
+                            </span>
                           </div>
-                          <span className="mt-3 text-xs sm:text-sm font-extrabold text-[#1a3e72]">
+                          <span className="mt-3.5 text-xs sm:text-sm font-bold text-[#0c203d]">
                             {step.label}
+                          </span>
+                          <span className="text-[10px] font-medium text-slate-400 mt-0.5">
+                            {step.sub}
                           </span>
                         </div>
                         {idx < arr.length - 1 && (
-                          <div className="hidden sm:block flex-1 border-t-[2.5px] border-dashed border-[#234e8a]/65 mx-2 -mt-6" />
+                          <div className="hidden sm:block flex-1 border-t border-dashed border-slate-300 mx-3 -mt-9" />
                         )}
                       </React.Fragment>
                     ))}
@@ -1511,32 +1620,35 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                 {/* SECTION: TERBITAN TERKINI (CURRENT ISSUE) */}
                 <section id="daftar-artikel" className="space-y-6">
-                  {/* Frosted Banner Header */}
-                  <div className="rounded-[20px] bg-white/55 backdrop-blur-md border border-white/80 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+                  {/* Editorial Section Header */}
+                  <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 pb-4">
                     <div>
-                      <h2 className="text-[#1a3e72] font-extrabold text-xl sm:text-2xl">
-                        Terbitan Terkini (Current issue)
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-1">
+                        Publikasi Terkini • Open Access
+                      </span>
+                      <h2 className="font-serif-editorial text-[#0c203d] font-bold text-2xl sm:text-3xl tracking-tight">
+                        Terbitan Terkini (Current Issue)
                       </h2>
-                      <p className="text-[#1e4b85]/80 text-xs sm:text-sm mt-0.5">
-                        Koleksi artikel terbaru yang dipublikasikan pada Volume 3 Nomor 2.
+                      <p className="text-slate-500 text-xs sm:text-sm mt-1">
+                        Koleksi artikel ilmiah resmi yang telah melalui penelaahan sejawat &amp; ber-DOI aktif.
                       </p>
                     </div>
-                    <span className="text-xs font-bold text-[#153e75] bg-white/80 px-3.5 py-1.5 rounded-full border border-white">
-                      {publishedSubmissions.length} Artikel Resmi Terbit
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0c203d] bg-white px-4 py-2 rounded-full border border-slate-200 shadow-2xs">
+                      <BookOpen size={13} /> {publishedSubmissions.length} Artikel Resmi Terbit
                     </span>
                   </div>
 
                   {/* Cards Grid */}
                   {publishedSubmissions.length === 0 ? (
-                    <div className="bg-white/90 rounded-[24px] p-10 text-center border border-white shadow-xs">
-                      <p className="text-sm font-bold text-slate-600">
+                    <div className="card-luxury rounded-[24px] p-12 text-center">
+                      <p className="text-sm font-semibold text-slate-600">
                         Tidak ditemukan artikel terbit yang cocok dengan pencarian Anda.
                       </p>
                       {searchQuery && (
                         <button
                           type="button"
                           onClick={() => setSearchQuery('')}
-                          className="mt-3 px-4 py-1.5 rounded-full bg-[#153e75] text-white text-xs font-bold cursor-pointer"
+                          className="mt-3 px-4 py-2 rounded-full bg-[#0c203d] text-white text-xs font-semibold cursor-pointer"
                         >
                           Reset Pencarian
                         </button>
@@ -1544,54 +1656,73 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     </div>
                   ) : (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {publishedSubmissions.map((sub) => (
+                    {publishedSubmissions.map((sub) => {
+                      const coverTheme = JOURNAL_THEME[sub.journal?.accent_color] || JOURNAL_THEME.blue;
+                      return (
                       <div
                         key={sub.id}
-                        className="bg-white rounded-[24px] p-5 shadow-[0_15px_35px_rgba(21,62,117,0.14)] border border-white flex flex-col justify-between transition hover:-translate-y-1"
+                        className="card-luxury card-luxury-hover rounded-[24px] p-5 flex flex-col justify-between"
                       >
                         <div>
-                          {/* Gray Cover Placeholder Box from PDF */}
+                          {/* Bespoke Editorial Academic Journal Cover */}
                           <div
                             onClick={() => setDetailSubmission(sub)}
-                            className="w-full h-44 rounded-[16px] bg-[#d9d9d9] mb-4 relative overflow-hidden cursor-pointer group flex items-end p-3"
+                            className={`w-full h-44 rounded-[18px] bg-gradient-to-br ${coverTheme.bgHeader} mb-4 relative overflow-hidden cursor-pointer group p-4 flex flex-col justify-between text-white shadow-inner`}
                           >
-                            <div className="opacity-0 group-hover:opacity-100 transition bg-[#153e75]/90 text-white text-[11px] p-2.5 rounded-xl w-full backdrop-blur-xs">
-                              <div className="font-bold line-clamp-2">{sub.title}</div>
-                              <div className="text-blue-200 text-[10px] mt-0.5">
-                                Klik untuk melihat detail &amp; sitasi
+                            {/* Decorative subtle editorial lines */}
+                            <div className="pointer-events-none absolute -right-10 -top-10 w-36 h-36 rounded-full bg-white/[0.06]" />
+                            <div className="pointer-events-none absolute -left-8 -bottom-12 w-32 h-32 rounded-full bg-white/[0.04]" />
+
+                            <div className="relative z-10 flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20 backdrop-blur-xs">
+                                {sub.journal?.abbreviation || 'J-SINTESA'}
+                              </span>
+                              <span className="text-[10px] font-semibold text-amber-200/95">
+                                {sub.journal?.accreditation || 'SINTA 2'}
+                              </span>
+                            </div>
+
+                            <div className="relative z-10 space-y-1.5">
+                              <div className="w-8 h-0.5 bg-amber-300/80 rounded-full" />
+                              <div className="font-serif-editorial text-sm font-bold leading-snug line-clamp-2 text-white/95 group-hover:text-white transition">
+                                {sub.title}
+                              </div>
+                              <div className="text-[10px] text-blue-100/75 flex items-center justify-between pt-0.5">
+                                <span className="truncate">{sub.issue ? `${sub.issue.volume} ${sub.issue.number} (${sub.issue.year})` : 'Open Access Article'}</span>
+                                <span className="font-semibold text-white/90 group-hover:translate-x-0.5 transition">Baca →</span>
                               </div>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2.5 py-0.5 rounded-full bg-[#eaf2fb] text-[#153e75] font-bold text-[10px] border border-blue-200">
+                            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[#0c203d] font-bold text-[10px] border border-slate-200/80">
                               {sub.journal?.abbreviation || 'J-SINTESA'}
                             </span>
                             {sub.doi && (
-                              <span className="text-[10px] font-mono text-slate-500 truncate">
-                                DOI: {sub.doi}
+                              <span className="text-[10px] font-mono text-slate-400 truncate">
+                                {sub.doi}
                               </span>
                             )}
                           </div>
 
                           <h3
                             onClick={() => setDetailSubmission(sub)}
-                            className="text-slate-900 font-extrabold text-base leading-snug cursor-pointer hover:text-[#234e8a] line-clamp-2"
+                            className="text-slate-900 font-bold text-[15px] leading-snug cursor-pointer hover:text-[#153563] line-clamp-2 transition"
                           >
                             {sub.title}
                           </h3>
-                          <p className="text-slate-500 text-xs mt-1.5">
-                            Oleh : {sub.author?.name || 'Penerbit'}
+                          <p className="text-slate-500 text-xs mt-1.5 line-clamp-1">
+                            {sub.author?.name || 'Penerbit'}
                             {sub.co_authors ? `, ${sub.co_authors}` : ''}
                           </p>
                         </div>
 
-                        {/* Bottom-Right Dark-Blue Pill Button "PDF" */}
-                        <div className="mt-5 flex items-center justify-between pt-3 border-t border-slate-100">
+                        {/* Bottom Action Bar */}
+                        <div className="mt-5 flex items-center justify-between pt-3.5 border-t border-slate-100">
                           <button
                             type="button"
                             onClick={() => setDetailSubmission(sub)}
-                            className="text-xs font-bold text-slate-500 hover:text-[#153e75] cursor-pointer"
+                            className="text-xs font-semibold text-slate-500 hover:text-[#0c203d] transition cursor-pointer"
                           >
                             Detail Abstrak
                           </button>
@@ -1600,37 +1731,40 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               href={resolveFileUrl(sub.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-5 py-1.5 rounded-full bg-[#234e8a] hover:bg-[#163561] text-white font-bold text-xs shadow-sm transition"
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0c203d] hover:bg-[#153563] text-white font-semibold text-xs shadow-xs transition"
                             >
-                              PDF
+                              <FileText size={12} /> Baca PDF
                             </a>
                           )}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   )}
                 </section>
 
                 {/* SECTION: KATALOG MULTI-JURNAL BRIDA */}
                 <section className="space-y-6 pt-4">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 pb-4">
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-extrabold text-[#1a3e72] flex items-center gap-2">
-                        <BookOpen size={24} />
-                        Katalog Jurnal Ilmiah BRIDA Kota Makassar ({journals.length} Jurnal)
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-1">
+                        Direktori Resmi
+                      </span>
+                      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold text-[#0c203d] tracking-tight">
+                        Katalog Jurnal Ilmiah BRIDA ({journals.length} Jurnal)
                       </h3>
-                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                        Jelajahi seluruh jurnal ilmiah resmi yang dinaungi dalam ekosistem Portal OJS BRIDA.
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                        Jelajahi seluruh jurnal ilmiah resmi yang dinaungi dalam ekosistem Portal OJS BRIDA Kota Makassar.
                       </p>
                     </div>
 
                     {isAdminOrEditor && (
                       <button
                         onClick={() => setShowAddJournalModal(true)}
-                        className="flex items-center gap-2 bg-[#153e75] hover:bg-[#0f2e5a] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md transition cursor-pointer"
+                        className="flex items-center gap-2 bg-[#0c203d] hover:bg-[#153563] text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-sm transition cursor-pointer"
                       >
-                        <PlusCircle size={16} /> + Tambah Jurnal Baru
+                        <PlusCircle size={15} /> Tambah Jurnal Baru
                       </button>
                     )}
                   </div>
@@ -1642,7 +1776,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       return (
                         <div
                           key={j.id}
-                          className="bg-white rounded-3xl shadow-[0_12px_35px_rgba(21,62,117,0.12)] border border-white overflow-hidden flex flex-col justify-between transition group hover:-translate-y-1"
+                          className="card-luxury card-luxury-hover rounded-[24px] overflow-hidden flex flex-col justify-between group"
                         >
                           <div>
                             <div className={`bg-gradient-to-r ${theme.bgHeader} p-6 text-white`}>
@@ -1883,25 +2017,35 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
            =================================================================== */}
         {activeTab === 'dashboard' && !isGuest && (
           <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto">
-            {/* Kartu Metrik Utama */}
+            {/* Kartu Metrik Eksekutif — Modern Minimalist */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 border-l-4 border-l-[#153e75]">
-                <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
-                  <span>{isAuthor ? 'Naskah Saya' : isReviewer ? 'Tugas Review Saya' : 'Total Naskah'}</span>
-                  <FileText size={18} className="text-[#153e75]" />
+              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    {isAuthor ? 'Naskah Saya' : isReviewer ? 'Tugas Review Saya' : 'Total Naskah'}
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0c203d] flex items-center justify-center">
+                    <FileText size={17} />
+                  </div>
                 </div>
-                <p className="text-3xl font-extrabold text-slate-800 mt-3">{scopedStats.total}</p>
+                <p className="text-3xl font-extrabold text-[#0c203d] mt-3 tabular-nums tracking-tight">
+                  {scopedStats.total}
+                </p>
                 <p className="text-xs text-slate-400 mt-1">
-                  Across {stats.journals_count || journals.length} Jurnal BRIDA
+                  Tersebar di {stats.journals_count || journals.length} Jurnal BRIDA
                 </p>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 border-l-4 border-l-blue-600">
-                <div className="flex items-center justify-between text-blue-700 text-xs font-bold uppercase">
-                  <span>Tahap Evaluasi / Review</span>
-                  <Clock size={18} />
+              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    Dalam Proses Review
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
+                    <Clock size={17} />
+                  </div>
                 </div>
-                <p className="text-3xl font-extrabold text-blue-700 mt-3">
+                <p className="text-3xl font-extrabold text-sky-700 mt-3 tabular-nums tracking-tight">
                   {scopedStats.pending + scopedStats.under_review + scopedStats.revision_required}
                 </p>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1909,28 +2053,40 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </p>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 border-l-4 border-l-emerald-600">
-                <div className="flex items-center justify-between text-emerald-700 text-xs font-bold uppercase">
-                  <span>Lolos Review (Accepted)</span>
-                  <CheckCircle2 size={18} />
+              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    Disetujui (Accepted)
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                    <CheckCircle2 size={17} />
+                  </div>
                 </div>
-                <p className="text-3xl font-extrabold text-emerald-700 mt-3">{scopedStats.accepted}</p>
+                <p className="text-3xl font-extrabold text-emerald-700 mt-3 tabular-nums tracking-tight">
+                  {scopedStats.accepted}
+                </p>
                 <p className="text-xs text-slate-400 mt-1">Siap diterbitkan ke Nomor Issue</p>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 border-l-4 border-l-purple-600">
-                <div className="flex items-center justify-between text-purple-700 text-xs font-bold uppercase">
-                  <span>Resmi Terbit (Published)</span>
-                  <Award size={18} />
+              <div className="card-luxury card-luxury-hover p-5 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    Resmi Terbit
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+                    <Award size={17} />
+                  </div>
                 </div>
-                <p className="text-3xl font-extrabold text-purple-700 mt-3">{scopedStats.published}</p>
+                <p className="text-3xl font-extrabold text-indigo-700 mt-3 tabular-nums tracking-tight">
+                  {scopedStats.published}
+                </p>
                 <p className="text-xs text-slate-400 mt-1">Lengkap dengan registrasi DOI</p>
               </div>
             </div>
 
             {/* Grafik Analitik: BarChart Multi-Jurnal & PieChart Status */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-7 bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+              <div className="lg:col-span-7 card-luxury p-6 rounded-2xl">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
                   <div>
                     <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700">

@@ -106,28 +106,28 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     <div
       className="min-h-screen w-full relative overflow-x-hidden flex flex-col justify-between py-6 px-4 sm:px-8 select-none"
       style={{
-        background: 'linear-gradient(145deg, #8bb4de 0%, #c2dcf2 38%, #dcebf8 70%, #9ec2e6 100%)'
+        background: 'radial-gradient(ellipse 90% 60% at 50% 0%, #dce8f8 0%, #f1f5fb 45%, #f8fafc 100%)'
       }}
     >
-      {/* Decorative ambient radial glows */}
+      {/* Decorative subtle ambient glows */}
       <div
-        className="pointer-events-none absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full opacity-45 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #2563eb 0%, transparent 70%)' }}
+        className="pointer-events-none absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full opacity-25 blur-3xl"
+        style={{ background: 'radial-gradient(circle, #1e4b85 0%, transparent 70%)' }}
       />
       <div
-        className="pointer-events-none absolute -bottom-40 -right-24 w-[600px] h-[600px] rounded-full opacity-45 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #1d4ed8 0%, transparent 70%)' }}
+        className="pointer-events-none absolute -bottom-40 -right-24 w-[540px] h-[540px] rounded-full opacity-20 blur-3xl"
+        style={{ background: 'radial-gradient(circle, #0c203d 0%, transparent 70%)' }}
       />
 
       {/* Top Header Bar */}
-      <header className="relative z-20 max-w-[1140px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 bg-white/75 backdrop-blur-md border border-white/80 rounded-2xl px-6 py-3.5 shadow-[0_8px_30px_rgba(27,73,138,0.1)]">
+      <header className="relative z-20 max-w-[1140px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 bg-white/85 backdrop-blur-xl border border-slate-200/80 rounded-2xl px-6 py-3.5 shadow-[0_8px_30px_-12px_rgba(12,32,61,0.10)]">
         <div className="flex items-center gap-3">
           <img
             src="/assets/brida-logo.png"
             alt="BRIDA Kota Makassar"
             className="h-10 sm:h-11 object-contain"
           />
-          <span className="hidden sm:inline-block text-xs font-bold uppercase tracking-wider text-[#153e75] bg-[#eaf2fb] px-3 py-1 rounded-full border border-blue-200">
+          <span className="hidden sm:inline-block text-[11px] font-bold uppercase tracking-[0.14em] text-[#0c203d] bg-slate-100 px-3 py-1 rounded-full border border-slate-200/80">
             Multi-Journal System
           </span>
         </div>
@@ -135,16 +135,16 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
         <button
           type="button"
           onClick={onOpenPublicPortal}
-          className="flex items-center gap-2 bg-[#153e75] hover:bg-[#0f2e5a] text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-md transition cursor-pointer"
+          className="flex items-center gap-2 bg-[#0c203d] hover:bg-[#153563] text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-[0_6px_18px_rgba(12,32,61,0.2)] transition cursor-pointer"
         >
-          <BookOpen size={16} />
-          <span>Jelajahi Portal Publik (Tanpa Login)</span>
-          <ArrowRight size={16} />
+          <BookOpen size={15} />
+          <span>Jelajahi Portal Publik</span>
+          <ArrowRight size={15} />
         </button>
       </header>
 
       {/* Main Split Card */}
-      <div className="relative z-10 my-6 max-w-[1080px] w-full mx-auto bg-white rounded-[28px] shadow-[0_25px_70px_rgba(19,59,118,0.22)] border-2 border-[#1e4b85]/40 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="relative z-10 my-6 max-w-[1080px] w-full mx-auto bg-white rounded-[28px] shadow-[0_24px_80px_-24px_rgba(12,32,61,0.22)] border border-slate-200/90 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Left Side: "Start your journey" with Notebook Illustration */}
         <div className="lg:col-span-6 relative rounded-[20px] overflow-hidden min-h-[360px] lg:min-h-[580px] flex flex-col justify-between p-6 sm:p-8 select-none">
           <img

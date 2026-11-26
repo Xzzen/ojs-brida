@@ -136,50 +136,50 @@ export function TrendingPortalWidget({ apiBase, onOpenForum }) {
   const topTags = (data.trending_topics || []).slice(0, 6);
 
   return (
-    <section className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
-      <div className="bg-gradient-to-r from-[#0a2347] via-[#153e75] to-[#1e4b85] px-6 py-4 flex flex-wrap items-center justify-between gap-3 text-white">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center">
+    <section className="card-luxury rounded-[28px] overflow-hidden">
+      <div className="bg-gradient-to-r from-[#071426] via-[#0c203d] to-[#153563] px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-white">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
             <Flame size={18} className="text-amber-300" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-extrabold tracking-tight flex items-center gap-2">
+            <h3 className="font-serif-editorial text-base sm:text-lg font-bold tracking-tight flex items-center gap-2.5 flex-wrap">
               Trending Topik Riset &amp; Diskusi Hangat
-              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/30">
                 FORUM AKTIF
               </span>
             </h3>
-            <p className="text-[11px] text-blue-100">
-              Ruang obrolan peneliti, editor, reviewer &amp; pengunjung publik tentang isu kota dan topik jurnal BRIDA Makassar.
+            <p className="text-xs text-slate-300 mt-0.5">
+              Ruang interaksi peneliti, editor, reviewer &amp; pengunjung publik tentang isu kota dan topik jurnal BRIDA Makassar.
             </p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => onOpenForum && onOpenForum('')}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-[#153e75] hover:bg-blue-50 font-extrabold text-xs shadow-xs transition cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white text-[#0c203d] hover:bg-slate-100 font-bold text-xs shadow-sm transition cursor-pointer"
         >
-          Buka Forum &amp; Ikut Diskusi <ArrowRight size={14} />
+          Buka Forum &amp; Diskusi <ArrowRight size={14} />
         </button>
       </div>
 
-      <div className="p-5 sm:p-6 space-y-4">
+      <div className="p-5 sm:p-6 space-y-5">
         {/* Deretan Hashtag Trending Klik Langsung */}
         {topTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
-              <Flame size={13} className="text-orange-500" /> Sedang Tren:
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mr-1 flex items-center gap-1">
+              <Flame size={13} className="text-amber-500" /> Sedang Tren
             </span>
             {topTags.map((t, idx) => (
               <button
                 key={t.tag}
                 type="button"
                 onClick={() => onOpenForum && onOpenForum(t.tag)}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#f0f5fb] hover:bg-[#153e75] text-[#153e75] hover:text-white border border-blue-200 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-slate-50 hover:bg-[#0c203d] text-slate-700 hover:text-white border border-slate-200/90 hover:border-[#0c203d] transition cursor-pointer"
               >
-                <span className="text-[10px] opacity-70">#{idx + 1}</span>
+                <span className="text-[10px] opacity-60">#{idx + 1}</span>
                 <span>{t.tag}</span>
-                <span className="text-[10px] opacity-75">({t.posts_count})</span>
+                <span className="text-[10px] opacity-65">({t.posts_count})</span>
               </button>
             ))}
           </div>
@@ -642,58 +642,58 @@ export default function ForumTrending({
 
   return (
     <div className="p-5 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-[#0a2347] via-[#153e75] to-[#1e4b85] rounded-3xl p-6 text-white shadow-md flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1.5 max-w-2xl">
-          <div className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wider bg-white/15 border border-white/20 px-3 py-1 rounded-full">
-            <Flame size={13} className="text-amber-300" />
+      {/* Header Banner — Obsidian Editorial */}
+      <div className="bg-gradient-to-r from-[#071426] via-[#0c203d] to-[#153563] rounded-[28px] p-6 sm:p-7 text-white shadow-[0_18px_40px_-16px_rgba(7,20,38,0.45)] flex flex-wrap items-center justify-between gap-5">
+        <div className="space-y-2 max-w-2xl">
+          <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] bg-white/10 border border-white/15 px-3.5 py-1 rounded-full text-sky-200">
+            <Flame size={12} className="text-amber-300" />
             Komunitas Riset &amp; Trending Topik OJS BRIDA
           </div>
-          <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+          <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold tracking-tight">
             Trending Topik Jurnal &amp; Diskusi Permasalahan
           </h3>
-          <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             Ruang interaksi bagi pengunjung publik, peneliti, mitra bestari, dan editor untuk membahas isu strategis daerah, topik jurnal hangat, serta kolaborasi riset.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="bg-white/10 border border-white/15 rounded-2xl px-4 py-2.5 text-center">
-            <div className="text-lg font-extrabold">{forumStats.total_threads}</div>
-            <div className="text-[10px] text-blue-200 font-bold uppercase">Utas</div>
+        <div className="flex items-center gap-2.5">
+          <div className="bg-white/[0.08] border border-white/[0.12] rounded-2xl px-4 py-2.5 text-center min-w-[74px]">
+            <div className="text-lg font-extrabold tabular-nums">{forumStats.total_threads}</div>
+            <div className="text-[10px] text-slate-300 font-semibold uppercase tracking-wider">Utas</div>
           </div>
-          <div className="bg-white/10 border border-white/15 rounded-2xl px-4 py-2.5 text-center">
-            <div className="text-lg font-extrabold">{forumStats.total_replies}</div>
-            <div className="text-[10px] text-blue-200 font-bold uppercase">Balasan</div>
+          <div className="bg-white/[0.08] border border-white/[0.12] rounded-2xl px-4 py-2.5 text-center min-w-[74px]">
+            <div className="text-lg font-extrabold tabular-nums">{forumStats.total_replies}</div>
+            <div className="text-[10px] text-slate-300 font-semibold uppercase tracking-wider">Balasan</div>
           </div>
-          <div className="bg-white/10 border border-white/15 rounded-2xl px-4 py-2.5 text-center">
-            <div className="text-lg font-extrabold">{forumStats.active_topics}</div>
-            <div className="text-[10px] text-blue-200 font-bold uppercase">Tagar</div>
+          <div className="bg-white/[0.08] border border-white/[0.12] rounded-2xl px-4 py-2.5 text-center min-w-[74px]">
+            <div className="text-lg font-extrabold tabular-nums">{forumStats.active_topics}</div>
+            <div className="text-[10px] text-slate-300 font-semibold uppercase tracking-wider">Tagar</div>
           </div>
         </div>
       </div>
 
-      {/* Main 2-Column Layout Ala Threads / X */}
+      {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* KOLOM KIRI (FEED UTAMA - 8 COLS) */}
         <div className="lg:col-span-8 space-y-4">
-          {/* TAB SWITCHER UTAMA + SORTIR & PENCARIAN ALA THREADS / X */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-4 space-y-3">
+          {/* TAB SWITCHER UTAMA + SORTIR & PENCARIAN */}
+          <div className="card-luxury rounded-[24px] p-4 space-y-3">
             {/* Switcher Jurnal Terbit vs Utas Komunitas */}
-            <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-2xl">
+            <div className="grid grid-cols-2 gap-2 bg-slate-100/90 p-1.5 rounded-2xl">
               <button
                 type="button"
                 onClick={() => setFeedView('journals')}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
                   feedView === 'journals'
-                    ? 'bg-[#153e75] text-white shadow-xs'
+                    ? 'bg-[#0c203d] text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <BookOpen size={15} />
                 <span>Jurnal Terbit</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                  feedView === 'journals' ? 'bg-white/20 text-white' : 'bg-white text-[#153e75]'
+                <span className={`text-[10px] px-2 py-0.5 rounded-full tabular-nums ${
+                  feedView === 'journals' ? 'bg-white/20 text-white' : 'bg-white text-[#0c203d]'
                 }`}>
                   {publishedArticles.length}
                 </span>
@@ -701,16 +701,16 @@ export default function ForumTrending({
               <button
                 type="button"
                 onClick={() => setFeedView('threads')}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
                   feedView === 'threads'
-                    ? 'bg-[#153e75] text-white shadow-xs'
+                    ? 'bg-[#0c203d] text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <MessageCircle size={15} />
                 <span>Utas Komunitas</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                  feedView === 'threads' ? 'bg-white/20 text-white' : 'bg-white text-[#153e75]'
+                <span className={`text-[10px] px-2 py-0.5 rounded-full tabular-nums ${
+                  feedView === 'threads' ? 'bg-white/20 text-white' : 'bg-white text-[#0c203d]'
                 }`}>
                   {posts.length}
                 </span>
@@ -852,7 +852,7 @@ export default function ForumTrending({
                   return (
                     <article
                       key={art.id}
-                      className="bg-white rounded-3xl border border-slate-200/90 hover:border-blue-300 shadow-xs transition overflow-hidden"
+                      className="card-luxury card-luxury-hover rounded-[24px] overflow-hidden"
                     >
                       {/* Body Kartu Jurnal */}
                       <div className="p-5 space-y-3">
@@ -1620,10 +1620,10 @@ export default function ForumTrending({
           )}
         </div>
 
-        {/* KOLOM KANAN (SIDEBAR TRENDING ALA X - 4 COLS) */}
+        {/* KOLOM KANAN (SIDEBAR TRENDING - 4 COLS) */}
         <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-24">
           {/* Card 1: Sedang Tren di BRIDA */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+          <div className="card-luxury rounded-[24px] overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 space-y-0.5">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
