@@ -183,17 +183,17 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     <div
       className="min-h-screen w-full relative overflow-x-hidden flex items-center justify-center py-6 px-4 sm:px-8 select-none"
       style={{
-        background: 'linear-gradient(135deg, #ebe7e4 0%, #f4f1ee 50%, #e7e2df 100%)'
+        background: 'linear-gradient(145deg, #F9FAFB 0%, #FDF7F7 50%, #F3E9E9 100%)'
       }}
     >
-      {/* Subtle Ambient Warm Studio Halo Behind the Card */}
+      {/* Subtle Ambient SIGAP BRIDA Maroon Halo Behind the Card */}
       <div
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[640px] h-[340px] rounded-full opacity-35 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #b45309 0%, #7A2222 45%, transparent 75%)' }}
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[640px] h-[340px] rounded-full opacity-25 blur-3xl"
+        style={{ background: 'radial-gradient(circle, #7A2222 0%, #4A1313 45%, transparent 75%)' }}
       />
       <div
-        className="pointer-events-none absolute bottom-0 right-1/4 w-[480px] h-[260px] rounded-full opacity-20 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #7A2222 0%, transparent 70%)' }}
+        className="pointer-events-none absolute bottom-0 right-1/4 w-[480px] h-[260px] rounded-full opacity-15 blur-3xl"
+        style={{ background: 'radial-gradient(circle, #FBBF24 0%, #7A2222 45%, transparent 70%)' }}
       />
 
       {/* ====================================================================
@@ -330,7 +330,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-full bg-gradient-to-r from-[#7A2222] via-[#C2272D] to-[#EA580C] hover:brightness-105 active:scale-[0.99] text-white font-semibold text-sm shadow-[0_14px_28px_-8px_rgba(185,28,28,0.52)] transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.99] text-white font-semibold text-sm shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 <UserCheck size={16} />
                 <span>{loading ? 'Memproses...' : 'Daftar Akun Baru'}</span>
@@ -455,7 +455,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                       'Silakan hubungi Administrator Portal OJS BRIDA Kota Makassar (admin@brida.go.id) untuk pemulihan kata sandi.'
                     )
                   }
-                  className="text-xs font-semibold text-[#B91C1C] hover:text-[#7A2222] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#7A2222] hover:text-[#4A1313] hover:underline cursor-pointer"
                 >
                   Lupa kata sandi?
                 </button>
@@ -466,7 +466,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#7A2222] via-[#C2272D] to-[#EA580C] hover:brightness-105 active:scale-[0.99] text-white font-semibold text-sm shadow-[0_14px_28px_-8px_rgba(185,28,28,0.52)] transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.99] text-white font-semibold text-sm shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 <LogIn size={16} />
                 <span>{loading ? 'Memproses...' : 'Masuk'}</span>
@@ -517,18 +517,18 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             sehingga pergantian teks sama sekali tidak terlihat mencolok!
            ================================================================ */}
         <div
-          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-30 overflow-hidden bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white px-8 pt-7 pb-0 flex flex-col justify-between min-h-[430px] will-change-transform transition-all duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-30 overflow-hidden bg-gradient-to-b from-[#7A2222] via-[#661B1B] to-[#4A1313] text-white px-8 pt-7 pb-0 flex flex-col justify-between min-h-[430px] will-change-transform transition-all duration-[850ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
             isRegister
-              ? 'lg:translate-x-full lg:rounded-l-[32px] lg:shadow-[-28px_0_75px_-10px_rgba(20,5,5,0.52)]'
-              : 'lg:translate-x-0 lg:rounded-r-[32px] lg:shadow-[28px_0_75px_-10px_rgba(20,5,5,0.52)]'
+              ? 'lg:translate-x-full lg:rounded-l-[32px] lg:shadow-[-28px_0_75px_-10px_rgba(74,19,19,0.5)]'
+              : 'lg:translate-x-0 lg:rounded-r-[32px] lg:shadow-[28px_0_75px_-10px_rgba(74,19,19,0.5)]'
           }`}
         >
-          {/* Ambient Rings & Warm Maroon Glow */}
-          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-white/[0.06]" />
-          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[410px] h-[410px] rounded-full border border-white/[0.04]" />
+          {/* Ambient Rings & Warm Maroon-Gold Glow */}
+          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-white/[0.10]" />
+          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[410px] h-[410px] rounded-full border border-white/[0.06]" />
           <div
-            className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full opacity-25 blur-3xl"
-            style={{ background: 'radial-gradient(circle, #991B1B 0%, transparent 70%)' }}
+            className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full opacity-20 blur-3xl"
+            style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
           />
 
           {/* Top Tagline (Blur-Morph Halus Saat Berpindah) */}
@@ -599,7 +599,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                     <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
                       <div className="w-full bg-gray-100 rounded-md h-full flex items-end overflow-hidden">
                         <div
-                          className="w-full rounded-md bg-gradient-to-t from-[#7A2222] via-[#DC2626] to-[#F97316]"
+                          className="w-full rounded-md bg-gradient-to-t from-[#4A1313] via-[#7A2222] to-[#A63232]"
                           style={{ height: `${bar.h}%` }}
                         />
                       </div>
@@ -629,7 +629,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                 <div className="pt-2 flex items-center justify-around text-white/40 border-t border-white/[0.06]">
                   <BookOpen size={12} />
                   <ShieldCheck size={12} />
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7A2222] via-[#DC2626] to-[#FBBF24] p-[2px] flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#4A1313] via-[#7A2222] to-[#FBBF24] p-[2px] flex items-center justify-center">
                     <div className="w-full h-full rounded-full bg-[#120c0c] flex items-center justify-center">
                       <img src="/assets/brida-favicon.png" alt="" className="w-3.5 h-3.5 object-contain" />
                     </div>
