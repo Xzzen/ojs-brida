@@ -857,7 +857,7 @@ export default function ForumTrending({
                     >
                       💬 Lihat Utas Diskusi Topik Ini
                     </button>
-                    {!isGuest && (isAdminOrEditor || currentUser?.role === 'author') && onGoToSubmit && (
+                    {!isGuest && currentUser?.role === 'author' && onGoToSubmit && (
                       <button
                         type="button"
                         onClick={() => onGoToSubmit()}

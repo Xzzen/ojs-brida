@@ -221,12 +221,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   const isAuthor = currentUser?.role === 'author';
   const isGuest = currentUser?.role === 'guest';
 
-  // Pengaman: jika Editor/non-Admin pernah tersimpan di tab khusus Admin, kembalikan ke Dasbor
+  // Pengaman: cegah akses tab di luar wewenang role jika pernah tersimpan di localStorage
   useEffect(() => {
     if (!isAdmin && (activeTab === 'users' || activeTab === 'journals')) {
       setActiveTab(isGuest ? 'portal' : 'dashboard');
+    } else if (!isAuthor && activeTab === 'unggah') {
+      setActiveTab(isGuest ? 'portal' : 'dashboard');
     }
-  }, [isAdmin, isGuest, activeTab]);
+  }, [isAdmin, isAuthor, isGuest, activeTab]);
 
   // State & Handler Edit Metadata Naskah (Judul, Penulis, Abstrak)
   const [editSubmissionModal, setEditSubmissionModal] = useState(null);
@@ -1231,8 +1233,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </button>
           )}
 
-          {/* Menu Unggah Naskah Baru untuk Author & Admin */}
-          {(isAuthor || isAdminOrEditor) && (
+          {/* Menu Unggah Naskah Baru — Khusus Penulis (Author) agar bebas konflik kepentingan */}
+          {isAuthor && (
             <button
               onClick={() => switchTab('unggah')}
               className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
@@ -1575,10 +1577,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
                           <button
                             type="button"
-                            onClick={() => (isGuest ? onLogout() : switchTab(isReviewer ? 'review' : 'unggah'))}
+                            onClick={() => (isGuest ? onLogout() : switchTab(isAuthor ? 'unggah' : 'review'))}
                             className="w-full py-3 px-5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer"
                           >
-                            {isGuest ? 'Kirim Naskah / Login →' : isReviewer ? 'Buka Meja Review →' : 'Unggah Naskah Baru →'}
+                            {isGuest
+                              ? 'Kirim Naskah / Login →'
+                              : isAuthor
+                              ? 'Unggah Naskah Baru →'
+                              : isReviewer
+                              ? 'Buka Meja Review →'
+                              : 'Buka Meja Editorial →'}
                           </button>
                         </div>
 
@@ -2038,7 +2046,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <span className="text-[#7A2222]">✅ {j.published_count || 0} Terbit</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              {!isReviewer && !isGuest && (
+                              {isAuthor && (
                                 <button
                                   onClick={() => {
                                     setFormJournalId(String(j.id));
@@ -2083,10 +2091,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => (isGuest ? onLogout() : setActiveTab(isReviewer ? 'review' : 'unggah'))}
-                      className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-gray-900 font-extrabold text-xs sm:text-sm shadow-sm transition cursor-pointer"
+                      onClick={() => (isGuest ? onLogout() : switchTab(isAuthor ? 'unggah' : 'review'))}
+                      className="px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-gray-900 font-extrabold text-xs sm:text-sm shadow-sm transition cursor-pointer"
                     >
-                      {isGuest ? 'Mulai Daftar / Masuk →' : isReviewer ? 'Buka Meja Review →' : '+ Unggah Naskah Sekarang'}
+                      {isGuest
+                        ? 'Mulai Daftar / Masuk →'
+                        : isAuthor
+                        ? '+ Unggah Naskah Sekarang'
+                        : isReviewer
+                        ? 'Buka Meja Review →'
+                        : 'Buka Meja Editorial →'}
                     </button>
                     <button
                       type="button"
@@ -2132,13 +2146,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         </p>
                       </div>
 
-                      {!isReviewer && !isGuest && (
+                      {isAuthor && (
                         <button
                           onClick={() => {
                             setFormJournalId(String(portalSelectedJournal.id));
-                            setActiveTab('unggah');
+                            switchTab('unggah');
                           }}
-                          className="bg-white text-slate-900 hover:bg-slate-100 font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 transition cursor-pointer shrink-0"
+                          className="bg-white text-slate-900 hover:bg-slate-100 font-extrabold text-xs px-5 py-3 rounded-full shadow-lg flex items-center gap-2 transition cursor-pointer shrink-0"
                         >
                           <FileUp size={16} /> Submit Naskah ke {portalSelectedJournal.abbreviation}
                         </button>
@@ -2735,9 +2749,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         )}
 
         {/* ===================================================================
-            TAB 4: UNGGAH NASKAH BARU (GATEKEEPER STANDARISASI SINTA / OJS)
+            TAB 4: UNGGAH NASKAH BARU (KHUSUS PENULIS / AUTHOR — STANDAR SINTA / OJS)
            =================================================================== */}
-        {activeTab === 'unggah' && (isAuthor || isAdminOrEditor) && (
+        {activeTab === 'unggah' && isAuthor && (
           <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto">
             <div className="card-luxury rounded-[32px] p-6 sm:p-10 space-y-6">
               <div className="flex flex-wrap items-start justify-between gap-4">

@@ -673,6 +673,17 @@ class SubmissionController extends Controller
             'file' => 'required|file|max:20480'
         ]);
 
+        // Etika Publikasi OJS (Anti Conflict-of-Interest): Hanya akun Penulis (Author) yang boleh mengunggah naskah baru
+        if ($request->filled('author_id')) {
+            $submitter = User::find($request->author_id);
+            if ($submitter && $submitter->role !== 'author') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pengunggahan naskah baru hanya diizinkan untuk akun Penulis (Author) guna menjaga independensi editorial.'
+                ], 403);
+            }
+        }
+
         // Gatekeeper Standarisasi Jurnal Ilmiah (SINTA / ARJUNA & PKP OJS)
         $violations = $this->validateManuscriptStandards($request, false);
         if (count($violations) > 0) {
