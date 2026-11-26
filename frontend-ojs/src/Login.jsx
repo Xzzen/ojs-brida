@@ -33,6 +33,8 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [infoMsg, setInfoMsg] = useState('');
 
+  const isRegister = mode === 'register';
+
   const handleSwitchMode = (nextMode) => {
     setMode(nextMode);
     setErrorMsg('');
@@ -131,17 +133,23 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
         style={{ background: 'radial-gradient(circle, #7A2222 0%, transparent 70%)' }}
       />
 
-      {/* MAIN FLOATING LUXURY SPLIT CARD (INSPIRED BY MODERN FINTECH SIGN-IN) */}
-      <div className="relative z-10 w-full max-w-[1040px] min-h-[640px] rounded-[32px] bg-[#211414] shadow-[0_38px_100px_-24px_rgba(28,10,10,0.45)] overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+      {/* MAIN FLOATING LUXURY SPLIT CARD WITH SMOOTH SLIDE ANIMATION */}
+      <div className="relative z-10 w-full max-w-[1040px] lg:h-[680px] rounded-[32px] bg-[#211414] shadow-[0_38px_100px_-24px_rgba(28,10,10,0.45)] overflow-hidden flex flex-col lg:block">
         {/* ================================================================
-            LEFT PANEL: DEEP ESPRESSO-MAROON DARK SHOWCASE
+            PANEL GELAP (SHOWCASE + LOGO BRIDA + MOCKUP HP)
+            - Mode Masuk: di KIRI (translate-x-0)
+            - Mode Daftar Akun: slide mulus ke KANAN (translate-x-full)
            ================================================================ */}
-        <div className="lg:col-span-6 relative bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white px-8 pt-9 pb-0 flex flex-col justify-between overflow-hidden min-h-[420px] lg:min-h-[640px]">
+        <div
+          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-20 bg-gradient-to-b from-[#251717] via-[#1f1212] to-[#150b0b] text-white px-8 pt-7 pb-0 flex flex-col justify-between overflow-hidden min-h-[440px] transition-transform duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+            isRegister ? 'lg:translate-x-full' : 'lg:translate-x-0'
+          }`}
+        >
           {/* Subtle Concentric Circle Rings Behind Headline */}
-          <div className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-white/[0.06]" />
-          <div className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[410px] h-[410px] rounded-full border border-white/[0.04]" />
+          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-white/[0.06]" />
+          <div className="pointer-events-none absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[410px] h-[410px] rounded-full border border-white/[0.04]" />
           <div
-            className="pointer-events-none absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full opacity-25 blur-3xl"
+            className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full opacity-25 blur-3xl"
             style={{ background: 'radial-gradient(circle, #991B1B 0%, transparent 70%)' }}
           />
 
@@ -150,18 +158,40 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             Publikasi ilmiah modern — satu portal untuk seluruh jurnal BRIDA Makassar.
           </p>
 
-          {/* Center Bold Display Headline */}
-          <div className="relative z-10 text-center my-6 lg:my-8">
-            <h2 className="text-4xl sm:text-[46px] font-bold tracking-tight leading-[1.08] text-white">
-              Publikasi
-              <br />
-              riset Anda
+          {/* Logo Resmi BRIDA di Atas Judul + Headline Dinamis */}
+          <div key={mode} className="relative z-10 text-center my-4 lg:my-5 space-y-4 animate-fade-slide">
+            <div className="inline-flex items-center justify-center bg-white/95 rounded-2xl px-4 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.38)] ring-1 ring-white/80">
+              <img
+                src="/assets/brida-logo.png"
+                alt="Logo BRIDA Kota Makassar"
+                className="h-8 sm:h-9 w-auto object-contain"
+              />
+            </div>
+
+            <h2 className="text-3xl sm:text-[42px] font-bold tracking-tight leading-[1.08] text-white">
+              {isRegister ? (
+                <>
+                  Mulai berkarya
+                  <br />
+                  bersama BRIDA
+                </>
+              ) : (
+                <>
+                  Publikasi
+                  <br />
+                  riset Anda
+                </>
+              )}
             </h2>
           </div>
 
-          {/* Bottom Sleek Tilted Smartphone UI Mockup */}
-          <div className="relative z-10 flex justify-center items-end pt-2">
-            <div className="w-[248px] sm:w-[266px] rounded-t-[34px] bg-[#0e0b0b] border-t-[6px] border-x-[6px] border-[#3a2c2c] shadow-[0_-18px_50px_rgba(0,0,0,0.65)] p-3 pb-4 -rotate-3 translate-y-2 transition-transform duration-500 hover:rotate-0">
+          {/* Bottom Sleek Tilted Smartphone UI Mockup (rotates smoothly with slide!) */}
+          <div className="relative z-10 flex justify-center items-end pt-1">
+            <div
+              className={`w-[244px] sm:w-[260px] rounded-t-[34px] bg-[#0e0b0b] border-t-[6px] border-x-[6px] border-[#3a2c2c] shadow-[0_-18px_50px_rgba(0,0,0,0.65)] p-3 pb-4 translate-y-2 transition-transform duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] hover:rotate-0 ${
+                isRegister ? 'rotate-3' : '-rotate-3'
+              }`}
+            >
               {/* Dynamic Island */}
               <div className="w-16 h-3.5 bg-black rounded-full mx-auto mb-3" />
 
@@ -180,7 +210,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                   </span>
                 </div>
 
-                {/* Crimson-Coral Bar Chart (Matching Reference Energy) */}
+                {/* Crimson-Coral Bar Chart */}
                 <div className="flex items-end justify-between gap-1.5 h-16 pt-2">
                   {chartBars.map((bar) => (
                     <div key={bar.label} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
@@ -230,12 +260,14 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             </div>
           </div>
 
-          {/* Subtle Public Access Pill Bottom-Right of Dark Panel */}
+          {/* Subtle Public Access Pill inside Dark Panel */}
           <button
             type="button"
             onClick={onOpenPublicPortal}
             title="Jelajahi Portal Publik tanpa login"
-            className="hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 right-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer"
+            className={`hidden lg:inline-flex items-center gap-1.5 absolute bottom-5 z-20 px-3 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/15 text-[11px] font-semibold text-white/85 transition cursor-pointer ${
+              isRegister ? 'left-5' : 'right-5'
+            }`}
           >
             <Globe size={12} className="text-amber-300" />
             Portal Publik
@@ -243,11 +275,19 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
         </div>
 
         {/* ================================================================
-            RIGHT PANEL: CRISP ULTRA-CLEAN WHITE FORM PANEL
+            PANEL PUTIH (FORM MASUK / DAFTAR AKUN)
+            - Mode Masuk: di KANAN (translate-x-full)
+            - Mode Daftar Akun: slide mulus ke KIRI (translate-x-0)
            ================================================================ */}
-        <div className="lg:col-span-6 bg-white rounded-[32px] lg:rounded-l-[32px] px-7 sm:px-11 py-7 sm:py-8 flex flex-col justify-between">
-          {/* Top Bar Inside Right Panel: BRIDA Logo + Minimalist Sign Up / Sign In Switch */}
-          <div className="flex items-center justify-between gap-3">
+        <div
+          className={`relative lg:absolute lg:top-0 lg:left-0 lg:w-1/2 lg:h-full z-10 bg-white px-7 sm:px-11 py-6 sm:py-7 flex flex-col justify-between overflow-y-auto transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+            isRegister
+              ? 'lg:translate-x-0 rounded-[32px] lg:rounded-l-[32px] lg:rounded-r-[32px]'
+              : 'lg:translate-x-full rounded-[32px] lg:rounded-l-[32px] lg:rounded-r-[32px]'
+          }`}
+        >
+          {/* Top Bar Inside White Panel: BRIDA Logo + Toggle Daftar / Masuk */}
+          <div className="flex items-center justify-between gap-3 shrink-0">
             <img
               src="/assets/brida-logo.png"
               alt="BRIDA Kota Makassar"
@@ -255,41 +295,41 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             />
             <button
               type="button"
-              onClick={() => handleSwitchMode(mode === 'login' ? 'register' : 'login')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-[#7A2222] transition cursor-pointer"
+              onClick={() => handleSwitchMode(isRegister ? 'login' : 'register')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-[#7A2222]/40 hover:bg-[#FDF7F7] text-xs font-semibold text-gray-700 hover:text-[#7A2222] transition cursor-pointer"
             >
-              <User size={15} className="text-gray-400" />
-              <span>{mode === 'login' ? 'Daftar Akun' : 'Masuk'}</span>
+              <User size={14} className="text-[#7A2222]" />
+              <span>{isRegister ? 'Masuk' : 'Daftar Akun'}</span>
             </button>
           </div>
 
           {/* Center Minimalist Form Area */}
-          <div className="w-full max-w-[360px] mx-auto my-6">
-            <h1 className="text-[30px] sm:text-[34px] font-semibold text-gray-900 tracking-tight leading-tight mb-1.5">
-              {mode === 'login' ? 'Masuk' : 'Daftar Akun'}
+          <div key={mode} className="w-full max-w-[360px] mx-auto my-auto py-4 animate-fade-slide">
+            <h1 className="text-[28px] sm:text-[32px] font-semibold text-gray-900 tracking-tight leading-tight mb-1">
+              {isRegister ? 'Daftar Akun' : 'Masuk'}
             </h1>
-            <p className="text-xs text-gray-400 mb-6">
-              {mode === 'login'
-                ? 'Masuk ke Portal E-Journal OJS BRIDA Kota Makassar'
-                : 'Buat akun Penulis atau Mitra Bestari (Reviewer) baru'}
+            <p className="text-xs text-gray-400 mb-5">
+              {isRegister
+                ? 'Buat akun Penulis atau Mitra Bestari (Reviewer) baru'
+                : 'Masuk ke Portal E-Journal OJS BRIDA Kota Makassar'}
             </p>
 
             {/* Error / Info Alerts */}
             {errorMsg && (
-              <div className="mb-4 px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2">
+              <div className="mb-3.5 px-4 py-2.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-start gap-2">
                 <AlertCircle size={15} className="shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </div>
             )}
             {infoMsg && (
-              <div className="mb-4 px-4 py-3 rounded-2xl bg-[#FEF2F2] border border-[#7A2222]/20 text-[#7A2222] text-xs font-semibold flex items-start gap-2">
+              <div className="mb-3.5 px-4 py-2.5 rounded-2xl bg-[#FEF2F2] border border-[#7A2222]/20 text-[#7A2222] text-xs font-semibold flex items-start gap-2">
                 <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
                 <span>{infoMsg}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3.5">
-              {mode === 'register' && (
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {isRegister && (
                 <>
                   <div className="relative">
                     <User size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -298,7 +338,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Nama Lengkap & Gelar *"
-                      className="w-full pl-11 pr-5 py-3 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                      className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
                       required
                     />
                   </div>
@@ -311,7 +351,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                         value={affiliation}
                         onChange={(e) => setAffiliation(e.target.value)}
                         placeholder="Instansi / Afiliasi"
-                        className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 bg-white text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
                       />
                     </div>
                     <div className="relative">
@@ -319,7 +359,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                       <select
                         value={registerRole}
                         onChange={(e) => setRegisterRole(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#7A2222] transition cursor-pointer"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#7A2222] transition cursor-pointer"
                       >
                         <option value="author">Penulis (Author)</option>
                         <option value="reviewer">Mitra Bestari</option>
@@ -335,7 +375,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                         value={specialty}
                         onChange={(e) => setSpecialty(e.target.value)}
                         placeholder="Bidang Keahlian (mis. Smart City, Kesehatan)"
-                        className="w-full pl-11 pr-5 py-3 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                        className="w-full pl-11 pr-5 py-2.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
                       />
                     </div>
                   )}
@@ -350,7 +390,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email akun Anda"
-                  className="w-full pl-11 pr-5 py-3.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  className={`w-full pl-11 pr-5 ${isRegister ? 'py-2.5' : 'py-3.5'} rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition`}
                   required
                 />
               </div>
@@ -362,8 +402,8 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === 'register' ? 'Kata sandi (minimal 6 karakter)' : 'Kata sandi'}
-                  className="w-full pl-11 pr-12 py-3.5 rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition"
+                  placeholder={isRegister ? 'Kata sandi (minimal 6 karakter)' : 'Kata sandi'}
+                  className={`w-full pl-11 pr-12 ${isRegister ? 'py-2.5' : 'py-3.5'} rounded-full border border-gray-200 bg-white text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 transition`}
                   required
                 />
                 <button
@@ -376,8 +416,8 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                 </button>
               </div>
 
-              {/* Forgot Password Link (Matching Reference Placement) */}
-              {mode === 'login' && (
+              {/* Forgot Password Link */}
+              {!isRegister && (
                 <div className="px-2">
                   <button
                     type="button"
@@ -437,15 +477,25 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                 <span>
                   {loading
                     ? 'Memproses...'
-                    : mode === 'login'
-                    ? 'Masuk'
-                    : 'Daftar Akun Baru'}
+                    : isRegister
+                    ? 'Daftar Akun Baru'
+                    : 'Masuk'}
                 </span>
               </button>
             </form>
 
             {/* Quick Open-Access Visitor Action */}
-            <div className="mt-5 text-center">
+            <div className="mt-4 text-center space-y-2">
+              <p className="text-xs text-gray-500">
+                {isRegister ? 'Sudah punya akun? ' : 'Belum punya akun? '}
+                <button
+                  type="button"
+                  onClick={() => handleSwitchMode(isRegister ? 'login' : 'register')}
+                  className="font-bold text-[#7A2222] hover:underline cursor-pointer"
+                >
+                  {isRegister ? 'Masuk di sini' : 'Daftar sekarang'}
+                </button>
+              </p>
               <button
                 type="button"
                 onClick={onOpenPublicPortal}
@@ -458,8 +508,8 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             </div>
           </div>
 
-          {/* Bottom Minimalist Footer Inside Right Panel */}
-          <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400">
+          {/* Bottom Minimalist Footer Inside White Panel */}
+          <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400 shrink-0">
             <span>© 2026 BRIDA Kota Makassar</span>
             <div className="flex items-center gap-4 font-medium">
               <button
