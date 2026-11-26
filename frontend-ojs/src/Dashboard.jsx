@@ -39,21 +39,23 @@ import {
   IconClockClean
 } from './BridaIcons';
 import { API_BASE, STORAGE_BASE, resolveFileUrl } from './config';
+import { SEMANTIC_TONE, CHART_COLORS } from './uiTokens';
+import { useBridaDialog } from './BridaDialog';
 
 const STATUS_BADGE = {
-  pending: { label: 'MENUNGGU EDITOR', bg: 'bg-amber-50/90 text-amber-800 border-amber-200/80' },
-  under_review: { label: 'SEDANG DIREVIEW', bg: 'bg-sky-50/90 text-sky-800 border-sky-200/80' },
-  revision_required: { label: 'PERLU REVISI', bg: 'bg-orange-50/90 text-orange-800 border-orange-200/80' },
-  accepted: { label: 'DISETUJUI', bg: 'bg-emerald-50/90 text-emerald-800 border-emerald-200/80' },
-  published: { label: 'RESMI TERBIT', bg: 'bg-indigo-50/90 text-indigo-800 border-indigo-200/80' },
-  rejected: { label: 'DITOLAK', bg: 'bg-rose-50/90 text-rose-800 border-rose-200/80' }
+  pending: { label: 'MENUNGGU EDITOR', bg: SEMANTIC_TONE.warning },
+  under_review: { label: 'SEDANG DIREVIEW', bg: SEMANTIC_TONE.accent },
+  revision_required: { label: 'PERLU REVISI', bg: SEMANTIC_TONE.warning },
+  accepted: { label: 'DISETUJUI', bg: SEMANTIC_TONE.positive },
+  published: { label: 'RESMI TERBIT', bg: SEMANTIC_TONE.positive },
+  rejected: { label: 'DITOLAK', bg: SEMANTIC_TONE.negative }
 };
 
 const SOLID_MAROON_THEME = {
   border: 'border-[#7A2222]',
   bgHeader: 'bg-[#7A2222]',
-  badge: 'bg-[#FEF2F2] text-[#7A2222] border-[#7A2222]/20',
-  btn: 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
+  badge: SEMANTIC_TONE.accent,
+  btn: 'bg-[#7A2222] hover:bg-[#611B1B] text-white'
 };
 
 const JOURNAL_THEME = {
@@ -64,6 +66,7 @@ const JOURNAL_THEME = {
 };
 
 export default function Dashboard({ currentUser, initialTab = 'portal', onLogout }) {
+  const dialog = useBridaDialog();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [navTab, setNavTab] = useState(initialTab);
   const [isTabFading, setIsTabFading] = useState(false);
@@ -306,7 +309,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   // Handler Hapus Naskah
   const handleDeleteSubmission = async (sub) => {
     const confirmMsg = `Apakah Anda yakin ingin menghapus / menarik naskah:\n"${sub.title}"?`;
-    if (!window.confirm(confirmMsg)) return;
+    const confirmed = await dialog.confirm({
+      title: 'Hapus / Tarik Naskah',
+      message: confirmMsg,
+      confirmText: 'Ya, Hapus Naskah',
+      variant: 'destructive'
+    });
+    if (!confirmed) return;
 
     try {
       const res = await axios.delete(`${API_BASE}/submissions/${sub.id}`);
@@ -330,7 +339,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       return;
     }
     const confirmMsg = `PERINGATAN: Apakah Anda yakin ingin menghapus jurnal:\n"${journal.title}" (${journal.abbreviation})?\nSeluruh data terbitan dan naskah di dalam jurnal ini juga akan terhapus.`;
-    if (!window.confirm(confirmMsg)) return;
+    const confirmed = await dialog.confirm({
+      title: 'Hapus Jurnal Permanen',
+      message: confirmMsg,
+      confirmText: 'Ya, Hapus Jurnal',
+      variant: 'destructive'
+    });
+    if (!confirmed) return;
 
     try {
       const res = await axios.delete(`${API_BASE}/journals/${journal.id}`, {
@@ -463,7 +478,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       return {
         percent: 20,
         step: 1,
-        barColor: 'bg-amber-500',
+        barColor: 'bg-[#B89B72]',
         summary: 'Naskah diterima sistem — Menunggu skrining & penugasan Mitra Bestari oleh Editor.',
         activeRevs,
         declinedRevs,
@@ -476,7 +491,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         return {
           percent: 30,
           step: 2,
-          barColor: 'bg-rose-500',
+          barColor: 'bg-[#882832]',
           summary: `Seluruh Mitra Bestari (${declinedRevs.length}) menolak undangan — Menunggu Editor menunjuk Reviewer pengganti.`,
           activeRevs,
           declinedRevs,
@@ -488,7 +503,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         return {
           percent: 65,
           step: 3,
-          barColor: 'bg-amber-600',
+          barColor: 'bg-[#7A2222]',
           summary: `Penelaahan selesai (${completedRevs.length}/${activeRevs.length} Reviewer) — Menunggu keputusan akhir Chief Editor.`,
           activeRevs,
           declinedRevs,
@@ -507,7 +522,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       return {
         percent: pct,
         step: 3,
-        barColor: 'bg-blue-600',
+        barColor: 'bg-[#7A2222]',
         summary: waitMsg,
         activeRevs,
         declinedRevs,
@@ -519,7 +534,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       return {
         percent: 70,
         step: 4,
-        barColor: 'bg-orange-500',
+        barColor: 'bg-[#9A6B4C]',
         summary: 'Menunggu Penulis memperbaiki dokumen dan mengunggah berkas revisi sesuai masukan Reviewer.',
         activeRevs,
         declinedRevs,
@@ -531,7 +546,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       return {
         percent: 85,
         step: 4,
-        barColor: 'bg-emerald-600',
+        barColor: 'bg-[#4B6B56]',
         summary: 'Naskah disetujui untuk terbit (Accepted) — Menunggu penerbitan & pembuatan nomor DOI oleh Editor.',
         activeRevs,
         declinedRevs,
@@ -543,7 +558,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       return {
         percent: 100,
         step: 5,
-        barColor: 'bg-purple-600',
+        barColor: 'bg-[#2F523B]',
         summary: `Artikel resmi terbit (Published) dan terindeks di Portal Publik dengan DOI: ${sub.doi || '-'}.`,
         activeRevs,
         declinedRevs,
@@ -554,7 +569,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     return {
       percent: 100,
       step: 5,
-      barColor: 'bg-rose-600',
+      barColor: 'bg-[#882832]',
       summary: 'Naskah ditolak berdasarkan hasil evaluasi Peer-Review / keputusan Dewan Redaksi.',
       activeRevs,
       declinedRevs,
@@ -576,24 +591,24 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     ];
 
     return (
-      <div className="bg-[#FDF7F7] p-4 rounded-2xl border border-[#7A2222]/15 space-y-3">
+      <div className="bg-[#FAFAFA] p-4 rounded-xl border border-[#D4D4D8] space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="font-extrabold text-[#7A2222] uppercase tracking-wider text-[11px]">
+          <span className="font-bold text-[#141414] uppercase tracking-wider text-[11px]">
             Progres Alur Publikasi OJS
           </span>
-          <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
+          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
             isRejected
-              ? 'bg-rose-100 text-rose-800'
+              ? SEMANTIC_TONE.negative
               : meta.percent === 100
-              ? 'bg-purple-100 text-purple-800'
-              : 'bg-blue-100 text-[#7A2222]'
+              ? SEMANTIC_TONE.positive
+              : SEMANTIC_TONE.accent
           }`}>
             {isRejected ? 'Ditolak' : `${meta.percent}% Selesai`}
           </span>
         </div>
 
         {/* Continuous Progress Track */}
-        <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-[#7A2222]/15">
+        <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-[#D4D4D8]">
           <div
             className={`h-full transition-all duration-500 rounded-full ${meta.barColor}`}
             style={{ width: `${meta.percent}%` }}
@@ -610,19 +625,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <span
                   className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] mb-1 ${
                     isRejected && st.id === 5
-                      ? 'bg-rose-600 text-white'
+                      ? 'bg-[#882832] text-white'
                       : done
                       ? 'bg-[#7A2222] text-white'
                       : active
                       ? sub.status === 'revision_required'
-                        ? 'bg-orange-500 text-white animate-pulse'
-                        : 'bg-blue-600 text-white ring-2 ring-blue-200'
-                      : 'bg-slate-200 text-slate-500'
+                        ? 'bg-[#9A6B4C] text-white ring-2 ring-[#E6DAC8]'
+                        : 'bg-[#7A2222] text-white ring-2 ring-[#E6CCCC]'
+                      : 'bg-[#E5E5E5] text-[#4B5563]'
                   }`}
                 >
                   {isRejected && st.id === 5 ? '✕' : done ? '✓' : st.id}
                 </span>
-                <span className={done || active ? 'text-slate-800' : 'text-slate-400'}>
+                <span className={done || active ? 'text-[#141414]' : 'text-[#4B5563]'}>
                   {st.label}
                 </span>
               </div>
@@ -630,8 +645,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           })}
         </div>
 
-        <p className="text-[11px] text-slate-600 bg-white/90 px-3 py-2 rounded-xl border border-[#7A2222]/15 leading-relaxed">
-          <strong>Status Saat Ini:</strong> {meta.summary}
+        <p className="text-[11px] text-[#525252] bg-white px-3 py-2 rounded-lg border border-[#D4D4D8] leading-relaxed">
+          <strong className="text-[#141414]">Status Saat Ini:</strong> {meta.summary}
         </p>
       </div>
     );
@@ -877,7 +892,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
   // Handler Batalkan Penugasan Satu Reviewer
   const handleRemoveReviewer = async (submissionId, reviewerId, reviewerName) => {
-    if (!window.confirm(`Batalkan penugasan Reviewer "${reviewerName}" dari naskah ini?`)) return;
+    const confirmed = await dialog.confirm({
+      title: 'Batalkan Penugasan Reviewer',
+      message: `Batalkan penugasan Reviewer "${reviewerName}" dari naskah ini?`,
+      confirmText: 'Ya, Batalkan',
+      variant: 'destructive'
+    });
+    if (!confirmed) return;
     try {
       const res = await axios.delete(`${API_BASE}/submissions/${submissionId}/reviewers/${reviewerId}`);
       toast.success(res.data?.message || 'Penugasan Reviewer dibatalkan.');
@@ -916,7 +937,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       revise: 'MEMINTA REVISI',
       reject: 'MENOLAK (Reject)'
     };
-    if (!window.confirm(`Konfirmasi keputusan akhir Dewan Redaksi: ${labelMap[decision]} naskah ini?`)) return;
+    const confirmed = await dialog.confirm({
+      title: 'Konfirmasi Keputusan Dewan Redaksi',
+      message: `Konfirmasi keputusan akhir Dewan Redaksi: ${labelMap[decision]} naskah ini?`,
+      confirmText: 'Ya, Tetapkan Keputusan',
+      variant: decision === 'reject' ? 'destructive' : 'accent'
+    });
+    if (!confirmed) return;
     try {
       const res = await axios.post(`${API_BASE}/submissions/${submissionId}/editor-decision`, {
         decision,
@@ -1045,7 +1072,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       toast.error('Anda tidak dapat menghapus akun yang sedang Anda gunakan sendiri.');
       return;
     }
-    if (!window.confirm(`Hapus akun pengguna "${u.name}" (${u.email})?`)) return;
+    const confirmed = await dialog.confirm({
+      title: 'Hapus Akun Pengguna',
+      message: `Hapus akun pengguna "${u.name}" (${u.email})?`,
+      confirmText: 'Ya, Hapus Akun',
+      variant: 'destructive'
+    });
+    if (!confirmed) return;
     try {
       await axios.delete(`${API_BASE}/users/${u.id}`, {
         headers: {
@@ -1074,12 +1107,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
   // Data Grafik Pie Status (warna menempel di tiap item agar tidak bergeser saat ada status 0)
   const pieData = [
-    { name: 'Pending', value: scopedStats.pending, color: '#f59e0b' },
-    { name: 'Under Review', value: scopedStats.under_review, color: '#2563eb' },
-    { name: 'Perlu Revisi', value: scopedStats.revision_required, color: '#f97316' },
-    { name: 'Accepted', value: scopedStats.accepted, color: '#10b981' },
-    { name: 'Published', value: scopedStats.published, color: '#8b5cf6' },
-    { name: 'Ditolak', value: scopedStats.rejected, color: '#e11d48' }
+    { name: 'Pending', value: scopedStats.pending, color: CHART_COLORS.pending },
+    { name: 'Under Review', value: scopedStats.under_review, color: CHART_COLORS.under_review },
+    { name: 'Perlu Revisi', value: scopedStats.revision_required, color: CHART_COLORS.revision_required },
+    { name: 'Accepted', value: scopedStats.accepted, color: CHART_COLORS.accepted },
+    { name: 'Published', value: scopedStats.published, color: CHART_COLORS.published },
+    { name: 'Ditolak', value: scopedStats.rejected, color: CHART_COLORS.rejected }
   ].filter((d) => d.value > 0);
 
   // Data Grafik Bar Perbandingan Multi-Jurnal
@@ -1112,23 +1145,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   });
 
   return (
-    <div
-      className="min-h-screen flex font-sans text-slate-900 relative"
-      style={{
-        background: 'linear-gradient(145deg, #F9FAFB 0%, #FDF7F7 50%, #F3E9E9 100%)'
-      }}
-    >
+    <div className="min-h-screen flex font-sans bg-[#F4F4F5] text-[#111827] relative">
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            borderRadius: '999px',
-            background: '#4A1313',
+            borderRadius: '12px',
+            background: '#141414',
             color: '#fff',
             fontSize: '12px',
             fontWeight: 600,
-            padding: '10px 18px',
-            boxShadow: '0 18px 44px -12px rgba(74, 19, 19, 0.45)'
+            padding: '10px 16px',
+            boxShadow: '0 12px 28px -8px rgba(20, 20, 20, 0.35)'
           }
         }}
       />
@@ -1137,30 +1165,26 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 z-40 bg-[#1a0909]/55 backdrop-blur-sm lg:hidden animate-backdrop-fade"
+          className="fixed inset-0 z-40 bg-[#141414]/45 backdrop-blur-xs lg:hidden animate-backdrop-fade"
         />
       )}
 
       {/* =====================================================================
-          SIDEBAR NAVIGASI OJS MULTI-JOURNAL — KEMBARAN KARTU TIRAI LOGIN BRIDA
+          SIDEBAR NAVIGASI OJS MULTI-JOURNAL — CLEAN SOLID MAROON
           ===================================================================== */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[276px] bg-gradient-to-b from-[#7A2222] via-[#661B1B] to-[#4A1313] text-white flex flex-col border-r border-white/[0.1] shadow-[14px_0_48px_-14px_rgba(74,19,19,0.42)] shrink-0 select-none overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[272px] bg-[#7A2222] text-white flex flex-col border-r border-[#611B1B] shrink-0 select-none overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* Ambient Rings & Warm Gold Glow (Identik dengan Kartu Gelap Login) */}
-        <div className="pointer-events-none absolute -top-24 -left-24 w-[280px] h-[280px] rounded-full border border-white/[0.08]" />
-        <div className="pointer-events-none absolute top-[45%] -right-28 w-[320px] h-[320px] rounded-full border border-white/[0.06]" />
-        <div
-          className="pointer-events-none absolute top-[24%] left-1/2 -translate-x-1/2 w-[260px] h-[260px] rounded-full opacity-18 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
-        />
+        {/* Subtle Architectural Hairline Rings */}
+        <div className="pointer-events-none absolute -top-24 -left-24 w-[280px] h-[280px] rounded-full border border-white/[0.07]" />
+        <div className="pointer-events-none absolute top-[45%] -right-28 w-[320px] h-[320px] rounded-full border border-white/[0.05]" />
 
-        {/* Brand Header — Floating White Capsule ala Login */}
-        <div className="relative z-10 px-5 py-5 border-b border-white/[0.1] space-y-2.5">
+        {/* Brand Header */}
+        <div className="relative z-10 px-5 py-5 border-b border-white/[0.12] space-y-2.5">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 bg-white/95 rounded-2xl px-3.5 py-2.5 shadow-[0_12px_28px_rgba(0,0,0,0.28)] ring-1 ring-white/80 flex items-center justify-center transition-transform duration-300 hover:scale-[1.01]">
+            <div className="flex-1 bg-white rounded-xl px-3.5 py-2.5 shadow-xs flex items-center justify-center transition-transform duration-200 hover:scale-[1.01]">
               <img
                 src="/assets/brida-logo.png"
                 alt="Logo BRIDA Kota Makassar"
@@ -1170,7 +1194,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden p-2 rounded-full text-white/80 hover:bg-white/10 transition cursor-pointer"
+              className="lg:hidden p-2 rounded-lg text-white/80 hover:bg-white/10 transition cursor-pointer"
               aria-label="Tutup menu"
             >
               <X size={18} />
@@ -1180,36 +1204,36 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <h1 className="font-bold text-[11px] tracking-[0.14em] uppercase text-white/90">
               OJS BRIDA
             </h1>
-            <p className="text-[10px] text-amber-300/90 font-semibold tracking-wider uppercase">
+            <p className="text-[10px] text-white/70 font-semibold tracking-wider uppercase">
               Multi-Journal
             </p>
           </div>
         </div>
 
-        {/* Multi-Journal Context Switcher — Pill Rounded ala Login */}
-        <div className="relative z-10 px-5 pt-4 pb-4 border-b border-white/[0.1]">
-          <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60 mb-2 flex items-center gap-1.5">
-            <Layers size={12} className="text-amber-300" /> Konteks Jurnal Aktif
+        {/* Multi-Journal Context Switcher */}
+        <div className="relative z-10 px-5 pt-4 pb-4 border-b border-white/[0.12]">
+          <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70 mb-2 flex items-center gap-1.5">
+            <Layers size={12} className="text-white/80" /> Konteks Jurnal Aktif
           </label>
           <select
             value={selectedJournalId}
             onChange={(e) => setSelectedJournalId(e.target.value)}
-            className="w-full bg-white/[0.09] hover:bg-white/[0.14] border border-white/[0.16] rounded-full px-4 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-amber-300/80 transition cursor-pointer"
+            className="w-full bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl px-3.5 py-2 text-xs font-semibold text-white focus:outline-none focus:border-white/50 transition cursor-pointer"
           >
-            <option value="all" className="text-slate-900 font-bold">
+            <option value="all" className="text-[#141414] font-bold">
               Semua Jurnal ({journals.length} Jurnal)
             </option>
             {journals.map((j) => (
-              <option key={j.id} value={j.id} className="text-slate-900 font-semibold">
+              <option key={j.id} value={j.id} className="text-[#141414] font-semibold">
                 {j.abbreviation} — {j.accreditation}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Main Navigation — Pill-Shaped Floating Active Items */}
-        <nav className="relative z-10 flex-1 px-3.5 py-4 space-y-1.5 overflow-y-auto">
-          <p className="px-3.5 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+        {/* Main Navigation */}
+        <nav className="relative z-10 flex-1 px-3.5 py-4 space-y-1 overflow-y-auto">
+          <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/85">
             Navigasi • {currentUser?.label}
           </p>
 
@@ -1218,18 +1242,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               setPortalSelectedJournal(null);
               switchTab('portal');
             }}
-            className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+            className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
               navTab === 'portal'
-                ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                : 'text-white/85 hover:bg-white/10 hover:text-white'
             }`}
           >
             <span className="flex items-center gap-3">
-              <IconPortalGlobe size={17} className={navTab === 'portal' ? 'text-[#7A2222]' : 'text-white/70'} />
+              <IconPortalGlobe size={17} className={navTab === 'portal' ? 'text-[#7A2222]' : 'text-white/75'} />
               Portal Publik Jurnal
             </span>
-            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-              navTab === 'portal' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+              navTab === 'portal' ? 'bg-[#FDF2F2] text-[#7A2222] border border-[#DFBABA]' : 'bg-white/15 text-white/90'
             }`}>
               {journals.length}
             </span>
@@ -1238,20 +1262,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {/* Menu Trending & Forum Riset */}
           <button
             onClick={() => switchTab('trending')}
-            className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+            className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
               navTab === 'trending'
-                ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                : 'text-white/85 hover:bg-white/10 hover:text-white'
             }`}
           >
             <span className="flex items-center gap-3">
-              <IconTrendingSpark size={17} className={navTab === 'trending' ? 'text-amber-600' : 'text-amber-300'} />
+              <IconTrendingSpark size={17} className={navTab === 'trending' ? 'text-[#7A2222]' : 'text-white/75'} />
               Trending &amp; Forum
             </span>
-            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
               navTab === 'trending'
-                ? 'bg-amber-100 text-amber-800'
-                : 'bg-amber-400/20 text-amber-300 border border-amber-300/30'
+                ? 'bg-[#FDF2F2] text-[#7A2222] border border-[#DFBABA]'
+                : 'bg-white/15 text-white/90'
             }`}>
               {forumThreadCount > 0 ? forumThreadCount : 'HOT'}
             </span>
@@ -1260,27 +1284,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {!isGuest && (
             <button
               onClick={() => switchTab('dashboard')}
-              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 navTab === 'dashboard'
-                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                  ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <IconAnalytics size={17} className={navTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/70'} />
+                <IconAnalytics size={17} className={navTab === 'dashboard' ? 'text-[#7A2222]' : 'text-white/75'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
               <span className="flex items-center gap-1.5">
                 {isAuthor && rejectedAuthorSubmissions.length > 0 && (
                   <span
                     title={`${rejectedAuthorSubmissions.length} naskah ditolak`}
-                    className="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-rose-500 text-white shadow-xs tabular-nums"
+                    className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-white text-[#882832] tabular-nums"
                   >
                     ! {rejectedAuthorSubmissions.length}
                   </span>
                 )}
-                <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-                  navTab === 'dashboard' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                  navTab === 'dashboard' ? 'bg-[#FDF2F2] text-[#7A2222] border border-[#DFBABA]' : 'bg-white/15 text-white/90'
                 }`}>
                   {scopedStats.total}
                 </span>
@@ -1291,23 +1315,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {!isGuest && (
             <button
               onClick={() => switchTab('inbox')}
-              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 navTab === 'inbox'
-                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                  ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <IconInboxClean size={17} className={navTab === 'inbox' ? 'text-[#7A2222]' : 'text-white/70'} />
+                <IconInboxClean size={17} className={navTab === 'inbox' ? 'text-[#7A2222]' : 'text-white/75'} />
                 Kotak Masuk
               </span>
               {inboxUnreadCount > 0 ? (
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold tabular-nums shadow-xs">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                  navTab === 'inbox' ? 'bg-[#7A2222] text-white' : 'bg-white text-[#7A2222]'
+                }`}>
                   {inboxUnreadCount}
                 </span>
               ) : (
-                <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-                  navTab === 'inbox' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/75'
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                  navTab === 'inbox' ? 'bg-[#FDF2F2] text-[#7A2222] border border-[#DFBABA]' : 'bg-white/15 text-white/80'
                 }`}>
                   0
                 </span>
@@ -1319,13 +1345,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {isAdmin && (
             <button
               onClick={() => switchTab('journals')}
-              className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+              className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 navTab === 'journals'
-                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                  ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
               }`}
             >
-              <IconJournalStack size={17} className={navTab === 'journals' ? 'text-[#7A2222]' : 'text-white/70'} />
+              <IconJournalStack size={17} className={navTab === 'journals' ? 'text-[#7A2222]' : 'text-white/75'} />
               Manajemen Multi-Jurnal
             </button>
           )}
@@ -1334,18 +1360,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {isAdmin && (
             <button
               onClick={() => switchTab('users')}
-              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 navTab === 'users'
-                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                  ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <IconUsersGroup size={17} className={navTab === 'users' ? 'text-[#7A2222]' : 'text-white/70'} />
+                <IconUsersGroup size={17} className={navTab === 'users' ? 'text-[#7A2222]' : 'text-white/75'} />
                 Manajemen Pengguna
               </span>
-              <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold tabular-nums ${
-                navTab === 'users' ? 'bg-[#FEF2F2] text-[#7A2222]' : 'bg-white/12 text-white/85'
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                navTab === 'users' ? 'bg-[#FDF2F2] text-[#7A2222] border border-[#DFBABA]' : 'bg-white/15 text-white/90'
               }`}>
                 {(stats.users || []).length}
               </span>
@@ -1356,13 +1382,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {isAuthor && (
             <button
               onClick={() => switchTab('unggah')}
-              className={`w-full flex items-center gap-3 py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+              className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 navTab === 'unggah'
-                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                  ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
               }`}
             >
-              <IconDocUpload size={17} className={navTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/70'} />
+              <IconDocUpload size={17} className={navTab === 'unggah' ? 'text-[#7A2222]' : 'text-white/75'} />
               Unggah Naskah Baru
             </button>
           )}
@@ -1371,18 +1397,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           {(isReviewer || isAdminOrEditor) && (
             <button
               onClick={() => switchTab('review')}
-              className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full text-[13px] font-semibold transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${
+              className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 navTab === 'review'
-                  ? 'bg-white text-[#7A2222] shadow-[0_10px_26px_-6px_rgba(0,0,0,0.32)] font-bold translate-x-0.5'
-                  : 'text-white/80 hover:bg-white/[0.09] hover:text-white hover:translate-x-1'
+                  ? 'bg-white text-[#7A2222] shadow-xs font-bold'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <IconDocCheck size={17} className={navTab === 'review' ? 'text-[#7A2222]' : 'text-white/70'} />
+                <IconDocCheck size={17} className={navTab === 'review' ? 'text-[#7A2222]' : 'text-white/75'} />
                 {isReviewer ? 'Meja Evaluasi Review' : 'Evaluasi & Editorial'}
               </span>
               {reviewQueueBadgeCount > 0 && (
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold tabular-nums shadow-xs">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
+                  navTab === 'review' ? 'bg-[#7A2222] text-white' : 'bg-white text-[#7A2222]'
+                }`}>
                   {reviewQueueBadgeCount}
                 </span>
               )}
@@ -1391,12 +1419,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         </nav>
 
         {/* RBAC Role Info Box at Bottom of Sidebar */}
-        <div className="relative z-10 p-4 m-3.5 rounded-[24px] bg-white/[0.07] border border-white/[0.12] backdrop-blur-xs text-xs space-y-1.5">
-          <div className="flex items-center gap-2 text-emerald-300 font-bold text-[11px] tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+        <div className="relative z-10 p-4 m-3.5 rounded-xl bg-white/10 border border-white/15 text-xs space-y-1.5">
+          <div className="flex items-center gap-2 text-white font-bold text-[11px] tracking-wide">
+            <span className="w-2 h-2 rounded-full bg-white/90" />
             <span>AKSES: {currentUser?.role?.toUpperCase()}</span>
           </div>
-          <p className="text-[11px] text-white/75 leading-relaxed">
+          <p className="text-[11px] text-white/80 leading-relaxed">
             {isAdmin && 'Akses Penuh Administrator: Kelola Multi-Jurnal, Akun Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
             {isEditor && 'Akses Editor Jurnal: Seleksi naskah, tugaskan Multi-Reviewer, keputusan redaksi, & penerbitan DOI.'}
             {isReviewer && 'Akses Mitra Bestari: Konfirmasi undangan & telaah naskah secara independen.'}
@@ -1409,82 +1437,77 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       {/* =====================================================================
           MAIN CONTENT AREA
           ===================================================================== */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-x-clip relative">
-        {/* TOPBAR HEADER — FROSTED GLASS & PILL CONTROLS ALA LOGIN */}
-        <header className="bg-white/80 backdrop-blur-xl border-b border-[#7A2222]/8 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30 shadow-[0_6px_24px_-16px_rgba(74,19,19,0.16)]">
+      <main
+        className={`flex-1 flex flex-col min-w-0 overflow-x-clip relative ${
+          activeTab === 'review' && (isReviewer || isAdminOrEditor) ? 'lg:h-screen lg:overflow-hidden' : ''
+        }`}
+      >
+        {/* TOPBAR HEADER — CRISP LIGHT EDITORIAL */}
+        <header className="bg-white/95 backdrop-blur-md border-b border-[#D4D4D8] shadow-[0_2px_10px_-4px_rgba(20,20,20,0.06)] px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-full border border-gray-200 text-[#7A2222] hover:bg-[#FDF7F7] transition cursor-pointer shrink-0"
+              className="lg:hidden p-2 rounded-xl border border-[#D4D4D8] text-[#7A2222] hover:bg-[#FDF2F2] transition duration-150 cursor-pointer shrink-0"
               aria-label="Buka menu navigasi"
             >
               <Menu size={18} />
             </button>
             <div className="min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-base sm:text-lg font-extrabold text-[#7A2222] tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold text-[#141414] tracking-tight">
                   OJS BRIDA
                 </h2>
-                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/15">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  {activeJournalObj ? activeJournalObj.abbreviation : 'Portal Multi-Journal BRIDA'}
-                </span>
+                {activeJournalObj && (
+                  <span className={`hidden sm:inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.accent}`}>
+                    {activeJournalObj.abbreviation}
+                  </span>
+                )}
               </div>
-              <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5 truncate">
+              <p className="text-xs font-medium text-[#4B5563] mt-0.5 truncate">
                 {isGuest ? (
                   <span>Sistem Publikasi Ilmiah Terpadu • Open Access</span>
                 ) : (
                   <>
-                    <strong className="text-gray-800 font-semibold">{currentUser?.name}</strong>{' '}
-                    <span className="hidden sm:inline text-gray-400">({currentUser?.email})</span>
+                    <strong className="text-[#141414] font-semibold">{currentUser?.name}</strong>{' '}
+                    <span className="hidden sm:inline font-normal text-[#525252]">({currentUser?.email})</span>
                   </>
                 )}
               </p>
             </div>
           </div>
 
-          {/* Layanan Aktif + Authenticated User Pill + Pill-Shaped Maroon Auth Button */}
+          {/* Authenticated User Actions & Auth Button */}
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-bold text-emerald-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.75)]" />
-              Layanan Aktif
-            </span>
-
             {!isGuest && (
               <button
                 type="button"
                 onClick={() => switchTab('inbox')}
                 title="Buka Kotak Masuk Pesan & Notifikasi"
-                className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition cursor-pointer ${
+                className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition duration-150 cursor-pointer ${
                   navTab === 'inbox'
-                    ? 'bg-[#7A2222] text-white border-[#7A2222] shadow-xs'
-                    : 'bg-white hover:bg-[#FDF7F7] text-[#7A2222] border-[#7A2222]/20'
+                    ? 'bg-[#7A2222] text-white border-[#7A2222] shadow-[0_4px_10px_-4px_rgba(122,34,34,0.4)]'
+                    : 'bg-white hover:bg-[#FDF2F2] text-[#374151] hover:text-[#7A2222] border-[#D4D4D8] shadow-[0_1px_2px_rgba(20,20,20,0.03)]'
                 }`}
               >
                 <IconInboxClean size={15} />
                 <span className="hidden sm:inline">Kotak Masuk</span>
                 {inboxUnreadCount > 0 && (
-                  <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-extrabold tabular-nums leading-4">
+                  <span className={`ml-0.5 px-1.5 rounded-full text-[10px] font-bold tabular-nums leading-4 ${
+                    navTab === 'inbox' ? 'bg-white text-[#7A2222]' : 'bg-[#7A2222] text-white'
+                  }`}>
                     {inboxUnreadCount}
                   </span>
                 )}
               </button>
             )}
 
-            {!isGuest && (
-              <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3.5 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
-                <ShieldCheck size={14} className="text-[#7A2222]" />
-                <span className="font-semibold text-[#7A2222]">{currentUser?.label}</span>
-              </div>
-            )}
-
             <button
               onClick={onLogout}
-              className={`flex items-center gap-1.5 font-bold text-xs px-5 py-2 rounded-full border transition-all duration-300 active:scale-[0.97] cursor-pointer ${
+              className={`flex items-center gap-1.5 font-bold text-xs px-4 py-1.5 rounded-full border transition-all duration-150 active:scale-[0.98] cursor-pointer ${
                 isGuest
-                  ? 'bg-[#7A2222] hover:bg-[#661B1B] text-white border-[#7A2222] shadow-[0_10px_22px_-8px_rgba(122,34,34,0.5)]'
-                  : 'bg-white text-gray-700 hover:bg-[#FEF2F2] hover:text-[#7A2222] hover:border-[#7A2222]/40 border-gray-200'
+                  ? 'bg-[#7A2222] hover:bg-[#611B1B] text-white border-[#7A2222] shadow-[0_6px_14px_-6px_rgba(122,34,34,0.45)]'
+                  : 'bg-white text-[#374151] hover:bg-[#FDF2F2] hover:text-[#7A2222] hover:border-[#DFBABA] border-[#D4D4D8] shadow-[0_1px_2px_rgba(20,20,20,0.03)]'
               }`}
             >
               {isGuest ? (
@@ -1498,17 +1521,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               )}
             </button>
           </div>
-          {/* Sleek Maroon-Gold Shimmer Progress Bar saat perpindahan menu */}
+          {/* Sleek Maroon Shimmer Progress Bar saat perpindahan menu */}
           {isTabFading && (
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2.5px] overflow-hidden">
-              <div className="h-full w-full bg-gradient-to-r from-transparent via-[#7A2222] to-[#FBBF24] animate-topbar-sweep" />
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[2px] overflow-hidden">
+              <div className="h-full w-full bg-gradient-to-r from-transparent via-[#7A2222] to-transparent animate-topbar-sweep" />
             </div>
           )}
         </header>
 
         {/* SMOOTH IN-PLACE CROSSFADE VIEWPORT (100% GPU OPACITY, 0px GERAK / 0 GETAR) */}
         <div
-          className={`flex-1 flex flex-col transition-opacity will-change-[opacity] ${
+          className={`flex-1 min-h-0 flex flex-col transition-opacity will-change-[opacity] ${
             isTabFading
               ? 'opacity-0 duration-[160ms] ease-out pointer-events-none'
               : 'opacity-100 duration-[320ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
@@ -1516,67 +1539,60 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         >
 
         {/* ===================================================================
-            TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
+            TAB 1: PORTAL PUBLIK MULTI-JOURNAL — LIGHT EDITORIAL EDITION
            =================================================================== */}
         {activeTab === 'portal' && (
           <div className="flex-1 w-full relative overflow-x-hidden pb-24">
             {!portalSelectedJournal ? (
               <>
-                {/* HERO BAND MAROON — HARMONISASI DESIGN SYSTEM LOGIN BRIDA */}
-                <section className="relative overflow-hidden bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313] border-b border-white/10 text-white px-5 sm:px-10 py-10 sm:py-12">
-                  {/* Ambient Rings & Warm Gold Glow (Identik dengan Kartu Gelap Login) */}
-                  <div className="pointer-events-none absolute -top-28 -right-20 w-[380px] h-[380px] rounded-full border border-white/[0.08]" />
-                  <div className="pointer-events-none absolute -bottom-36 -left-24 w-[440px] h-[440px] rounded-full border border-white/[0.06]" />
-                  <div
-                    className="pointer-events-none absolute top-1/2 left-1/3 -translate-y-1/2 w-[420px] h-[300px] rounded-full opacity-18 blur-3xl"
-                    style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
-                  />
-
-                  <div className="relative z-10 max-w-[1140px] mx-auto">
-                    {/* Split Hero Grid: Kartu Pencarian Putih Rounded-[32px] + Ringkasan & Akses Unggulan */}
+                {/* HERO BAND — CLEAN LIGHT EDITORIAL SURFACE */}
+                <section className="relative overflow-hidden bg-[#F6F5F4] border-b border-[#D4D4D8] px-5 sm:px-10 py-10 sm:py-12">
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(122,34,34,0.055),transparent_58%)]" />
+                  <div className="relative max-w-[1140px] mx-auto">
+                    {/* Split Hero Grid: Kartu Pencarian + Ringkasan & Akses Unggulan */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                      {/* Kartu Kiri: Pencarian Pill-Style & Statistik Ringkas */}
-                      <div className="lg:col-span-8 bg-white text-gray-900 rounded-[32px] p-6 sm:p-8 shadow-[0_30px_70px_-20px_rgba(28,10,10,0.48)] border border-white/80 flex flex-col justify-between gap-5">
+                      {/* Kartu Kiri: Pencarian & Statistik Ringkas */}
+                      <div className="lg:col-span-8 card-luxury rounded-[22px] text-[#141414] p-6 sm:p-8 flex flex-col justify-between gap-5">
                         {/* Header Judul */}
                         <div className="space-y-2.5">
-                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[11px] font-extrabold uppercase tracking-wider border border-[#7A2222]/10">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${SEMANTIC_TONE.accent}`}>
                             <Search size={12} /> Pencarian Jurnal &amp; Artikel Ilmiah
                           </span>
-                          <h2 className="font-serif-editorial text-2xl sm:text-[31px] font-bold text-gray-900 leading-tight">
+                          <h2 className="font-serif-editorial text-2xl sm:text-[32px] font-bold text-[#141414] leading-[1.18] tracking-tight">
                             Pusat Publikasi Ilmiah Resmi BRIDA Kota Makassar
                           </h2>
-                          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                          <p className="text-[13px] sm:text-sm text-[#4B5563] font-normal leading-relaxed">
                             Temukan artikel penelitian terakreditasi SINTA, kajian kebijakan berbasis bukti, dan inovasi daerah secara terbuka (<em>Diamond Open Access</em>).
                           </p>
                         </div>
 
-                        {/* Form Pencarian Pill-Style ala Login */}
-                        <div className="bg-[#FDF7F7]/90 border border-[#7A2222]/12 rounded-[26px] p-4 sm:p-5 space-y-3.5">
+                        {/* Form Pencarian */}
+                        <div className="bg-[#FAFAFA]/85 border border-[#D4D4D8] rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
                           <div>
-                            <label className="block text-[11px] font-bold text-gray-700 mb-1.5 px-1">
+                            <label className="block text-[11px] font-semibold text-[#374151] mb-1.5">
                               Kata Kunci, Judul Artikel, Penulis, atau Nomor DOI
                             </label>
-                            <div className="relative">
-                              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <div className="relative group">
+                              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B7280] group-focus-within:text-[#7A2222] transition-colors duration-150" />
                               <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Contoh: Smart City, Inovasi Daerah, nama penulis, atau 10.31290/..."
-                                className="w-full bg-white border border-gray-200 focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 rounded-full pl-11 pr-5 py-3 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none transition"
+                                className="w-full bg-white border border-[#D4D4D8] focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/12 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium text-[#141414] placeholder:text-[#6B7280] placeholder:font-normal shadow-[0_1px_2px_rgba(20,20,20,0.03)] outline-none transition-all duration-150"
                               />
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-[11px] font-bold text-gray-700 mb-1 px-1">
+                              <label className="block text-[11px] font-semibold text-[#374151] mb-1">
                                 Filter Jurnal BRIDA
                               </label>
                               <select
                                 value={selectedJournalId}
                                 onChange={(e) => setSelectedJournalId(e.target.value)}
-                                className="w-full bg-white border border-gray-200 focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 rounded-full px-4 py-2.5 text-xs font-semibold text-gray-800 outline-none cursor-pointer transition"
+                                className="w-full bg-white border border-[#D4D4D8] focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/12 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-[#141414] shadow-[0_1px_2px_rgba(20,20,20,0.03)] outline-none cursor-pointer transition-all duration-150"
                               >
                                 <option value="all">Semua Jurnal ({journals.length} Jurnal Aktif)</option>
                                 {journals.map((j) => (
@@ -1588,7 +1604,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
 
                             <div>
-                              <label className="block text-[11px] font-bold text-gray-700 mb-1 px-1">
+                              <label className="block text-[11px] font-semibold text-[#374151] mb-1">
                                 Topik Pencarian Cepat
                               </label>
                               <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -1601,10 +1617,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       const el = document.getElementById('daftar-artikel');
                                       if (el) el.scrollIntoView({ behavior: 'smooth' });
                                     }}
-                                    className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition-all duration-200 active:scale-95 cursor-pointer ${
+                                    className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition-all duration-150 active:scale-95 cursor-pointer ${
                                       searchQuery.toLowerCase() === topic.toLowerCase()
-                                        ? 'bg-[#7A2222] text-white border-[#7A2222] shadow-xs'
-                                        : 'bg-white text-gray-700 border-gray-200 hover:border-[#7A2222]/50 hover:text-[#7A2222]'
+                                        ? 'bg-[#7A2222] text-white border-[#7A2222] shadow-[0_4px_10px_-4px_rgba(122,34,34,0.45)]'
+                                        : 'bg-white text-[#374151] border-[#D4D4D8] hover:border-[#D9B8B8] hover:bg-[#FDF2F2] hover:text-[#7A2222] shadow-[0_1px_2px_rgba(20,20,20,0.03)]'
                                     }`}
                                   >
                                     {topic}
@@ -1614,7 +1630,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
                           </div>
 
-                          {/* Bar Tombol Aksi Pill-Shaped */}
+                          {/* Bar Tombol Aksi */}
                           <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
                             <div className="flex items-center gap-2">
                               <button
@@ -1623,7 +1639,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   const el = document.getElementById('daftar-artikel');
                                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                                 }}
-                                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer"
+                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#7A2222] hover:bg-[#611B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_8px_18px_-8px_rgba(122,34,34,0.5)] transition-all duration-150 cursor-pointer"
                               >
                                 <Search size={14} /> Cari Artikel
                               </button>
@@ -1634,7 +1650,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     setSearchQuery('');
                                     setSelectedJournalId('all');
                                   }}
-                                  className="px-4 py-2.5 rounded-full bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-xs transition cursor-pointer"
+                                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAFAFA] border border-[#D4D4D8] text-[#374151] font-semibold text-xs transition duration-150 cursor-pointer"
                                 >
                                   Reset
                                 </button>
@@ -1647,78 +1663,75 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 const el = document.getElementById('daftar-artikel');
                                 if (el) el.scrollIntoView({ behavior: 'smooth' });
                               }}
-                              className="text-xs font-extrabold text-[#7A2222] hover:underline cursor-pointer"
+                              className="text-xs font-semibold text-[#7A2222] hover:underline cursor-pointer"
                             >
                               Semua Artikel Terbit →
                             </button>
                           </div>
                         </div>
 
-                        {/* 4 Ringkasan Statistik Live Portal — Seragam Merah Maroon BRIDA */}
+                        {/* 4 Ringkasan Statistik Live Portal */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
+                          <div className="rounded-xl bg-[#FAFAFA]/85 border border-[#D4D4D8] px-4 py-3 transition duration-150 hover:border-[#A1A1AA] hover:bg-white">
+                            <div className="text-lg font-extrabold text-[#141414] tabular-nums leading-none">
                               {journals.length}
                             </div>
-                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Jurnal Resmi</div>
+                            <div className="text-[11px] font-semibold text-[#4B5563] mt-1.5">Jurnal Resmi</div>
                           </div>
-                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
+                          <div className="rounded-xl bg-[#FAFAFA]/85 border border-[#D4D4D8] px-4 py-3 transition duration-150 hover:border-[#A1A1AA] hover:bg-white">
+                            <div className="text-lg font-extrabold text-[#141414] tabular-nums leading-none">
                               {publishedSubmissions.length}
                             </div>
-                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Artikel Terbit</div>
+                            <div className="text-[11px] font-semibold text-[#4B5563] mt-1.5">Artikel Terbit</div>
                           </div>
-                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
+                          <div className="rounded-xl bg-[#FAFAFA]/85 border border-[#D4D4D8] px-4 py-3 transition duration-150 hover:border-[#A1A1AA] hover:bg-white">
+                            <div className="text-lg font-extrabold text-[#141414] tabular-nums leading-none">
                               {forumThreadCount}
                             </div>
-                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Diskusi Riset</div>
+                            <div className="text-[11px] font-semibold text-[#4B5563] mt-1.5">Diskusi Riset</div>
                           </div>
-                          <div className="rounded-2xl bg-[#FDF7F7] border border-[#7A2222]/15 px-4 py-3 transition hover:border-[#7A2222]/35 hover:-translate-y-0.5">
-                            <div className="text-lg font-extrabold text-[#7A2222] leading-none">
+                          <div className="rounded-xl bg-[#FAFAFA]/85 border border-[#D4D4D8] px-4 py-3 transition duration-150 hover:border-[#A1A1AA] hover:bg-white">
+                            <div className="text-lg font-extrabold text-[#7A2222] tabular-nums leading-none">
                               Rp 0
                             </div>
-                            <div className="text-[10px] font-bold text-[#7A2222]/75 mt-1">Biaya Publikasi</div>
+                            <div className="text-[11px] font-semibold text-[#4B5563] mt-1.5">Biaya Publikasi</div>
                           </div>
                         </div>
 
                         {/* Institutional Trust Bar */}
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 border-t border-gray-100 text-[11px] font-semibold text-gray-500">
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2.5 border-t border-[#D4D4D8] text-[11px] font-semibold text-[#4B5563]">
                           <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 size={13} className="text-emerald-600" /> Diamond Open Access (Rp 0)
+                            <CheckCircle2 size={13} className="text-[#7A2222]" /> Diamond Open Access (Rp 0)
                           </span>
                           <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 size={13} className="text-emerald-600" /> Double-Blind Peer Review
+                            <CheckCircle2 size={13} className="text-[#7A2222]" /> Double-Blind Peer Review
                           </span>
                           <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 size={13} className="text-emerald-600" /> Standar SINTA &amp; DOI Resmi
+                            <CheckCircle2 size={13} className="text-[#7A2222]" /> Standar SINTA &amp; DOI Resmi
                           </span>
                         </div>
                       </div>
 
                       {/* Kartu Kanan: Ilustrasi + Akses Layanan Unggulan */}
                       <div className="lg:col-span-4 flex flex-col gap-4">
-                        <div className="bg-white text-gray-900 rounded-[32px] p-6 shadow-[0_30px_70px_-20px_rgba(28,10,10,0.48)] border border-white/80 flex-1 flex flex-col items-center justify-center text-center space-y-3">
-                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[10px] font-extrabold uppercase tracking-wider border border-[#7A2222]/10">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#7A2222]" /> {journals.length} Jurnal Aktif
-                          </span>
+                        <div className="card-luxury rounded-[22px] text-[#141414] p-6 flex-1 flex flex-col items-center justify-center text-center space-y-3.5">
                           <img
                             src="/assets/hero-books.png"
                             alt="Koleksi Jurnal BRIDA"
-                            className="w-32 sm:w-36 object-contain drop-shadow-md transition-transform duration-500 hover:-translate-y-1"
+                            className="w-32 sm:w-36 object-contain transition-transform duration-300 hover:-translate-y-1"
                           />
                           <div>
-                            <h3 className="font-serif-editorial text-lg font-bold text-gray-900">
+                            <h3 className="font-serif-editorial text-lg font-bold text-[#141414]">
                               Portal OJS Multi-Journal
                             </h3>
-                            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                            <p className="text-xs font-medium text-[#4B5563] mt-1 leading-relaxed">
                               Publikasi gratis (APC Rp 0) dengan validasi otomatis standar SINTA/ARJUNA.
                             </p>
                           </div>
                           <button
                             type="button"
                             onClick={() => (isGuest ? onLogout() : switchTab(isAuthor ? 'unggah' : 'review'))}
-                            className="w-full py-3 px-5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition-all cursor-pointer"
+                            className="w-full py-2.5 px-5 rounded-xl bg-[#7A2222] hover:bg-[#611B1B] active:scale-[0.98] text-white font-bold text-xs shadow-[0_8px_18px_-8px_rgba(122,34,34,0.5)] transition-all duration-150 cursor-pointer"
                           >
                             {isGuest
                               ? 'Kirim Naskah / Login →'
@@ -1730,23 +1743,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </button>
                         </div>
 
-                        {/* Dark Maroon Sub-card "Akses Layanan Unggulan" */}
-                        <div className="bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-[26px] p-4 space-y-2.5">
-                          <div className="text-xs font-extrabold text-white">Akses Layanan Unggulan</div>
-                          <p className="text-[11px] text-white/80 leading-relaxed">
+                        {/* Institutional Maroon Sub-card "Akses Layanan Unggulan" */}
+                        <div className="bg-gradient-to-br from-[#7E2424] via-[#7A2222] to-[#5E1919] border border-[#5E1919] rounded-[22px] p-5 space-y-2.5 text-white shadow-[0_12px_26px_-12px_rgba(94,25,25,0.55)]">
+                          <div className="text-xs font-bold text-white">Akses Layanan Unggulan</div>
+                          <p className="text-[11px] text-white/90 font-normal leading-relaxed">
                             Jelajahi topik riset terhangat atau unduh template resmi berstandar SINTA.
                           </p>
                           <div className="grid grid-cols-2 gap-2 pt-0.5">
                             <button
                               type="button"
                               onClick={() => handleOpenForum('')}
-                              className="py-2.5 px-3 rounded-full bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-gray-900 font-extrabold text-[11px] transition cursor-pointer"
+                              className="py-2 px-3 rounded-xl bg-white hover:bg-[#F5F5F5] active:scale-[0.98] text-[#7A2222] font-bold text-[11px] shadow-xs transition duration-150 cursor-pointer"
                             >
                               Trending &amp; Forum
                             </button>
                             <a
                               href={`${API_BASE}/template-naskah`}
-                              className="py-2.5 px-3 rounded-full bg-white hover:bg-gray-100 active:scale-[0.98] text-[#7A2222] font-extrabold text-[11px] text-center transition"
+                              className="py-2 px-3 rounded-xl bg-white/12 hover:bg-white/20 active:scale-[0.98] text-white border border-white/25 font-semibold text-[11px] text-center transition duration-150"
                             >
                               Template SINTA
                             </a>
@@ -1765,27 +1778,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 {/* SECTION: PUSAT PUBLIKASI + INFORMASI JURNAL SPLIT CARD */}
                 <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                   {/* Left Card */}
-                  <div className="lg:col-span-4 card-luxury card-luxury-hover rounded-[32px] p-7 flex flex-col items-center justify-center text-center">
+                  <div className="lg:col-span-4 card-luxury card-luxury-hover rounded-[22px] p-7 flex flex-col items-center justify-center text-center">
                     <img
                       src="/assets/pusat-books.png"
                       alt="Pusat Publikasi & Riset Inovasi Daerah"
-                      className="w-44 sm:w-52 object-contain mb-5 drop-shadow-[0_16px_24px_rgba(74,19,19,0.16)] transition-transform duration-500 hover:-translate-y-1"
+                      className="w-44 sm:w-52 object-contain mb-5 transition-transform duration-300 hover:-translate-y-1"
                     />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 mb-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#4B5563] mb-1.5">
                       Ekosistem Publikasi
                     </span>
-                    <h3 className="font-serif-editorial text-[#7A2222] font-bold text-xl leading-snug max-w-[240px]">
+                    <h3 className="font-serif-editorial text-[#141414] font-bold text-xl leading-snug max-w-[240px]">
                       Pusat Publikasi &amp; Riset Inovasi Daerah
                     </h3>
                   </div>
 
-                  {/* Right Split Card — Mirroring Login Split Card */}
-                  <div className="lg:col-span-8 card-luxury rounded-[32px] overflow-hidden grid grid-cols-1 md:grid-cols-12">
-                    {/* Royal Maroon Left Sidebar */}
-                    <div className="md:col-span-4 relative overflow-hidden bg-gradient-to-b from-[#7A2222] via-[#661B1B] to-[#4A1313] text-white p-6 flex flex-col justify-between">
+                  {/* Right Split Card */}
+                  <div className="lg:col-span-8 card-luxury rounded-[22px] overflow-hidden grid grid-cols-1 md:grid-cols-12">
+                    {/* Institutional Maroon Left Sidebar */}
+                    <div className="md:col-span-4 relative overflow-hidden bg-gradient-to-b from-[#7E2424] via-[#7A2222] to-[#5E1919] text-white p-6 flex flex-col justify-between">
                       <div className="pointer-events-none absolute -top-12 -right-12 w-36 h-36 rounded-full border border-white/[0.08]" />
                       <div className="relative z-10">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300/90 block mb-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80 block mb-1">
                           Profil Redaksi
                         </span>
                         <h3 className="font-serif-editorial font-bold text-xl mb-5 tracking-tight">
@@ -1802,10 +1815,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               key={tab.key}
                               type="button"
                               onClick={() => setActiveInfoTab(tab.key)}
-                              className={`w-full text-left px-4 py-2.5 rounded-full text-xs transition-all duration-300 ease-out cursor-pointer ${
+                              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs transition-all duration-150 cursor-pointer ${
                                 activeInfoTab === tab.key
-                                  ? 'bg-white text-[#7A2222] font-bold shadow-[0_8px_20px_-4px_rgba(0,0,0,0.3)] translate-x-0.5'
-                                  : 'text-white/80 hover:bg-white/[0.1] hover:text-white font-medium hover:translate-x-1'
+                                  ? 'bg-white text-[#7A2222] font-bold shadow-xs'
+                                  : 'text-white/90 hover:bg-white/10 hover:text-white font-medium'
                               }`}
                             >
                               {tab.label}
@@ -1814,7 +1827,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         </div>
                       </div>
 
-                      <div className="relative z-10 mt-6 pt-4 border-t border-white/15 text-[11px] text-white/75">
+                      <div className="relative z-10 mt-6 pt-4 border-t border-white/15 text-[11px] text-white/85 font-medium tabular-nums">
                         {activeJournalObj ? (
                           <>
                             <div className="font-bold text-white">{activeJournalObj.abbreviation}</div>
@@ -1833,33 +1846,33 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <div className="md:col-span-8 p-6 sm:p-8 flex flex-col justify-center bg-white">
                       {activeInfoTab === 'fokus' && (
                         <div key="info-fokus" className="animate-blur-morph">
-                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="font-serif-editorial text-[#141414] font-bold text-xl sm:text-2xl mb-3">
                             Fokus &amp; Ruang Lingkup
                           </h3>
                           {activeJournalObj ? (
                             <>
-                              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3.5">
-                                <strong className="text-slate-800">
+                              <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed mb-3.5">
+                                <strong className="text-[#141414] font-semibold">
                                   "{activeJournalObj.title} ({activeJournalObj.abbreviation})"
                                 </strong>{' '}
                                 {activeJournalObj.description}
                               </p>
-                              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                              <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed">
                                 Kami menerima naskah penelitian orisinal dan kajian analitis di bidang:{' '}
-                                <strong className="text-slate-800">{activeJournalObj.focus_scope}.</strong>
+                                <strong className="text-[#141414] font-semibold">{activeJournalObj.focus_scope}.</strong>
                               </p>
                             </>
                           ) : (
                             <>
-                              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3.5">
-                                <strong className="text-slate-800">
+                              <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed mb-3.5">
+                                <strong className="text-[#141414] font-semibold">
                                   "Jurnal SINTESA (Sains, Inovasi, dan Teknologi Daerah)"
                                 </strong>{' '}
                                 adalah wadah publikasi ilmiah resmi yang dikelola oleh Badan Riset dan Inovasi Daerah (BRIDA) Kota Makassar.
                               </p>
-                              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                              <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed">
                                 Menerima naskah penelitian orisinal di bidang:{' '}
-                                <strong className="text-slate-800">
+                                <strong className="text-[#141414] font-semibold">
                                   Kebijakan Publik, Tata Kelola Smart City, Ketahanan Pangan, dan Inovasi Teknologi Tepat Guna.
                                 </strong>
                               </p>
@@ -1870,45 +1883,45 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                       {activeInfoTab === 'peer_review' && (
                         <div key="info-peer" className="animate-blur-morph">
-                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="font-serif-editorial text-[#141414] font-bold text-xl sm:text-2xl mb-3">
                             Proses Peer Review
                           </h3>
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3">
+                          <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed mb-3">
                             Setiap naskah yang masuk ke sistem OJS BRIDA melalui tahapan seleksi awal (Pre-Review) oleh Dewan Editor untuk memeriksa kesesuaian fokus ruang lingkup dan tingkat kemiripan (uji plagiarisme).
                           </p>
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                            Naskah kemudian dinilai secara <strong className="text-slate-800">Double-Blind Peer Review</strong> oleh minimal 2 (dua) Mitra Bestari (Reviewer) independen sebelum keputusan akhir diterbitkan.
+                          <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed">
+                            Naskah kemudian dinilai secara <strong className="text-[#141414] font-semibold">Double-Blind Peer Review</strong> oleh minimal 2 (dua) Mitra Bestari (Reviewer) independen sebelum keputusan akhir diterbitkan.
                           </p>
                         </div>
                       )}
 
                       {activeInfoTab === 'dewan_editor' && (
                         <div key="info-editor" className="animate-blur-morph">
-                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="font-serif-editorial text-[#141414] font-bold text-xl sm:text-2xl mb-3">
                             Dewan Editor
                           </h3>
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-2">
+                          <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed mb-2">
                             Dewan editor bertanggung jawab memastikan kualitas naskah melalui proses evaluasi ilmiah yang adil dan profesional:
                           </p>
-                          <ul className="text-xs sm:text-sm text-slate-700 space-y-1.5 list-disc pl-5">
-                            <li><strong>Editor in Chief:</strong> Dr. Ir. Budi Santoso, M.Kom (Universitas Indonesia)</li>
-                            <li><strong>Managing Editor:</strong> Dr. Siti Aminah, M.Sc (Institut Teknologi Bandung)</li>
-                            <li><strong>Editor Associate:</strong> Dr. Hendra Wijaya, Ph.D (Universitas Gadjah Mada)</li>
-                            <li><strong>Editor Associate:</strong> Dr. Rina Fitriani, M.Kom (Universitas Airlangga)</li>
+                          <ul className="text-xs sm:text-sm text-[#374151] font-normal space-y-1.5 list-disc pl-5">
+                            <li><strong className="text-[#141414] font-semibold">Editor in Chief:</strong> Dr. Ir. Budi Santoso, M.Kom (Universitas Indonesia)</li>
+                            <li><strong className="text-[#141414] font-semibold">Managing Editor:</strong> Dr. Siti Aminah, M.Sc (Institut Teknologi Bandung)</li>
+                            <li><strong className="text-[#141414] font-semibold">Editor Associate:</strong> Dr. Hendra Wijaya, Ph.D (Universitas Gadjah Mada)</li>
+                            <li><strong className="text-[#141414] font-semibold">Editor Associate:</strong> Dr. Rina Fitriani, M.Kom (Universitas Airlangga)</li>
                           </ul>
                         </div>
                       )}
 
                       {activeInfoTab === 'apc' && (
                         <div key="info-apc" className="animate-blur-morph">
-                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="font-serif-editorial text-[#141414] font-bold text-xl sm:text-2xl mb-3">
                             Kebijakan Akses &amp; APC
                           </h3>
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3">
-                            Seluruh jurnal menerapkan kebijakan <strong className="text-slate-800">Diamond Open Access (CC BY-SA 4.0)</strong> di mana masyarakat, akademisi, dan pemangku kebijakan dapat membaca dan mengunduh PDF artikel secara gratis.
+                          <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed mb-3">
+                            Seluruh jurnal menerapkan kebijakan <strong className="text-[#141414] font-semibold">Diamond Open Access (CC BY-SA 4.0)</strong> di mana masyarakat, akademisi, dan pemangku kebijakan dapat membaca dan mengunduh PDF artikel secara gratis.
                           </p>
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                            <strong className="text-slate-800">Biaya Publikasi (APC): Rp 0 (Gratis)</strong> — didanai sepenuhnya oleh Badan Riset dan Inovasi Daerah (BRIDA) Kota Makassar.
+                          <p className="text-[#374151] text-xs sm:text-sm font-normal leading-relaxed">
+                            <strong className="text-[#141414] font-semibold">Biaya Publikasi (APC): Rp 0 (Gratis)</strong> — didanai sepenuhnya oleh Badan Riset dan Inovasi Daerah (BRIDA) Kota Makassar.
                           </p>
                         </div>
                       )}
@@ -1917,11 +1930,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </section>
 
                 {/* SECTION: 5-STEP ALUR PENERBITAN NASKAH */}
-                <section className="card-luxury rounded-[28px] px-6 sm:px-10 py-10 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-2">
+                <section className="card-luxury rounded-[22px] px-6 sm:px-10 py-10 text-center">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#4B5563] block mb-2">
                     Standar Publikasi OJS
                   </span>
-                  <h2 className="font-serif-editorial text-[#7A2222] font-bold text-2xl sm:text-3xl tracking-tight mb-10">
+                  <h2 className="font-serif-editorial text-[#141414] font-bold text-2xl sm:text-3xl tracking-tight mb-10">
                     Alur Penerbitan Naskah Ilmiah
                   </h2>
 
@@ -1955,21 +1968,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     ].map((step, idx, arr) => (
                       <React.Fragment key={step.label}>
                         <div className="flex flex-col items-center group">
-                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#7A2222] to-[#7A2222] ring-4 ring-slate-100 shadow-[0_12px_26px_-8px_rgba(12,32,61,0.35)] flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
+                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#7E2424] to-[#611B1B] ring-4 ring-[#F6F5F4] shadow-[0_8px_18px_-8px_rgba(122,34,34,0.45)] flex items-center justify-center transition-transform duration-200 group-hover:-translate-y-0.5">
                             {step.icon}
-                            <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-[#7A2222] border border-slate-200 text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                            <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-[#7A2222] border border-[#D4D4D8] text-[11px] font-bold tabular-nums flex items-center justify-center shadow-xs">
                               {idx + 1}
                             </span>
                           </div>
-                          <span className="mt-3.5 text-xs sm:text-sm font-bold text-[#7A2222]">
+                          <span className="mt-3.5 text-xs sm:text-sm font-semibold text-[#141414]">
                             {step.label}
                           </span>
-                          <span className="text-[10px] font-medium text-slate-400 mt-0.5">
+                          <span className="text-[11px] font-medium text-[#4B5563] mt-0.5">
                             {step.sub}
                           </span>
                         </div>
                         {idx < arr.length - 1 && (
-                          <div className="hidden sm:block flex-1 border-t border-dashed border-slate-300 mx-3 -mt-9" />
+                          <div className="hidden sm:block flex-1 border-t border-dashed border-[#D4D4D4] mx-3 -mt-9" />
                         )}
                       </React.Fragment>
                     ))}
@@ -1979,34 +1992,34 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 {/* SECTION: TERBITAN TERKINI (CURRENT ISSUE) */}
                 <section id="daftar-artikel" className="space-y-6">
                   {/* Editorial Section Header */}
-                  <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 pb-4">
+                  <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#D4D4D8] pb-4">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-1">
+                      <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#4B5563] block mb-1">
                         Publikasi Terkini • Open Access
                       </span>
-                      <h2 className="font-serif-editorial text-[#7A2222] font-bold text-2xl sm:text-3xl tracking-tight">
+                      <h2 className="font-serif-editorial text-[#141414] font-bold text-2xl sm:text-3xl tracking-tight">
                         Terbitan Terkini (Current Issue)
                       </h2>
-                      <p className="text-slate-500 text-xs sm:text-sm mt-1">
+                      <p className="text-[#4B5563] font-normal text-xs sm:text-sm mt-1">
                         Koleksi artikel ilmiah resmi yang telah melalui penelaahan sejawat &amp; ber-DOI aktif.
                       </p>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7A2222] bg-white px-4 py-2 rounded-full border border-slate-200 shadow-2xs">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7A2222] bg-white px-4 py-2 rounded-full border border-[#D4D4D8] shadow-[0_2px_6px_-2px_rgba(20,20,20,0.06)] tabular-nums">
                       <BookOpen size={13} /> {publishedSubmissions.length} Artikel Resmi Terbit
                     </span>
                   </div>
 
                   {/* Cards Grid */}
                   {publishedSubmissions.length === 0 ? (
-                    <div className="card-luxury rounded-[24px] p-12 text-center">
-                      <p className="text-sm font-semibold text-slate-600">
+                    <div className="card-luxury rounded-[22px] p-12 text-center">
+                      <p className="text-sm font-semibold text-[#4B5563]">
                         Tidak ditemukan artikel terbit yang cocok dengan pencarian Anda.
                       </p>
                       {searchQuery && (
                         <button
                           type="button"
                           onClick={() => setSearchQuery('')}
-                          className="mt-3 px-4 py-2 rounded-full bg-[#7A2222] text-white text-xs font-semibold cursor-pointer"
+                          className="mt-3 px-4 py-2 rounded-xl bg-[#7A2222] hover:bg-[#611B1B] text-white text-xs font-bold shadow-[0_6px_14px_-6px_rgba(122,34,34,0.45)] transition duration-150 cursor-pointer"
                         >
                           Reset Pencarian
                         </button>
@@ -2019,45 +2032,45 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       return (
                       <div
                         key={sub.id}
-                        className="card-luxury card-luxury-hover rounded-[24px] p-5 flex flex-col justify-between"
+                        className="card-luxury card-luxury-hover rounded-[22px] p-5 flex flex-col justify-between"
                       >
                         <div>
                           {/* Bespoke Editorial Academic Journal Cover — Solid BRIDA Maroon */}
                           <div
                             onClick={() => setDetailSubmission(sub)}
-                            className={`w-full h-44 rounded-[18px] ${coverTheme.bgHeader} mb-4 relative overflow-hidden cursor-pointer group p-4 flex flex-col justify-between text-white shadow-inner`}
+                            className={`w-full h-44 rounded-xl ${coverTheme.bgHeader} mb-4 relative overflow-hidden cursor-pointer group p-4 flex flex-col justify-between text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]`}
                           >
                             {/* Decorative subtle editorial lines */}
                             <div className="pointer-events-none absolute -right-10 -top-10 w-36 h-36 rounded-full bg-white/[0.06]" />
                             <div className="pointer-events-none absolute -left-8 -bottom-12 w-32 h-32 rounded-full bg-white/[0.04]" />
 
                             <div className="relative z-10 flex items-center justify-between gap-2">
-                              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20 backdrop-blur-xs">
+                              <span className="text-[10px] font-bold tracking-[0.14em] uppercase px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20">
                                 {sub.journal?.abbreviation || 'J-SINTESA'}
                               </span>
-                              <span className="text-[10px] font-semibold text-amber-200/95">
+                              <span className="text-[10px] font-semibold text-white/95">
                                 {sub.journal?.accreditation || 'SINTA 2'}
                               </span>
                             </div>
 
                             <div className="relative z-10 space-y-1.5">
-                              <div className="w-8 h-0.5 bg-amber-300/80 rounded-full" />
-                              <div className="font-serif-editorial text-sm font-bold leading-snug line-clamp-2 text-white/95 group-hover:text-white transition">
+                              <div className="w-8 h-0.5 bg-white/40 rounded-full" />
+                              <div className="font-serif-editorial text-sm font-bold leading-snug line-clamp-2 text-white">
                                 {sub.title}
                               </div>
-                              <div className="text-[10px] text-blue-100/75 flex items-center justify-between pt-0.5">
+                              <div className="text-[11px] font-medium text-white/85 flex items-center justify-between pt-0.5 tabular-nums">
                                 <span className="truncate">{sub.issue ? `${sub.issue.volume} ${sub.issue.number} (${sub.issue.year})` : 'Open Access Article'}</span>
-                                <span className="font-semibold text-white/90 group-hover:translate-x-0.5 transition">Baca →</span>
+                                <span className="font-semibold text-white group-hover:translate-x-0.5 transition duration-150">Baca →</span>
                               </div>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[#7A2222] font-bold text-[10px] border border-slate-200/80">
+                            <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${SEMANTIC_TONE.accent}`}>
                               {sub.journal?.abbreviation || 'J-SINTESA'}
                             </span>
                             {sub.doi && (
-                              <span className="text-[10px] font-mono text-slate-400 truncate">
+                              <span className="text-[11px] font-mono font-medium text-[#4B5563] truncate">
                                 {sub.doi}
                               </span>
                             )}
@@ -2065,22 +2078,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                           <h3
                             onClick={() => setDetailSubmission(sub)}
-                            className="text-slate-900 font-bold text-[15px] leading-snug cursor-pointer hover:text-[#661B1B] line-clamp-2 transition"
+                            className="text-[#141414] font-semibold text-[15px] leading-snug cursor-pointer hover:text-[#7A2222] line-clamp-2 transition duration-150"
                           >
                             {sub.title}
                           </h3>
-                          <p className="text-slate-500 text-xs mt-1.5 line-clamp-1">
+                          <p className="text-[#4B5563] font-medium text-xs mt-1.5 line-clamp-1">
                             {sub.author?.name || 'Penerbit'}
                             {sub.co_authors ? `, ${sub.co_authors}` : ''}
                           </p>
                         </div>
 
                         {/* Bottom Action Bar */}
-                        <div className="mt-5 flex items-center justify-between pt-3.5 border-t border-slate-100">
+                        <div className="mt-5 flex items-center justify-between pt-3.5 border-t border-[#D4D4D8]">
                           <button
                             type="button"
                             onClick={() => setDetailSubmission(sub)}
-                            className="text-xs font-semibold text-slate-500 hover:text-[#7A2222] transition cursor-pointer"
+                            className="text-xs font-semibold text-[#374151] hover:text-[#7A2222] transition duration-150 cursor-pointer"
                           >
                             Detail Abstrak
                           </button>
@@ -2089,7 +2102,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               href={resolveFileUrl(sub.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-semibold text-xs shadow-xs transition"
+                              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#7A2222] hover:bg-[#611B1B] text-white font-bold text-xs shadow-[0_4px_12px_-4px_rgba(122,34,34,0.45)] transition duration-150"
                             >
                               <IconDocClean size={14} /> Baca PDF
                             </a>
@@ -2104,15 +2117,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                 {/* SECTION: KATALOG MULTI-JURNAL BRIDA */}
                 <section className="space-y-6 pt-4">
-                  <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 pb-4">
+                  <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#D4D4D8] pb-4">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-1">
+                      <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#4B5563] block mb-1">
                         Direktori Resmi
                       </span>
-                      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold text-[#7A2222] tracking-tight">
+                      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold text-[#141414] tracking-tight tabular-nums">
                         Katalog Jurnal Ilmiah BRIDA ({journals.length} Jurnal)
                       </h3>
-                      <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                      <p className="text-xs sm:text-sm text-[#4B5563] font-normal mt-1">
                         Jelajahi seluruh jurnal ilmiah resmi yang dinaungi dalam ekosistem Portal OJS BRIDA Kota Makassar.
                       </p>
                     </div>
@@ -2120,7 +2133,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     {isAdmin && (
                       <button
                         onClick={() => setShowAddJournalModal(true)}
-                        className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-sm transition cursor-pointer"
+                        className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#611B1B] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-[0_6px_14px_-6px_rgba(122,34,34,0.45)] transition duration-150 cursor-pointer"
                       >
                         <PlusCircle size={15} /> Tambah Jurnal Baru
                       </button>
@@ -2134,46 +2147,46 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       return (
                         <div
                           key={j.id}
-                          className="card-luxury card-luxury-hover rounded-[28px] overflow-hidden flex flex-col group"
+                          className="card-luxury card-luxury-hover rounded-[22px] overflow-hidden flex flex-col group"
                         >
                           {/* Header Solid Merah Maroon dengan Tinggi Seragam Kiri & Kanan */}
                           <div className={`${theme.bgHeader} p-6 text-white min-h-[178px] flex flex-col justify-between gap-3`}>
                             <div className="space-y-3">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="text-xs font-extrabold uppercase tracking-wider bg-black/20 px-3 py-1 rounded-full border border-white/20">
+                                <span className="text-xs font-bold uppercase tracking-wider bg-white/15 px-3 py-1 rounded-full border border-white/20">
                                   {j.abbreviation}
                                 </span>
-                                <span className="text-xs font-extrabold bg-amber-400 text-slate-950 px-3 py-1 rounded-full flex items-center gap-1 shadow-xs shrink-0">
+                                <span className="text-xs font-semibold bg-white/15 text-white px-3 py-1 rounded-full border border-white/25 flex items-center gap-1 shrink-0">
                                   <Award size={13} /> Terakreditasi {j.accreditation}
                                 </span>
                               </div>
-                              <h4 className="text-lg font-extrabold leading-snug line-clamp-2 min-h-[3.1rem] group-hover:underline">
+                              <h4 className="font-serif-editorial text-lg font-bold leading-snug line-clamp-2 min-h-[3.1rem] group-hover:underline">
                                 {j.title}
                               </h4>
                             </div>
 
-                            <div className="pt-2 border-t border-white/15 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-white/85 font-medium">
+                            <div className="pt-2.5 border-t border-white/15 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-white/90 font-medium tabular-nums">
                               <span>P-ISSN: {j.issn_print} • E-ISSN: {j.issn_online}</span>
-                              <span className="text-white/75">{j.frequency}</span>
+                              <span className="text-white/85">{j.frequency}</span>
                             </div>
                           </div>
 
                           {/* Badan Kartu Sejajar Simetris */}
                           <div className="flex-1 p-6 flex flex-col justify-between gap-4">
-                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
+                            <p className="text-xs sm:text-sm text-[#374151] font-normal leading-relaxed line-clamp-3">
                               {j.description}
                             </p>
-                            <div className="bg-[#FDF7F7] p-4 rounded-2xl border border-[#7A2222]/15 text-xs space-y-1.5">
+                            <div className="bg-[#FAFAFA]/85 p-4 rounded-2xl border border-[#D4D4D8] text-xs space-y-1.5">
                               <div className="line-clamp-2">
-                                <strong className="text-slate-800">Fokus &amp; Ruang Lingkup:</strong>{' '}
-                                <span className="text-slate-600">{j.focus_scope}</span>
+                                <strong className="text-[#141414] font-semibold">Fokus &amp; Ruang Lingkup:</strong>{' '}
+                                <span className="text-[#4B5563]">{j.focus_scope}</span>
                               </div>
                               <div className="truncate">
-                                <strong className="text-slate-800">Ketua Dewan Redaksi:</strong>{' '}
-                                <span className="text-slate-600">{j.chief_editor}</span>
+                                <strong className="text-[#141414] font-semibold">Ketua Dewan Redaksi:</strong>{' '}
+                                <span className="text-[#4B5563]">{j.chief_editor}</span>
                               </div>
                               {currentIssue && (
-                                <div className="text-[#7A2222] font-bold pt-1 line-clamp-2 flex items-start gap-1.5">
+                                <div className="text-[#7A2222] font-semibold pt-1 line-clamp-2 flex items-start gap-1.5 tabular-nums">
                                   <IconPinClean size={14} className="mt-0.5 text-[#7A2222]" />
                                   <span>Terbitan Terkini: {currentIssue.volume} {currentIssue.number} ({currentIssue.year}) — {currentIssue.title}</span>
                                 </div>
@@ -2181,10 +2194,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
                           </div>
 
-                          <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3.5 text-xs font-bold text-slate-600">
+                          <div className="px-6 py-4 bg-[#FAFAFA]/85 border-t border-[#D4D4D8] flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3.5 text-xs font-semibold text-[#374151] tabular-nums">
                               <span className="inline-flex items-center gap-1.5">
-                                <IconDocClean size={15} className="text-slate-500" />
+                                <IconDocClean size={15} className="text-[#4B5563]" />
                                 {j.submissions_count || 0} Naskah
                               </span>
                               <span className="inline-flex items-center gap-1.5 text-[#7A2222]">
@@ -2200,9 +2213,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     switchTab('unggah');
                                     toast.success(`Jurnal tujuan disetel ke: ${j.abbreviation}`);
                                   }}
-                                  className="px-4 py-2 rounded-full border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
+                                  className="px-3.5 py-2 rounded-xl border border-[#D4D4D8] bg-white hover:bg-[#FDF2F2] hover:border-[#D9B8B8] text-xs font-semibold text-[#374151] transition duration-150 cursor-pointer"
                                 >
-                                  + Submit
+                                  Submit
                                 </button>
                               )}
                               <button
@@ -2210,7 +2223,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   setSelectedJournalId(j.id);
                                   setPortalSelectedJournal(j);
                                 }}
-                                className={`px-5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-[0.98] cursor-pointer ${theme.btn}`}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition duration-150 active:scale-[0.98] cursor-pointer ${theme.btn}`}
                               >
                                 Kunjungi Jurnal <ChevronRight size={15} />
                               </button>
@@ -2222,16 +2235,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   </div>
                 </section>
 
-                {/* BOTTOM CTA BANNER ALA SIGAP BRIDA KOTA MAKASSAR */}
-                <section className="rounded-3xl bg-gradient-to-r from-[#7A2222] via-[#661B1B] to-[#4A1313] p-7 sm:p-9 text-white shadow-[0_18px_40px_-14px_rgba(74,19,19,0.4)] flex flex-wrap items-center justify-between gap-6">
+                {/* BOTTOM CTA BANNER — CLEAN SOLID INSTITUTIONAL MAROON */}
+                <section className="rounded-[22px] bg-gradient-to-r from-[#7E2424] via-[#7A2222] to-[#5E1919] border border-[#5E1919] p-7 sm:p-9 text-white shadow-[0_14px_30px_-14px_rgba(94,25,25,0.55)] flex flex-wrap items-center justify-between gap-6">
                   <div className="space-y-1.5 max-w-xl">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/85">
                       Publikasi Terbuka • APC Rp 0
                     </span>
                     <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold tracking-tight">
                       Siap mempublikasikan riset Anda bersama BRIDA Makassar?
                     </h3>
-                    <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-white/90 font-normal leading-relaxed">
                       Daftarkan akun peneliti atau mitra bestari secara gratis dan nikmati proses peer-review transparan berstandar SINTA &amp; DOI resmi.
                     </p>
                   </div>
@@ -2239,12 +2252,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <button
                       type="button"
                       onClick={() => (isGuest ? onLogout() : switchTab(isAuthor ? 'unggah' : 'review'))}
-                      className="px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-gray-900 font-extrabold text-xs sm:text-sm shadow-sm transition cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#F5F5F5] text-[#7A2222] font-bold text-xs sm:text-sm shadow-xs transition duration-150 cursor-pointer"
                     >
                       {isGuest
                         ? 'Mulai Daftar / Masuk →'
                         : isAuthor
-                        ? '+ Unggah Naskah Sekarang'
+                        ? 'Unggah Naskah Sekarang →'
                         : isReviewer
                         ? 'Buka Meja Review →'
                         : 'Buka Meja Editorial →'}
@@ -2252,7 +2265,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <button
                       type="button"
                       onClick={() => handleOpenForum('')}
-                      className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs sm:text-sm transition cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl bg-white/12 hover:bg-white/20 border border-white/25 text-white font-semibold text-xs sm:text-sm transition duration-150 cursor-pointer"
                     >
                       Buka Trending &amp; Forum
                     </button>
@@ -2268,27 +2281,27 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     setPortalSelectedJournal(null);
                     setSelectedJournalId('all');
                   }}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#7A2222] bg-white hover:bg-[#FDF7F7] px-5 py-2.5 rounded-full border border-[#7A2222]/20 shadow-sm transition cursor-pointer"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-[#7A2222] bg-white hover:bg-[#FDF2F2] hover:border-[#D9B8B8] px-4 py-2 rounded-xl border border-[#D4D4D8] shadow-[0_2px_6px_-2px_rgba(20,20,20,0.06)] transition duration-150 cursor-pointer"
                 >
                   ← Kembali ke Katalog Rumah Jurnal BRIDA
                 </button>
 
-                <div className="card-luxury rounded-[32px] overflow-hidden">
+                <div className="card-luxury rounded-[22px] overflow-hidden">
                   <div className={`${(JOURNAL_THEME[portalSelectedJournal.accent_color] || JOURNAL_THEME.blue).bgHeader} p-8 text-white`}>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                       <div className="space-y-2 max-w-3xl">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-black/25 border border-white/20">
+                          <span className="text-xs font-bold uppercase px-3 py-1 rounded-full bg-white/15 border border-white/20">
                             {portalSelectedJournal.abbreviation}
                           </span>
-                          <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-400 text-slate-950">
+                          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/15 text-white border border-white/25">
                             Terakreditasi {portalSelectedJournal.accreditation}
                           </span>
                         </div>
-                        <h2 className="text-2xl md:text-3xl font-extrabold">
+                        <h2 className="font-serif-editorial text-2xl md:text-3xl font-bold">
                           {portalSelectedJournal.title}
                         </h2>
-                        <p className="text-sm text-white/90 leading-relaxed">
+                        <p className="text-sm text-white/90 font-normal leading-relaxed">
                           {portalSelectedJournal.description}
                         </p>
                       </div>
@@ -2299,71 +2312,71 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             setFormJournalId(String(portalSelectedJournal.id));
                             switchTab('unggah');
                           }}
-                          className="bg-white text-slate-900 hover:bg-slate-100 font-extrabold text-xs px-5 py-3 rounded-full shadow-lg flex items-center gap-2 transition cursor-pointer shrink-0"
+                          className="bg-white text-[#7A2222] hover:bg-[#F5F5F5] font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 transition duration-150 cursor-pointer shrink-0"
                         >
                           <FileUp size={16} /> Submit Naskah ke {portalSelectedJournal.abbreviation}
                         </button>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/15 text-xs">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/15 text-xs tabular-nums">
                       <div>
-                        <span className="text-white/70 block">Print ISSN</span>
-                        <strong className="text-sm">{portalSelectedJournal.issn_print}</strong>
+                        <span className="text-white/80 font-medium block">Print ISSN</span>
+                        <strong className="text-sm font-semibold">{portalSelectedJournal.issn_print}</strong>
                       </div>
                       <div>
-                        <span className="text-white/70 block">Online E-ISSN</span>
-                        <strong className="text-sm">{portalSelectedJournal.issn_online}</strong>
+                        <span className="text-white/80 font-medium block">Online E-ISSN</span>
+                        <strong className="text-sm font-semibold">{portalSelectedJournal.issn_online}</strong>
                       </div>
                       <div>
-                        <span className="text-white/70 block">Ketua Dewan Redaksi</span>
-                        <strong className="text-sm">{portalSelectedJournal.chief_editor}</strong>
+                        <span className="text-white/80 font-medium block">Ketua Dewan Redaksi</span>
+                        <strong className="text-sm font-semibold">{portalSelectedJournal.chief_editor}</strong>
                       </div>
                       <div>
-                        <span className="text-white/70 block">Frekuensi Terbitan</span>
-                        <strong className="text-sm">{portalSelectedJournal.frequency}</strong>
+                        <span className="text-white/80 font-medium block">Frekuensi Terbitan</span>
+                        <strong className="text-sm font-semibold">{portalSelectedJournal.frequency}</strong>
                       </div>
                     </div>
                   </div>
 
                   <div className="p-8 space-y-6">
-                    <h3 className="text-lg font-extrabold text-slate-800 border-b border-slate-100 pb-3">
+                    <h3 className="font-serif-editorial text-lg font-bold text-[#141414] border-b border-[#D4D4D8] pb-3">
                       Daftar Artikel Terbit pada {portalSelectedJournal.title}
                     </h3>
 
                     {submissions.filter((s) => s.journal_id === portalSelectedJournal.id && (isAdminOrEditor ? true : s.status === 'published')).length === 0 ? (
-                      <p className="text-sm text-slate-500 italic py-8 text-center">
+                      <p className="text-sm font-medium text-[#4B5563] italic py-8 text-center">
                         Belum ada artikel yang diterbitkan pada jurnal ini.
                       </p>
                     ) : (
-                      <div className="divide-y divide-slate-100">
+                      <div className="divide-y divide-[#D4D4D8]">
                         {submissions
                           .filter((s) => s.journal_id === portalSelectedJournal.id && (isAdminOrEditor ? true : s.status === 'published'))
                           .map((art) => (
                             <div key={art.id} className="py-5 flex flex-col md:flex-row justify-between gap-4">
                               <div className="space-y-2 max-w-3xl">
-                                <div className="flex items-center gap-2">
-                                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[art.status] || STATUS_BADGE.pending).bg}`}>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[art.status] || STATUS_BADGE.pending).bg}`}>
                                     {(STATUS_BADGE[art.status] || STATUS_BADGE.pending).label}
                                   </span>
-                                  <span className="text-xs text-slate-500 font-semibold">{art.section}</span>
+                                  <span className="text-xs text-[#4B5563] font-semibold">{art.section}</span>
                                   {art.doi && (
-                                    <span className="text-xs font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                                    <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded border ${SEMANTIC_TONE.accent}`}>
                                       DOI: {art.doi}
                                     </span>
                                   )}
                                 </div>
                                 <h4
                                   onClick={() => setDetailSubmission(art)}
-                                  className="text-base font-bold text-slate-800 hover:text-[#7A2222] cursor-pointer"
+                                  className="text-base font-semibold text-[#141414] hover:text-[#7A2222] transition duration-150 cursor-pointer"
                                 >
                                   {art.title}
                                 </h4>
-                                <p className="text-xs text-slate-600">
-                                  Penulis: <strong>{art.author?.name}</strong>
+                                <p className="text-xs font-medium text-[#4B5563]">
+                                  Penulis: <strong className="text-[#141414] font-semibold">{art.author?.name}</strong>
                                   {art.co_authors ? `, ${art.co_authors}` : ''}
                                 </p>
-                                <p className="text-xs text-slate-500 leading-relaxed">{art.abstract}</p>
+                                <p className="text-xs font-normal text-[#4B5563] leading-relaxed">{art.abstract}</p>
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 {art.file_path && (
@@ -2371,14 +2384,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     href={resolveFileUrl(art.file_path)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-4 py-2 rounded-xl bg-[#7A2222] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#661B1B] transition"
+                                    className="px-4 py-2 rounded-xl bg-[#7A2222] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#611B1B] shadow-[0_4px_12px_-4px_rgba(122,34,34,0.45)] transition duration-150"
                                   >
                                     <FileText size={14} /> Lihat PDF
                                   </a>
                                 )}
                                 <button
                                   onClick={() => setDetailSubmission(art)}
-                                  className="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
+                                  className="px-3.5 py-2 rounded-xl border border-[#D4D4D8] bg-white hover:bg-[#FDF2F2] hover:border-[#D9B8B8] text-xs font-semibold text-[#374151] transition duration-150 cursor-pointer"
                                 >
                                   Detail
                                 </button>
@@ -2439,22 +2452,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           <div className="p-6 sm:p-8 space-y-8 max-w-7xl w-full mx-auto">
             {/* BANNER NOTIFIKASI PENOLAKAN NASKAH UNTUK AUTHOR (PENULIS) */}
             {isAuthor && rejectedAuthorSubmissions.length > 0 && !dismissedRejectBanner && (
-              <div className="rounded-[28px] bg-rose-50 border border-rose-200/90 p-5 sm:p-6 shadow-[0_14px_34px_-16px_rgba(190,18,60,0.22)] space-y-3.5">
+              <div className="rounded-2xl bg-[#FBF3F4] border border-[#E8CFD2] p-5 sm:p-6 space-y-3.5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-[#882832] text-white flex items-center justify-center shrink-0">
                       <X size={18} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-sm sm:text-base font-extrabold text-rose-900">
+                        <h3 className="text-sm sm:text-base font-bold text-[#141414]">
                           Pemberitahuan Dewan Redaksi: {rejectedAuthorSubmissions.length} Naskah Anda Ditolak
                         </h3>
-                        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-rose-200/80 text-rose-900">
+                        <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.negative}`}>
                           NOTIFIKASI PENULIS
                         </span>
                       </div>
-                      <p className="text-xs text-rose-800/85 mt-0.5">
+                      <p className="text-xs text-[#525252] mt-0.5">
                         Editor telah meninjau naskah Anda dan memutuskan untuk tidak melanjutkannya ke tahap publikasi. Silakan periksa catatan alasan di bawah.
                       </p>
                     </div>
@@ -2462,7 +2475,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <button
                     type="button"
                     onClick={() => setDismissedRejectBanner(true)}
-                    className="p-1.5 rounded-full text-rose-400 hover:text-rose-700 hover:bg-rose-100 transition cursor-pointer shrink-0"
+                    className="p-1.5 rounded-lg text-[#882832]/70 hover:text-[#882832] hover:bg-white/70 transition cursor-pointer shrink-0"
                     title="Tutup banner sementara"
                   >
                     <X size={16} />
@@ -2473,18 +2486,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   {rejectedAuthorSubmissions.map((rej) => (
                     <div
                       key={rej.id}
-                      className="bg-white/95 rounded-2xl border border-rose-200/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="bg-white rounded-xl border border-[#E8CFD2] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/20">
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.accent}`}>
                             {rej.journal?.abbreviation || 'JURNAL'}
                           </span>
-                          <span className="text-xs sm:text-sm font-extrabold text-slate-900 line-clamp-1">
+                          <span className="text-xs sm:text-sm font-bold text-[#141414] line-clamp-1">
                             {rej.title}
                           </span>
                         </div>
-                        <div className="text-xs text-rose-800 bg-rose-50/70 rounded-xl px-3 py-2 border border-rose-100">
+                        <div className="text-xs text-[#882832] bg-[#FBF3F4] rounded-lg px-3 py-2 border border-[#E8CFD2]">
                           <strong className="font-bold">Alasan Penolakan Editor:</strong>{' '}
                           <span className="italic">
                             &ldquo;{rej.editor_notes || 'Naskah tidak memenuhi kesesuaian tema/ruang lingkup atau standar publikasi jurnal tujuan.'}&rdquo;
@@ -2495,16 +2508,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         <button
                           type="button"
                           onClick={() => setDetailSubmission(rej)}
-                          className="px-4 py-2 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-700 font-bold text-xs transition cursor-pointer"
+                          className="px-3.5 py-2 rounded-lg border border-[#D4D4D8] bg-white hover:bg-[#FAFAFA] text-[#404040] font-semibold text-xs transition cursor-pointer"
                         >
                           Lihat Detail
                         </button>
                         <button
                           type="button"
                           onClick={() => switchTab('unggah')}
-                          className="px-4 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                          className="px-3.5 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs transition cursor-pointer"
                         >
-                          + Kirim Naskah Baru
+                          Kirim Naskah Baru
                         </button>
                       </div>
                     </div>
@@ -2513,82 +2526,82 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               </div>
             )}
 
-            {/* Kartu Metrik Eksekutif — Floating Rounded-[28px] ala Login */}
+            {/* Kartu Metrik Eksekutif — Unified Editorial Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
+              <div className="card-luxury card-luxury-hover p-6 rounded-2xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#4B5563]">
                     {isAuthor ? 'Naskah Saya' : isReviewer ? 'Tugas Review Saya' : 'Total Naskah'}
                   </span>
-                  <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#7A2222] flex items-center justify-center border border-[#7A2222]/15">
-                    <IconDocClean size={19} />
+                  <div className="w-9 h-9 rounded-xl bg-[#FDF2F2] text-[#7A2222] flex items-center justify-center border border-[#DFBABA]">
+                    <IconDocClean size={18} />
                   </div>
                 </div>
-                <p className="text-3xl font-extrabold text-[#7A2222] mt-3 tabular-nums tracking-tight">
+                <p className="text-3xl font-extrabold text-[#141414] mt-3 tabular-nums tracking-tight">
                   {scopedStats.total}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[#4B5563] mt-1">
                   Tersebar di {stats.journals_count || journals.length} Jurnal BRIDA
                 </p>
               </div>
 
-              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
+              <div className="card-luxury card-luxury-hover p-6 rounded-2xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#4B5563]">
                     Dalam Proses Review
                   </span>
-                  <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-700 flex items-center justify-center border border-sky-200/70">
-                    <IconClockClean size={19} />
+                  <div className="w-9 h-9 rounded-xl bg-[#FAFAFA] text-[#525252] flex items-center justify-center border border-[#D4D4D8]">
+                    <IconClockClean size={18} />
                   </div>
                 </div>
-                <p className="text-3xl font-extrabold text-sky-700 mt-3 tabular-nums tracking-tight">
+                <p className="text-3xl font-extrabold text-[#141414] mt-3 tabular-nums tracking-tight">
                   {scopedStats.pending + scopedStats.under_review + scopedStats.revision_required}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[#4B5563] mt-1">
                   {scopedStats.pending} Pending • {scopedStats.under_review} Direview • {scopedStats.revision_required} Revisi
                 </p>
               </div>
 
-              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
+              <div className="card-luxury card-luxury-hover p-6 rounded-2xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#4B5563]">
                     Disetujui (Accepted)
                   </span>
-                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/70">
-                    <IconVerifiedBadge size={19} />
+                  <div className="w-9 h-9 rounded-xl bg-[#F3F6F4] text-[#2F523B] flex items-center justify-center border border-[#D3E0D7]">
+                    <IconVerifiedBadge size={18} />
                   </div>
                 </div>
-                <p className="text-3xl font-extrabold text-emerald-700 mt-3 tabular-nums tracking-tight">
+                <p className="text-3xl font-extrabold text-[#141414] mt-3 tabular-nums tracking-tight">
                   {scopedStats.accepted}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">Siap diterbitkan ke Nomor Issue</p>
+                <p className="text-xs text-[#4B5563] mt-1">Siap diterbitkan ke Nomor Issue</p>
               </div>
 
-              <div className="card-luxury card-luxury-hover p-6 rounded-[28px]">
+              <div className="card-luxury card-luxury-hover p-6 rounded-2xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#4B5563]">
                     Resmi Terbit
                   </span>
-                  <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-700 flex items-center justify-center border border-indigo-200/70">
-                    <IconDocPublish size={19} />
+                  <div className="w-9 h-9 rounded-xl bg-[#FDF2F2] text-[#7A2222] flex items-center justify-center border border-[#DFBABA]">
+                    <IconDocPublish size={18} />
                   </div>
                 </div>
-                <p className="text-3xl font-extrabold text-indigo-700 mt-3 tabular-nums tracking-tight">
+                <p className="text-3xl font-extrabold text-[#7A2222] mt-3 tabular-nums tracking-tight">
                   {scopedStats.published}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">Lengkap dengan registrasi DOI</p>
+                <p className="text-xs text-[#4B5563] mt-1">Lengkap dengan registrasi DOI</p>
               </div>
             </div>
 
             {/* Grafik Analitik: BarChart Multi-Jurnal & PieChart Status */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-7 card-luxury p-6 rounded-[28px]">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+              <div className="lg:col-span-7 card-luxury p-6 rounded-2xl">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#D4D4D8]">
                   <div>
-                    <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[#141414]">
                       Perbandingan Produktivitas Antar-Jurnal (Multi-Journal Analytics)
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[#4B5563]">
                       Sebaran jumlah artikel terbit dan naskah dalam proses evaluasi per jurnal
                     </p>
                   </div>
@@ -2596,24 +2609,24 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={barData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="name" tick={{ fontSize: 12, fontWeight: 700 }} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#EBEBEB" />
+                      <XAxis dataKey="name" tick={{ fontSize: 12, fontWeight: 600, fill: '#525252' }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#737373' }} />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="Terbit" fill="#7A2222" radius={[8, 8, 0, 0]} />
-                      <Bar dataKey="Proses" fill="#F59E0B" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="Terbit" fill={CHART_COLORS.barPublished} radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="Proses" fill={CHART_COLORS.barProcess} radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div className="lg:col-span-5 card-luxury p-6 rounded-[28px] flex flex-col justify-between">
-                <div className="mb-2 pb-3 border-b border-slate-100">
-                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700">
+              <div className="lg:col-span-5 card-luxury p-6 rounded-2xl flex flex-col justify-between">
+                <div className="mb-2 pb-3 border-b border-[#D4D4D8]">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#141414]">
                     Distribusi Status Naskah
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#4B5563]">
                     Persentase alur editorial secara real-time
                   </p>
                 </div>
@@ -2639,41 +2652,41 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <p className="text-xs text-slate-400 italic">Belum ada data statistik</p>
+                    <p className="text-xs text-[#4B5563] italic">Belum ada data statistik</p>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Tabel Daftar Naskah Multi-Journal */}
-            <section className="card-luxury rounded-[28px] p-6">
+            <section className="card-luxury rounded-2xl p-6">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div>
-                  <h3 className="text-lg font-extrabold text-slate-800">
+                  <h3 className="text-lg font-bold text-[#141414]">
                     {isAuthor ? 'Pelacakan Status Naskah Saya' : 'Manajemen Naskah Lintas Jurnal'}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#4B5563]">
                     Menampilkan {filteredSubmissions.length} naskah ilmiah
                   </p>
                 </div>
 
-                {/* Filter Bar Pill-Style */}
+                {/* Filter Bar */}
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative">
-                    <Search size={15} className="absolute left-3.5 top-2.5 text-slate-400" />
+                    <Search size={15} className="absolute left-3.5 top-2.5 text-[#525252]" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Cari judul, penulis, DOI..."
-                      className="pl-10 pr-4 py-2 rounded-full border border-slate-200 text-xs focus:outline-none focus:border-[#7A2222] focus:ring-4 focus:ring-[#7A2222]/10 w-60 transition"
+                      className="pl-10 pr-4 py-2 rounded-xl border border-[#D4D4D8] bg-[#FAFAFA] text-xs text-[#141414] placeholder:text-[#6B7280] focus:outline-none focus:bg-white focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/10 w-60 transition"
                     />
                   </div>
 
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#7A2222]"
+                    className="border border-[#D4D4D8] bg-white rounded-xl px-3 py-2 text-xs font-semibold text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   >
                     <option value="all">Semua Status ({roleScopedSubmissions.length})</option>
                     <option value="pending">Menunggu Editor</option>
@@ -2688,7 +2701,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
+                  <thead className="bg-[#FAFAFA] text-[#525252] font-bold uppercase border-y border-[#D4D4D8]">
                     <tr>
                       <th className="p-3">No.</th>
                       <th className="p-3">Jurnal Tujuan</th>
@@ -2698,12 +2711,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <th className="p-3 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-[#D4D4D8]">
                     {filteredSubmissions.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-400 italic">
+                        <td colSpan={6} className="p-8 text-center text-[#4B5563] italic">
                           {isAuthor
-                            ? 'Anda belum memiliki naskah yang cocok dengan filter ini. Klik "+ Unggah Naskah Baru" untuk mengirim naskah.'
+                            ? 'Anda belum memiliki naskah yang cocok dengan filter ini. Klik "Unggah Naskah Baru" untuk mengirim naskah.'
                             : isReviewer
                             ? 'Belum ada naskah yang ditugaskan kepada akun Mitra Bestari Anda.'
                             : 'Tidak ada naskah yang sesuai dengan filter.'}
@@ -2718,21 +2731,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         : null;
                       const prog = getSubmissionProgressMeta(sub);
                       return (
-                        <tr key={sub.id} className="hover:bg-slate-50/70 transition">
-                          <td className="p-3 font-mono font-bold text-slate-500">#{idx + 1}</td>
+                        <tr key={sub.id} className="hover:bg-[#FAFAFA] transition">
+                          <td className="p-3 font-mono font-semibold text-[#4B5563]">#{idx + 1}</td>
                           <td className="p-3">
-                            <span className="font-extrabold text-[11px] px-2.5 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/20">
+                            <span className={`font-bold text-[11px] px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.accent}`}>
                               {sub.journal?.abbreviation}
                             </span>
                           </td>
                           <td className="p-3 max-w-md">
                             <div
                               onClick={() => setDetailSubmission(sub)}
-                              className="font-bold text-slate-800 hover:text-[#7A2222] cursor-pointer"
+                              className="font-bold text-[#141414] hover:text-[#7A2222] cursor-pointer"
                             >
                               {sub.title}
                             </div>
-                            <div className="text-[11px] text-slate-400 mt-0.5">
+                            <div className="text-[11px] text-[#4B5563] mt-0.5">
                               Penulis: {sub.author?.name || 'Penulis'}
                               {sub.co_authors ? `, ${sub.co_authors}` : ''}
                             </div>
@@ -2740,14 +2753,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           <td className="p-3 min-w-[180px]">
                             {isReviewer && myRev ? (
                               <div className="space-y-1">
-                                <span className={`inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
+                                <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                                   myRev.status === 'assigned'
-                                    ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                    ? SEMANTIC_TONE.warning
                                     : myRev.status === 'in_progress'
-                                    ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                    ? SEMANTIC_TONE.accent
                                     : myRev.status === 'completed'
-                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                    : 'bg-rose-50 text-rose-800 border-rose-200'
+                                    ? SEMANTIC_TONE.positive
+                                    : SEMANTIC_TONE.negative
                                 }`}>
                                   {myRev.status === 'assigned' ? (
                                     <><IconMailInvite size={12} /> UNDANGAN BARU</>
@@ -2759,28 +2772,28 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     <><IconDeclinedBan size={12} /> ANDA MENOLAK REVIEW</>
                                   )}
                                 </span>
-                                <div className="text-[10px] text-slate-400">
+                                <div className="text-[10px] text-[#4B5563]">
                                   Status Naskah: {badge.label}
                                 </div>
                               </div>
                             ) : (
                               <div className="space-y-1.5">
                                 <div className="flex items-center justify-between gap-2">
-                                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
+                                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
                                     {badge.label}
                                   </span>
-                                  <span className="text-[10px] font-extrabold text-slate-500">
+                                  <span className="text-[10px] font-bold text-[#525252] tabular-nums">
                                     {sub.status === 'rejected' ? '✕' : `${prog.percent}%`}
                                   </span>
                                 </div>
-                                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="w-full h-1.5 bg-[#F4F4F5] rounded-full overflow-hidden">
                                   <div className={`h-full rounded-full ${prog.barColor}`} style={{ width: `${prog.percent}%` }} />
                                 </div>
                                 {sub.reviews && sub.reviews.length > 0 && (
-                                  <div className="text-[10px] text-slate-500 flex flex-wrap gap-1.5">
+                                  <div className="text-[10px] text-[#4B5563] flex flex-wrap gap-1.5">
                                     <span>Reviewer: {prog.completedRevs.length}/{prog.activeRevs.length} selesai</span>
                                     {prog.declinedRevs.length > 0 && (
-                                      <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
+                                      <span className="inline-flex items-center gap-1 text-[#882832] font-semibold">
                                         • <IconAlertClean size={11} /> {prog.declinedRevs.length} menolak
                                       </span>
                                     )}
@@ -2795,14 +2808,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 href={resolveFileUrl(sub.file_path)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] hover:bg-[#7A2222] text-[#7A2222] hover:text-white font-bold text-[11px] border border-[#7A2222]/20 transition"
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FDF2F2] hover:bg-[#7A2222] text-[#7A2222] hover:text-white font-semibold text-[11px] border border-[#DFBABA] transition"
                               >
                                 <IconDocClean size={14} /> Dokumen
                               </a>
                             ) : isReviewer && myRev?.status === 'assigned' ? (
-                              <span className="text-amber-600 italic text-[11px] font-semibold">Terima undangan dulu</span>
+                              <span className="text-[#7C5329] italic text-[11px] font-medium">Terima undangan dulu</span>
                             ) : (
-                              <span className="text-slate-400 italic text-[11px]">-</span>
+                              <span className="text-[#525252] italic text-[11px]">-</span>
                             )}
                           </td>
                           <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
@@ -2812,7 +2825,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   setSelectedSubForAction(sub);
                                   switchTab('review');
                                 }}
-                                className="px-3 py-1 rounded-full bg-[#7A2222] text-white font-bold text-[11px] hover:bg-[#661B1B] cursor-pointer"
+                                className="px-3 py-1 rounded-lg bg-[#7A2222] text-white font-semibold text-[11px] hover:bg-[#611B1B] cursor-pointer"
                               >
                                 Tugaskan Reviewer
                               </button>
@@ -2821,7 +2834,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             {isAdminOrEditor && sub.status === 'accepted' && (
                               <button
                                 onClick={() => handlePublishArticle(sub.id)}
-                                className="px-3 py-1 rounded-full bg-purple-700 text-white font-bold text-[11px] hover:bg-purple-800 cursor-pointer"
+                                className="px-3 py-1 rounded-lg bg-[#7A2222] text-white font-semibold text-[11px] hover:bg-[#611B1B] cursor-pointer"
                               >
                                 Terbitkan + DOI
                               </button>
@@ -2830,7 +2843,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             {isOwnSubmission && sub.status === 'revision_required' && (
                               <button
                                 onClick={() => setDetailSubmission(sub)}
-                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-orange-600 text-white font-bold text-[11px] hover:bg-orange-700 cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#7A2222] text-white font-semibold text-[11px] hover:bg-[#611B1B] cursor-pointer"
                               >
                                 <IconDocUpload size={12} /> Unggah Revisi
                               </button>
@@ -2843,7 +2856,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   setShowDeclineForm(false);
                                   switchTab('review');
                                 }}
-                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-600 text-white font-bold text-[11px] hover:bg-amber-700 cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#7A2222] text-white font-semibold text-[11px] hover:bg-[#611B1B] cursor-pointer"
                               >
                                 <IconMailInvite size={12} /> Konfirmasi Undangan
                               </button>
@@ -2856,7 +2869,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   setShowDeclineForm(false);
                                   setActiveTab('review');
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-emerald-700 text-white font-bold text-[11px] hover:bg-emerald-800 cursor-pointer"
+                                className="px-3 py-1 rounded-lg bg-[#7A2222] text-white font-semibold text-[11px] hover:bg-[#611B1B] cursor-pointer"
                               >
                                 Beri Skor Review
                               </button>
@@ -2864,7 +2877,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                             <button
                               onClick={() => setDetailSubmission(sub)}
-                              className="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-[11px] font-bold text-slate-700 cursor-pointer"
+                              className="px-2.5 py-1 rounded-lg border border-[#D4D4D8] bg-white hover:bg-[#FAFAFA] text-[11px] font-semibold text-[#404040] cursor-pointer"
                             >
                               Detail
                             </button>
@@ -2873,7 +2886,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditModal(sub)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-[11px] font-bold text-[#7A2222] cursor-pointer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[#D4D4D8] bg-white hover:bg-[#FDF2F2] hover:border-[#DFBABA] text-[11px] font-semibold text-[#404040] hover:text-[#7A2222] cursor-pointer"
                                 title="Edit Judul, Penulis & Abstrak"
                               >
                                 <Edit3 size={11} /> Edit
@@ -2884,7 +2897,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <button
                                 type="button"
                                 onClick={() => handleDeleteSubmission(sub)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50/60 hover:bg-rose-100 text-[11px] font-bold text-rose-600 cursor-pointer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[#E8CFD2] bg-[#FBF3F4] hover:bg-[#F5E1E4] text-[11px] font-semibold text-[#882832] cursor-pointer"
                                 title="Hapus / Tarik Naskah"
                               >
                                 <Trash2 size={11} /> Hapus
@@ -2909,56 +2922,56 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="text-2xl font-extrabold text-slate-800">
+                <h3 className="text-2xl font-bold text-[#141414]">
                   Manajemen Multi-Jurnal OJS BRIDA
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#4B5563]">
                   Kelola identitas, dewan redaksi, dan konfigurasi seluruh jurnal ilmiah resmi.
                 </p>
               </div>
 
               <button
                 onClick={() => setShowAddJournalModal(true)}
-                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition cursor-pointer"
+                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#611B1B] active:scale-[0.98] text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition cursor-pointer"
               >
-                <PlusCircle size={16} /> + Tambah Jurnal Baru
+                <PlusCircle size={16} /> Tambah Jurnal Baru
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {journals.map((j) => (
-                <div key={j.id} className="card-luxury card-luxury-hover rounded-[28px] p-6 space-y-4">
+                <div key={j.id} className="card-luxury card-luxury-hover rounded-2xl p-6 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[11px] font-extrabold uppercase px-3 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/15">
+                      <span className={`text-[11px] font-bold uppercase px-3 py-0.5 rounded-full border ${SEMANTIC_TONE.accent}`}>
                         {j.abbreviation}
                       </span>
-                      <h4 className="text-lg font-extrabold text-slate-800 mt-2">{j.title}</h4>
-                      <p className="text-xs text-slate-500 mt-1">{j.description}</p>
+                      <h4 className="text-lg font-bold text-[#141414] mt-2">{j.title}</h4>
+                      <p className="text-xs text-[#4B5563] mt-1">{j.description}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-xs bg-[#FDF7F7] p-3 rounded-xl border border-[#7A2222]/15">
+                  <div className="grid grid-cols-2 gap-3 text-xs bg-[#FAFAFA] p-3.5 rounded-xl border border-[#D4D4D8]">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">P-ISSN / E-ISSN</span>
-                      <span className="font-bold text-slate-700">{j.issn_print} / {j.issn_online}</span>
+                      <span className="text-[#4B5563] block text-[10px]">P-ISSN / E-ISSN</span>
+                      <span className="font-bold text-[#141414]">{j.issn_print} / {j.issn_online}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Akreditasi</span>
-                      <span className="font-bold text-emerald-700">{j.accreditation}</span>
+                      <span className="text-[#4B5563] block text-[10px]">Akreditasi</span>
+                      <span className="font-bold text-[#7A2222]">{j.accreditation}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Ketua Redaksi</span>
-                      <span className="font-semibold text-slate-700 truncate block">{j.chief_editor}</span>
+                      <span className="text-[#4B5563] block text-[10px]">Ketua Redaksi</span>
+                      <span className="font-semibold text-[#404040] truncate block">{j.chief_editor}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Frekuensi</span>
-                      <span className="font-semibold text-slate-700">{j.frequency}</span>
+                      <span className="text-[#4B5563] block text-[10px]">Frekuensi</span>
+                      <span className="font-semibold text-[#404040]">{j.frequency}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
-                    <span className="font-bold text-slate-600">
+                  <div className="flex items-center justify-between text-xs pt-3 border-t border-[#D4D4D8]">
+                    <span className="font-semibold text-[#525252]">
                       Total Naskah: {j.submissions_count || 0}
                     </span>
                     <div className="flex items-center gap-2">
@@ -2978,7 +2991,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         <button
                           type="button"
                           onClick={() => handleDeleteJournal(j)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 transition font-bold text-[11px] cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[#882832] hover:text-white hover:bg-[#882832] border border-[#E8CFD2] transition font-semibold text-[11px] cursor-pointer"
                           title="Hapus Jurnal"
                         >
                           <Trash2 size={12} /> Hapus
@@ -2997,35 +3010,35 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
            =================================================================== */}
         {activeTab === 'unggah' && isAuthor && (
           <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto">
-            <div className="card-luxury rounded-[32px] p-6 sm:p-10 space-y-6">
+            <div className="card-luxury rounded-2xl p-6 sm:p-8 space-y-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-slate-900">Submit Naskah Ilmiah</h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Seluruh naskah wajib memenuhi standarisasi publikasi ilmiah <strong>SINTA / ARJUNA &amp; PKP OJS</strong> sebelum diterima sistem.
+                  <h2 className="text-2xl font-bold text-[#141414]">Submit Naskah Ilmiah</h2>
+                  <p className="text-xs text-[#4B5563] mt-1">
+                    Seluruh naskah wajib memenuhi standarisasi publikasi ilmiah <strong className="text-[#141414]">SINTA / ARJUNA &amp; PKP OJS</strong> sebelum diterima sistem.
                   </p>
                 </div>
                 <a
                   href={`${API_BASE}/template-naskah`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs transition shrink-0"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#FDF2F2] hover:bg-[#F3E7E7] text-[#7A2222] border border-[#DFBABA] font-semibold text-xs transition shrink-0"
                 >
                   <Download size={15} /> Unduh Template Resmi (.docx IMRAD)
                 </a>
               </div>
 
               {/* Live Standarisasi Gatekeeper Panel */}
-              <div className="bg-[#FDF7F7] border border-[#7A2222]/15 rounded-[24px] p-4 sm:p-5 space-y-3">
+              <div className="bg-[#FAFAFA] border border-[#D4D4D8] rounded-xl p-4 sm:p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#7A2222]">
-                    <ShieldCheck size={16} />
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#141414]">
+                    <ShieldCheck size={16} className="text-[#7A2222]" />
                     <span>Gatekeeper Standarisasi Naskah (Standar SINTA / ARJUNA &amp; OJS)</span>
                   </div>
-                  <span className={`text-[11px] font-extrabold px-3 py-0.5 rounded-full border ${
+                  <span className={`text-[11px] font-bold px-3 py-0.5 rounded-full border ${
                     standardScoreCount === 6
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                      : 'bg-amber-100 text-amber-800 border-amber-300'
+                      ? SEMANTIC_TONE.positive
+                      : SEMANTIC_TONE.warning
                   }`}>
                     {standardScoreCount}/6 Standar Terpenuhi
                   </span>
@@ -3068,15 +3081,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       key={item.label}
                       className={`p-2.5 rounded-xl border flex items-start gap-2 ${
                         item.ok
-                          ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
-                          : 'bg-white border-slate-200 text-slate-600'
+                          ? 'bg-[#F3F6F4] border-[#D3E0D7] text-[#2F523B]'
+                          : 'bg-white border-[#D4D4D8] text-[#525252]'
                       }`}
                     >
-                      <span className={`font-extrabold mt-0.5 ${item.ok ? 'text-emerald-600' : 'text-rose-500'}`}>
+                      <span className={`font-extrabold mt-0.5 ${item.ok ? 'text-[#2F523B]' : 'text-[#882832]'}`}>
                         {item.ok ? '✓' : '✕'}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className="font-bold leading-snug">{item.label}</div>
+                        <div className="font-semibold leading-snug">{item.label}</div>
                         <div className="text-[10px] opacity-75">{item.info}</div>
                       </div>
                     </div>
@@ -3086,23 +3099,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
               {/* Kotak Pencegatan (Muncul Jika Gagal Standarisasi di Frontend / Backend) */}
               {submitViolations.length > 0 && (
-                <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 sm:p-5 space-y-2 text-xs">
+                <div className="bg-[#FBF3F4] border border-[#E8CFD2] rounded-xl p-4 sm:p-5 space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <div className="font-extrabold text-rose-800 flex items-center gap-2">
+                    <div className="font-bold text-[#882832] flex items-center gap-2">
                       <span className="inline-flex items-center gap-1.5">
-                        <IconDeclinedBan size={15} className="text-rose-600" />
+                        <IconDeclinedBan size={15} className="text-[#882832]" />
                         Pengunggahan Dicegat Sistem — Naskah Belum Memenuhi Standarisasi:
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setSubmitViolations([])}
-                      className="text-rose-500 hover:text-rose-700 font-bold cursor-pointer"
+                      className="text-[#882832]/70 hover:text-[#882832] font-bold cursor-pointer"
                     >
                       ✕
                     </button>
                   </div>
-                  <ul className="list-disc pl-5 space-y-1 text-rose-700 font-medium leading-relaxed">
+                  <ul className="list-disc pl-5 space-y-1 text-[#882832] font-medium leading-relaxed">
                     {submitViolations.map((v, i) => (
                       <li key={i}>{v}</li>
                     ))}
@@ -3111,7 +3124,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               )}
 
               {/* 5-Step Stepper Header */}
-              <div className="pt-2 pb-4 border-b border-slate-100">
+              <div className="pt-2 pb-4 border-b border-[#D4D4D8]">
                 <div className="flex items-center justify-between max-w-[720px] mx-auto">
                   {[
                     { num: 1, label: 'Judul & Jurnal', done: Boolean(formJournalId) && isTitleStandardOk },
@@ -3129,19 +3142,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           className="flex flex-col items-center group cursor-pointer"
                         >
                           <div
-                            className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold transition ${
+                            className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition ${
                               s.done
-                                ? 'bg-emerald-600 text-white shadow-sm'
+                                ? 'bg-[#2F523B] text-white'
                                 : active
-                                ? 'bg-[#7A2222] text-white ring-4 ring-blue-100 shadow-sm'
-                                : 'bg-slate-100 text-slate-400 border border-slate-200'
+                                ? 'bg-[#7A2222] text-white ring-4 ring-[#F8EEEE]'
+                                : 'bg-[#F4F4F5] text-[#4B5563] border border-[#D4D4D8]'
                             }`}
                           >
                             {s.done ? '✓' : s.num}
                           </div>
                           <span
-                            className={`mt-2 text-[11px] font-bold ${
-                              s.done ? 'text-emerald-700' : active ? 'text-[#7A2222]' : 'text-slate-400'
+                            className={`mt-2 text-[11px] font-semibold ${
+                              s.done ? 'text-[#2F523B]' : active ? 'text-[#7A2222]' : 'text-[#4B5563]'
                             }`}
                           >
                             {s.label}
@@ -3150,7 +3163,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         {idx < arr.length - 1 && (
                           <div
                             className={`flex-1 h-[2px] mx-2 sm:mx-4 -mt-5 ${
-                              s.done ? 'bg-emerald-500' : 'bg-slate-200'
+                              s.done ? 'bg-[#2F523B]' : 'bg-[#E5E5E5]'
                             }`}
                           />
                         )}
@@ -3164,13 +3177,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               <form onSubmit={handleSubmitManuscript} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      Pilih Jurnal Tujuan <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-[#141414] mb-1.5">
+                      Pilih Jurnal Tujuan <span className="text-[#882832]">*</span>
                     </label>
                     <select
                       value={formJournalId}
                       onChange={(e) => setFormJournalId(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-[#7A2222] focus:outline-none focus:border-[#7A2222]"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#D4D4D8] bg-white text-xs font-semibold text-[#7A2222] focus:outline-none focus:border-[#7A2222]"
                       required
                     >
                       {journals.map((j) => (
@@ -3182,13 +3195,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      Kategori / Section <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-[#141414] mb-1.5">
+                      Kategori / Section <span className="text-[#882832]">*</span>
                     </label>
                     <select
                       value={section}
                       onChange={(e) => setSection(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#7A2222]"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#D4D4D8] bg-white text-xs font-semibold text-[#404040] focus:outline-none focus:border-[#7A2222]"
                     >
                       <option value="Original Research">Original Research (Artikel Penelitian)</option>
                       <option value="Policy Brief">Policy Brief (Kajian Kebijakan)</option>
@@ -3199,9 +3212,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                    Judul Naskah Lengkap <span className="text-red-500">*</span>{' '}
-                    <span className="text-[11px] font-normal text-slate-400">(Standar: 5–20 kata, Title Case, bukan ALL CAPS)</span>
+                  <label className="block text-xs font-bold text-[#141414] mb-1.5">
+                    Judul Naskah Lengkap <span className="text-[#882832]">*</span>{' '}
+                    <span className="text-[11px] font-normal text-[#4B5563]">(Standar: 5–20 kata, Title Case, bukan ALL CAPS)</span>
                   </label>
                   <input
                     type="text"
@@ -3209,33 +3222,33 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Contoh: Analisis Efektivitas Layanan Publik Digital Berbasis Smart City di Kota Makassar"
-                    className={`w-full px-4 py-3 rounded-xl border text-xs sm:text-sm text-slate-800 focus:outline-none ${
+                    className={`w-full px-4 py-2.5 rounded-xl border text-xs sm:text-sm text-[#141414] placeholder:text-[#6B7280] focus:outline-none ${
                       title.trim() === ''
-                        ? 'border-slate-200 focus:border-[#7A2222]'
+                        ? 'border-[#D4D4D8] focus:border-[#7A2222]'
                         : isTitleStandardOk
-                        ? 'border-emerald-400 bg-emerald-50/20'
-                        : 'border-rose-400 bg-rose-50/20'
+                        ? 'border-[#9BB8A4] bg-[#F3F6F4]/50'
+                        : 'border-[#D99BA0] bg-[#FBF3F4]/50'
                     }`}
                     required
                   />
                   <div className="flex items-center justify-between text-[11px] mt-1">
-                    <span className={`font-bold ${
+                    <span className={`font-semibold ${
                       title.trim() === ''
-                        ? 'text-slate-400'
+                        ? 'text-[#4B5563]'
                         : isTitleStandardOk
-                        ? 'text-emerald-700'
-                        : 'text-rose-600'
+                        ? 'text-[#2F523B]'
+                        : 'text-[#882832]'
                     }`}>
                       {titleWordCount} kata (Standar: 5–20 kata)
-                      {titleIsAllCaps ? ' • ⚠ Tidak boleh HURUF KAPITAL SEMUA!' : ''}
+                      {titleIsAllCaps ? ' • Tidak boleh HURUF KAPITAL SEMUA!' : ''}
                     </span>
-                    <span className="text-slate-400">{title.length}/250 karakter</span>
+                    <span className="text-[#4B5563]">{title.length}/250 karakter</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                    <label className="block text-xs font-bold text-[#141414] mb-1">
                       Penulis Tambahan (Co-Authors)
                     </label>
                     <input
@@ -3243,62 +3256,62 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       value={coAuthors}
                       onChange={(e) => setCoAuthors(e.target.value)}
                       placeholder="Contoh: Dr. Siti Nurhaliza, M.Si., Ir. Budi Hartono"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] placeholder:text-[#6B7280] focus:outline-none focus:border-[#7A2222]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Kata Kunci (Keywords) <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-[#141414] mb-1">
+                      Kata Kunci (Keywords) <span className="text-[#882832]">*</span>
                     </label>
                     <input
                       type="text"
                       value={keywords}
                       onChange={(e) => setKeywords(e.target.value)}
                       placeholder="Contoh: Inovasi Daerah, Kebijakan Publik, Smart City, Makassar"
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none ${
+                      className={`w-full px-3.5 py-2.5 rounded-xl border text-xs text-[#141414] placeholder:text-[#6B7280] focus:outline-none ${
                         keywords.trim() === ''
-                          ? 'border-slate-200 focus:border-[#7A2222]'
+                          ? 'border-[#D4D4D8] focus:border-[#7A2222]'
                           : isKeywordsStandardOk
-                          ? 'border-emerald-400 bg-emerald-50/20'
-                          : 'border-rose-400 bg-rose-50/20'
+                          ? 'border-[#9BB8A4] bg-[#F3F6F4]/50'
+                          : 'border-[#D99BA0] bg-[#FBF3F4]/50'
                       }`}
                       required
                     />
-                    <div className={`text-[11px] font-bold mt-1 ${
+                    <div className={`text-[11px] font-semibold mt-1 ${
                       keywords.trim() === ''
-                        ? 'text-slate-400'
+                        ? 'text-[#4B5563]'
                         : isKeywordsStandardOk
-                        ? 'text-emerald-700'
-                        : 'text-rose-600'
+                        ? 'text-[#2F523B]'
+                        : 'text-[#882832]'
                     }`}>
                       {keywordItems.length} kata kunci (Wajib: 3–6 frasa dipisahkan koma)
-                      {keywordsHaveDup ? ' • ⚠ Ada kata kunci duplikat!' : ''}
+                      {keywordsHaveDup ? ' • Ada kata kunci duplikat!' : ''}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                    Abstrak <span className="text-red-500">*</span>{' '}
-                    <span className="text-[11px] font-normal text-slate-400">(Standar SINTA: 150–250 kata, 1 paragraf utuh, tanpa sitasi)</span>
+                  <label className="block text-xs font-bold text-[#141414] mb-1.5">
+                    Abstrak <span className="text-[#882832]">*</span>{' '}
+                    <span className="text-[11px] font-normal text-[#4B5563]">(Standar SINTA: 150–250 kata, 1 paragraf utuh, tanpa sitasi)</span>
                   </label>
                   <div className={`rounded-xl border overflow-hidden ${
                     abstract.trim() === ''
-                      ? 'border-slate-200'
+                      ? 'border-[#D4D4D8]'
                       : isAbstractStandardOk
-                      ? 'border-emerald-400'
-                      : 'border-rose-400'
+                      ? 'border-[#9BB8A4]'
+                      : 'border-[#D99BA0]'
                   }`}>
-                    <div className="bg-slate-50 px-3 py-1.5 border-b border-slate-200 flex items-center justify-between text-slate-600 text-xs">
+                    <div className="bg-[#FAFAFA] px-3 py-1.5 border-b border-[#D4D4D8] flex items-center justify-between text-[#525252] text-xs">
                       <span className="font-semibold text-[11px]">
                         Komponen wajib: Latar Belakang • Tujuan • Metode • Hasil Utama • Kesimpulan
                       </span>
-                      <span className={`font-extrabold text-[11px] ${
+                      <span className={`font-bold text-[11px] ${
                         abstract.trim() === ''
-                          ? 'text-slate-400'
+                          ? 'text-[#4B5563]'
                           : isAbstractStandardOk
-                          ? 'text-emerald-700'
-                          : 'text-rose-600'
+                          ? 'text-[#2F523B]'
+                          : 'text-[#882832]'
                       }`}>
                         {abstractWordCount} / 150–250 kata
                       </span>
@@ -3309,26 +3322,26 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       value={abstract}
                       onChange={(e) => setAbstract(e.target.value)}
                       placeholder="Tuliskan abstrak dalam 1 paragraf utuh sepanjang 150–250 kata yang mencakup latar belakang, tujuan, metode, hasil utama, dan kesimpulan tanpa sitasi pustaka..."
-                      className="w-full p-4 text-xs sm:text-sm text-slate-800 focus:outline-none resize-y leading-relaxed"
+                      className="w-full p-4 text-xs sm:text-sm text-[#141414] placeholder:text-[#6B7280] focus:outline-none resize-y leading-relaxed"
                       required
                     />
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] mt-1">
                     <div className="space-x-2">
                       {abstractMultiPara && (
-                        <span className="text-rose-600 font-bold">⚠ Abstrak harus 1 paragraf (hapus baris kosong)!</span>
+                        <span className="text-[#882832] font-semibold">Abstrak harus 1 paragraf (hapus baris kosong)!</span>
                       )}
                       {abstractHasCitation && (
-                        <span className="text-rose-600 font-bold">⚠ Dilarang mencantumkan sitasi di dalam abstrak!</span>
+                        <span className="text-[#882832] font-semibold">Dilarang mencantumkan sitasi di dalam abstrak!</span>
                       )}
                     </div>
-                    <span className="text-slate-400">{abstract.length}/3500 karakter</span>
+                    <span className="text-[#4B5563]">{abstract.length}/3500 karakter</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                    Unggah File Naskah Standar IMRAD (.docx / .pdf / .doc) <span className="text-red-500">*</span>
+                  <label className="block text-xs font-bold text-[#141414] mb-1.5">
+                    Unggah File Naskah Standar IMRAD (.docx / .pdf / .doc) <span className="text-[#882832]">*</span>
                   </label>
                   <label
                     onDragOver={(e) => {
@@ -3344,21 +3357,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         toast.success(`Berkas "${droppedFile.name}" siap divalidasi & diunggah.`);
                       }
                     }}
-                    className={`w-full rounded-2xl border-2 border-dashed p-7 flex flex-col items-center justify-center text-center cursor-pointer transition ${
+                    className={`w-full rounded-xl border-2 border-dashed p-7 flex flex-col items-center justify-center text-center cursor-pointer transition ${
                       isFileStandardOk
-                        ? 'border-emerald-400 bg-emerald-50/40'
-                        : 'border-slate-300 hover:border-[#7A2222] bg-[#FDF7F7]/50'
+                        ? 'border-[#9BB8A4] bg-[#F3F6F4]/60'
+                        : 'border-[#D4D4D4] hover:border-[#7A2222] bg-[#FAFAFA]'
                     }`}
                   >
-                    <IconDocUpload size={38} className="text-[#7A2222] mb-2" />
-                    <p className="text-xs sm:text-sm text-slate-700 font-bold">
+                    <IconDocUpload size={36} className="text-[#7A2222] mb-2" />
+                    <p className="text-xs sm:text-sm text-[#141414] font-bold">
                       Drag &amp; drop file di sini atau <span className="text-[#7A2222] underline">klik untuk memilih</span>
                     </p>
-                    <p className="text-[11px] text-slate-500 mt-1 max-w-md">
+                    <p className="text-[11px] text-[#4B5563] mt-1 max-w-md">
                       Server otomatis memeriksa keaslian biner (Magic Bytes) serta kelengkapan struktur <strong>IMRAD</strong> (Pendahuluan, Metode, Hasil &amp; Pembahasan, Kesimpulan, Daftar Pustaka).
                     </p>
                     {file && (
-                      <div className="mt-3 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs inline-flex items-center gap-1.5">
+                      <div className={`mt-3 px-3.5 py-1.5 rounded-full border font-semibold text-xs inline-flex items-center gap-1.5 ${SEMANTIC_TONE.positive}`}>
                         <IconVerifiedBadge size={14} /> File dipilih: {file.name} ({(file.size / 1024).toFixed(1)} KB)
                       </div>
                     )}
@@ -3372,13 +3385,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </div>
 
                 {/* 4-Item OJS Submission Preparation Checklist */}
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-2.5 text-xs">
-                  <div className="font-extrabold text-slate-800 flex items-center justify-between">
+                <div className="bg-[#FAFAFA] border border-[#D4D4D8] rounded-xl p-4 sm:p-5 space-y-2.5 text-xs">
+                  <div className="font-bold text-[#141414] flex items-center justify-between">
                     <span className="inline-flex items-center gap-2">
                       <IconDocCheck size={16} className="text-[#7A2222]" />
                       Submission Preparation Checklist (Wajib Standar OJS)
                     </span>
-                    <span className={`text-[11px] font-bold ${isChecklistStandardOk ? 'text-emerald-700' : 'text-amber-700'}`}>
+                    <span className={`text-[11px] font-bold ${isChecklistStandardOk ? 'text-[#2F523B]' : 'text-[#7C5329]'}`}>
                       {checklistCheckedCount}/4 disetujui
                     </span>
                   </div>
@@ -3402,7 +3415,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   ].map((c) => (
                     <label
                       key={c.key}
-                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-[#7A2222]/35 cursor-pointer transition"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-[#D4D4D8] hover:border-[#DFBABA] cursor-pointer transition"
                     >
                       <input
                         type="checkbox"
@@ -3412,26 +3425,26 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         }
                         className="mt-0.5 accent-[#7A2222] w-4 h-4 cursor-pointer shrink-0"
                       />
-                      <span className="text-slate-700 leading-relaxed">{c.text}</span>
+                      <span className="text-[#404040] leading-relaxed">{c.text}</span>
                     </label>
                   ))}
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                  <div className="text-[11px] text-slate-500 inline-flex items-center gap-1.5">
+                <div className="pt-4 border-t border-[#D4D4D8] flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-[11px] text-[#4B5563] inline-flex items-center gap-1.5">
                     {standardScoreCount === 6 ? (
-                      <><IconVerifiedBadge size={14} className="text-emerald-600" /> Seluruh kriteria pra-validasi terpenuhi. Siap dikirim &amp; dipindai server!</>
+                      <><IconVerifiedBadge size={14} className="text-[#2F523B]" /> Seluruh kriteria pra-validasi terpenuhi. Siap dikirim &amp; dipindai server!</>
                     ) : (
-                      <><IconAlertClean size={14} className="text-amber-600" /> Lengkapi seluruh kriteria standarisasi di atas agar tidak dicegat sistem.</>
+                      <><IconAlertClean size={14} className="text-[#7C5329]" /> Lengkapi seluruh kriteria standarisasi di atas agar tidak dicegat sistem.</>
                     )}
                   </div>
                   <button
                     type="submit"
                     disabled={submitLoading}
-                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-xs sm:text-sm shadow-md transition cursor-pointer ${
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition cursor-pointer ${
                       standardScoreCount === 6
-                        ? 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
-                        : 'bg-slate-700 hover:bg-slate-800 text-white'
+                        ? 'bg-[#7A2222] hover:bg-[#611B1B] text-white'
+                        : 'bg-[#404040] hover:bg-[#262626] text-white'
                     }`}
                   >
                     <IconLaunchClean size={15} />
@@ -3447,24 +3460,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             TAB 5: MEJA EVALUASI PEER-REVIEW (REVIEWER & ADMIN)
            =================================================================== */}
         {activeTab === 'review' && (isReviewer || isAdminOrEditor) && (
-          <div className="p-6 sm:p-8 max-w-7xl w-full mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Antrean Naskah di Kiri */}
-              <div className="lg:col-span-5 card-luxury rounded-[28px] p-5 space-y-4 h-fit">
-                <div>
-                  <h3 className="text-base font-extrabold text-slate-800">
-                    {isReviewer ? 'Daftar Naskah Tugasan Review' : 'Antrean Editorial & Peer-Review'}
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    {isReviewer
-                      ? 'Pilih naskah untuk membaca PDF dan mengisi lembar skor penilaian Mitra Bestari.'
-                      : 'Pilih naskah untuk menugaskan Reviewer atau menerbitkan nomor DOI.'}
-                  </p>
-                </div>
+          <div className="px-6 pt-6 pb-8 sm:px-8 sm:pt-8 lg:pb-0 max-w-7xl w-full mx-auto lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start lg:items-stretch lg:h-full">
+              {/* Antrean Naskah di Kiri — Posisi terkunci di desktop, hanya list di dalamnya yang scroll */}
+              <div className="lg:col-span-5 lg:pb-8 lg:h-full lg:min-h-0 flex flex-col">
+                <div className="card-luxury rounded-2xl p-5 flex flex-col gap-4 lg:max-h-full lg:min-h-0">
+                  <div className="shrink-0">
+                    <h3 className="text-base font-bold text-[#141414]">
+                      {isReviewer ? 'Daftar Naskah Tugasan Review' : 'Antrean Editorial & Peer-Review'}
+                    </h3>
+                    <p className="text-xs font-medium text-[#4B5563] mt-0.5">
+                      {isReviewer
+                        ? 'Pilih naskah untuk membaca PDF dan mengisi lembar skor penilaian Mitra Bestari.'
+                        : 'Pilih naskah untuk menugaskan Reviewer atau menerbitkan nomor DOI.'}
+                    </p>
+                  </div>
 
-                <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
+                  <div className="space-y-2.5 max-h-[540px] lg:max-h-none flex-1 min-h-0 overflow-y-auto pr-1.5">
                   {roleScopedSubmissions.length === 0 ? (
-                    <div className="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-400 italic">
+                    <div className="p-8 rounded-xl bg-[#FAFAFA] border border-[#D4D4D8] text-center text-xs text-[#4B5563] italic">
                       {isReviewer
                         ? 'Belum ada naskah yang ditugaskan kepada akun Mitra Bestari Anda.'
                         : 'Belum ada naskah dalam antrean untuk konteks jurnal ini.'}
@@ -3505,25 +3519,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             setShowDeskRejectForm(false);
                             setDeskRejectReason('');
                           }}
-                          className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer space-y-2 ${
+                          className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer space-y-2 ${
                             active
-                              ? 'bg-[#FEF2F2] border-[#7A2222] ring-2 ring-[#7A2222]/20 shadow-xs'
-                              : 'bg-slate-50/70 border-slate-200/80 hover:bg-[#FDF7F7] hover:border-[#7A2222]/30'
+                              ? 'bg-[#FDF2F2] border-[#7A2222] ring-2 ring-[#7A2222]/15'
+                              : 'bg-[#FAFAFA] border-[#D4D4D8] hover:bg-white hover:border-[#A1A1AA]'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#7A2222] text-white">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#7A2222] text-white">
                               {sub.journal?.abbreviation}
                             </span>
                             {isReviewer && myRev ? (
-                                <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${
+                                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                                   myRev.status === 'assigned'
-                                    ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                    ? SEMANTIC_TONE.warning
                                     : myRev.status === 'in_progress'
-                                    ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                    ? SEMANTIC_TONE.accent
                                     : myRev.status === 'completed'
-                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                    : 'bg-rose-100 text-rose-800 border-rose-200'
+                                    ? SEMANTIC_TONE.positive
+                                    : SEMANTIC_TONE.negative
                                 }`}>
                                   {myRev.status === 'assigned' ? (
                                     <><IconMailInvite size={11} /> UNDANGAN BARU</>
@@ -3536,44 +3550,44 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   )}
                                 </span>
                             ) : (
-                              <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
+                              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badge.bg}`}>
                                 {badge.label}
                               </span>
                             )}
                           </div>
-                          <h4 className="text-xs font-bold text-slate-800 leading-snug">
+                          <h4 className="text-xs font-bold text-[#141414] leading-snug">
                             {sub.title}
                           </h4>
-                          <div className="flex items-center justify-between text-[11px] text-slate-500">
+                          <div className="flex items-center justify-between text-[11px] text-[#4B5563]">
                             <span>Penulis: {sub.author?.name}</span>
                             {isAdminOrEditor && (prog.activeRevs.length > 0 || prog.declinedRevs.length > 0) && (
                               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#7A2222]">
                                 {prog.completedRevs.length}/{prog.activeRevs.length} selesai
                                 {prog.declinedRevs.length > 0 && (
-                                  <span className="inline-flex items-center gap-0.5 text-rose-600">
+                                  <span className="inline-flex items-center gap-0.5 text-[#882832]">
                                     • <IconAlertClean size={11} /> {prog.declinedRevs.length} tolak
                                   </span>
                                 )}
                               </span>
                             )}
                             {isReviewer && (
-                              <span className="text-[10px] font-bold text-slate-400">
+                              <span className="text-[10px] font-bold text-[#4B5563]">
                                 {sub.status === 'published' ? 'Terbit' : sub.status === 'accepted' ? 'Accepted' : ''}
                               </span>
                             )}
                           </div>
                           {/* Mini progress strip */}
-                          <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                          <div className="w-full h-1 bg-[#E5E5E5] rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 isReviewer && myRev
                                   ? myRev.status === 'completed'
-                                    ? 'bg-emerald-500'
+                                    ? 'bg-[#2F523B]'
                                     : myRev.status === 'declined'
-                                    ? 'bg-rose-500'
+                                    ? 'bg-[#882832]'
                                     : myRev.status === 'in_progress'
-                                    ? 'bg-blue-600'
-                                    : 'bg-amber-500'
+                                    ? 'bg-[#7A2222]'
+                                    : 'bg-[#B89B72]'
                                   : prog.barColor
                               }`}
                               style={{
@@ -3593,20 +3607,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       );
                     })
                   )}
+                  </div>
                 </div>
               </div>
 
-              {/* Panel Kerja di Kanan */}
-              <div className="lg:col-span-7 min-w-0">
+              {/* Panel Kerja di Kanan — Scroll independen agar antrean kiri tetap diam 100% */}
+              <div className="lg:col-span-7 min-w-0 lg:h-full lg:overflow-y-auto lg:-mx-3 lg:px-3 lg:pt-1 lg:-mt-1 lg:pb-8">
                 {!selectedSubForAction ? (
-                  <div className="card-luxury rounded-[28px] p-12 text-center space-y-3">
-                    <CheckSquare size={42} className="mx-auto text-slate-300" />
-                    <h4 className="text-base font-bold text-slate-700">
+                  <div className="card-luxury rounded-2xl p-12 text-center space-y-3">
+                    <CheckSquare size={42} className="mx-auto text-[#D4D4D4]" />
+                    <h4 className="text-base font-bold text-[#141414]">
                       Pilih Naskah di Sebelah Kiri
                     </h4>
-                    <p className="text-xs text-slate-400 max-w-md mx-auto">
+                    <p className="text-xs text-[#4B5563] max-w-md mx-auto leading-relaxed">
                       Klik salah satu judul naskah di daftar sebelah kiri untuk membuka lembar kerja{' '}
-                      <strong>{currentUser?.label}</strong>.
+                      <strong className="text-[#404040]">{currentUser?.label}</strong>.
                     </p>
                   </div>
                 ) : (() => {
@@ -3622,11 +3637,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       myReviewHeader.status !== 'declined');
 
                   return (
-                  <div className="card-luxury rounded-[28px] p-6 space-y-6 min-w-0 overflow-hidden">
+                  <div className="card-luxury rounded-2xl p-6 space-y-6 min-w-0 overflow-hidden">
                     {/* Header Naskah */}
-                    <div className="border-b border-slate-100 pb-5 space-y-3">
+                    <div className="border-b border-[#D4D4D8] pb-5 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs font-extrabold text-[#7A2222] bg-[#FEF2F2] px-3 py-1 rounded-full border border-[#7A2222]/20">
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full border ${SEMANTIC_TONE.accent}`}>
                           Jurnal: {selectedSubForAction.journal?.title}
                         </span>
                         <div className="flex items-center gap-2">
@@ -3635,13 +3650,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               href={resolveFileUrl(selectedSubForAction.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs font-bold text-[#7A2222] bg-[#FEF2F2] hover:bg-[#7A2222] hover:text-white px-3.5 py-1.5 rounded-full border border-[#7A2222]/20 flex items-center gap-1.5 transition"
+                              className="text-xs font-semibold text-[#7A2222] bg-[#FDF2F2] hover:bg-[#7A2222] hover:text-white px-3.5 py-1.5 rounded-lg border border-[#DFBABA] flex items-center gap-1.5 transition"
                             >
                               <IconDocClean size={15} /> Buka Dokumen Naskah
                             </a>
                           )}
                           {selectedSubForAction.file_path && isReviewer && !canOpenFileInReviewTab && (
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
+                            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg border ${SEMANTIC_TONE.warning}`}>
                               {myReviewHeader?.status === 'declined' ? (
                                 <><IconDeclinedBan size={13} /> Akses Berkas Ditutup (Anda Menolak)</>
                               ) : (
@@ -3653,7 +3668,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             <button
                               type="button"
                               onClick={() => handleDeleteSubmission(selectedSubForAction)}
-                              className="text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1.5 cursor-pointer"
+                              className="text-xs font-semibold text-[#882832] bg-[#FBF3F4] hover:bg-[#F5E1E4] px-3 py-1.5 rounded-lg border border-[#E8CFD2] flex items-center gap-1.5 cursor-pointer"
                               title="Hapus naskah ini dari antrean & database"
                             >
                               <Trash2 size={14} /> Hapus Naskah
@@ -3661,10 +3676,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           )}
                         </div>
                       </div>
-                      <h3 className="text-lg font-extrabold text-slate-800">
+                      <h3 className="text-lg font-bold text-[#141414]">
                         {selectedSubForAction.title}
                       </h3>
-                      <p className="text-xs text-slate-600 leading-relaxed">
+                      <p className="text-xs text-[#525252] leading-relaxed">
                         {selectedSubForAction.abstract}
                       </p>
                       {isAdminOrEditor && renderWorkflowProgressBar(selectedSubForAction)}
@@ -3675,24 +3690,24 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <div className="space-y-4">
                         {/* KONDISI 1: Naskah Masih Pending (Multi-Reviewer Checklist) */}
                         {selectedSubForAction.status === 'pending' && (
-                          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                          <div className="bg-[#FAFAFA] p-5 rounded-xl border border-[#D4D4D8] space-y-4">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-[#141414] flex items-center gap-2">
                                 <UserCheck size={16} className="text-[#7A2222]" />
                                 Penugasan Mitra Bestari (Support Multi-Reviewer)
                               </h4>
-                              <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.warning}`}>
                                 MENUNGGU PENUGASAN
                               </span>
                             </div>
 
-                            <p className="text-xs text-slate-500">
-                              Centang <strong>1 atau lebih Mitra Bestari</strong> yang ingin Anda tugaskan untuk menelaah naskah ini secara independen.
+                            <p className="text-xs text-[#525252]">
+                              Centang <strong className="text-[#141414]">1 atau lebih Mitra Bestari</strong> yang ingin Anda tugaskan untuk menelaah naskah ini secara independen.
                             </p>
 
                             <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
                               {(stats.reviewers || []).length === 0 ? (
-                                <p className="text-xs text-rose-600 italic">
+                                <p className="text-xs text-[#882832] italic">
                                   Belum ada akun Reviewer terdaftar. Tambahkan melalui menu Manajemen Pengguna atau pendaftaran akun.
                                 </p>
                               ) : (
@@ -3706,10 +3721,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       key={rev.id}
                                       className={`flex items-start gap-3 p-3 rounded-xl border transition text-xs ${
                                         declinedRev
-                                          ? 'bg-rose-50/50 border-rose-200/80 opacity-80 cursor-not-allowed'
+                                          ? 'bg-[#FBF3F4]/60 border-[#E8CFD2] opacity-80 cursor-not-allowed'
                                           : checked
-                                          ? 'bg-[#FEF2F2] border-[#7A2222] shadow-2xs cursor-pointer'
-                                          : 'bg-white border-slate-200 hover:bg-slate-50 cursor-pointer'
+                                          ? 'bg-[#FDF2F2] border-[#7A2222] cursor-pointer'
+                                          : 'bg-white border-[#D4D4D8] hover:bg-[#FAFAFA] cursor-pointer'
                                       }`}
                                     >
                                       <input
@@ -3725,20 +3740,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       />
                                       <div className="min-w-0 flex-1 space-y-1">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
-                                          <span className={`font-bold ${declinedRev ? 'text-slate-500 line-through' : 'text-slate-800'}`}>
+                                          <span className={`font-bold ${declinedRev ? 'text-[#4B5563] line-through' : 'text-[#141414]'}`}>
                                             {rev.name}
                                           </span>
                                           {declinedRev && (
-                                            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
+                                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${SEMANTIC_TONE.negative}`}>
                                               <IconDeclinedBan size={11} /> Telah menolak pada naskah ini
                                             </span>
                                           )}
                                         </div>
-                                        <div className="text-[11px] text-slate-500 truncate">
+                                        <div className="text-[11px] text-[#4B5563] truncate">
                                           {rev.email} • {rev.specialty || rev.affiliation || 'Mitra Bestari'}
                                         </div>
                                         {declinedRev?.comments && (
-                                          <div className="text-[11px] text-rose-700 italic">
+                                          <div className="text-[11px] text-[#882832] italic">
                                             Alasan: &ldquo;{declinedRev.comments}&rdquo;
                                           </div>
                                         )}
@@ -3750,7 +3765,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
 
                             <div>
-                              <label className="block text-xs font-bold text-slate-600 mb-1">
+                              <label className="block text-xs font-bold text-[#404040] mb-1">
                                 Catatan Pengantar dari Editor (Opsional):
                               </label>
                               <input
@@ -3758,7 +3773,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 value={editorNotes}
                                 onChange={(e) => setEditorNotes(e.target.value)}
                                 placeholder="Misal: Mohon telaah fokus metodologi kuantitatif..."
-                                className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#7A2222]"
+                                className="w-full bg-white border border-[#D4D4D8] rounded-xl p-2.5 text-xs text-[#141414] placeholder:text-[#6B7280] focus:outline-none focus:border-[#7A2222]"
                               />
                             </div>
 
@@ -3770,15 +3785,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <button
                                   type="button"
                                   onClick={() => setShowDeskRejectForm((prev) => !prev)}
-                                  className="px-4 py-2.5 rounded-full border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-[#E8CFD2] bg-[#FBF3F4] hover:bg-[#F5E1E4] text-[#882832] font-semibold text-xs transition cursor-pointer"
                                 >
-                                  ✕ Tolak Naskah
+                                  <IconDeclinedBan size={14} /> Tolak Naskah
                                 </button>
                                 <button
                                   type="button"
                                   disabled={selectedReviewerIds.length === 0}
                                   onClick={() => handleAssignReviewer(selectedSubForAction.id)}
-                                  className="bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition cursor-pointer flex items-center gap-2"
+                                  className="bg-[#7A2222] hover:bg-[#611B1B] disabled:opacity-50 text-white font-semibold text-xs px-4 py-2 rounded-lg transition cursor-pointer flex items-center gap-2"
                                 >
                                   <IconDocCheck size={15} /> Tugaskan {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer (Mulai Telaah)
                                 </button>
@@ -3787,15 +3802,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                             {/* Form Tolak Naskah Awal (Desk Reject — mis. tidak sesuai tema/fokus jurnal) */}
                             {showDeskRejectForm && (
-                              <div className="mt-3 p-4 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-3">
+                              <div className="mt-3 p-4 rounded-xl bg-[#FBF3F4] border border-[#E8CFD2] space-y-3">
                                 <div className="flex items-center justify-between gap-2">
-                                  <h5 className="text-xs font-extrabold text-rose-900">
+                                  <h5 className="text-xs font-bold text-[#882832]">
                                     Tolak Naskah (Desk Reject) — Alasan akan dikirim sebagai notifikasi ke Penulis
                                   </h5>
                                   <button
                                     type="button"
                                     onClick={() => setShowDeskRejectForm(false)}
-                                    className="text-rose-400 hover:text-rose-700 text-xs font-bold cursor-pointer"
+                                    className="text-[#882832]/70 hover:text-[#882832] text-xs font-bold cursor-pointer"
                                   >
                                     ✕
                                   </button>
@@ -3812,10 +3827,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       key={preset}
                                       type="button"
                                       onClick={() => setDeskRejectReason(preset)}
-                                      className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer text-left ${
+                                      className={`px-3 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer text-left ${
                                         deskRejectReason === preset
-                                          ? 'bg-rose-700 text-white border-rose-700'
-                                          : 'bg-white text-rose-800 border-rose-200 hover:border-rose-400'
+                                          ? 'bg-[#882832] text-white border-[#882832]'
+                                          : 'bg-white text-[#882832] border-[#E8CFD2] hover:border-[#882832]/50'
                                       }`}
                                     >
                                       {preset}
@@ -3828,7 +3843,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   value={deskRejectReason}
                                   onChange={(e) => setDeskRejectReason(e.target.value)}
                                   placeholder="Tuliskan alasan penolakan yang jelas untuk Penulis (mis. tema di luar ruang lingkup jurnal)..."
-                                  className="w-full bg-white border border-rose-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-500"
+                                  className="w-full bg-white border border-[#E8CFD2] rounded-xl p-2.5 text-xs text-[#141414] focus:outline-none focus:border-[#882832]"
                                 />
 
                                 <div className="flex items-center justify-end gap-2">
@@ -3838,14 +3853,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       setShowDeskRejectForm(false);
                                       setDeskRejectReason('');
                                     }}
-                                    className="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-xs cursor-pointer"
+                                    className="px-4 py-2 rounded-lg border border-[#D4D4D8] bg-white text-[#525252] font-semibold text-xs cursor-pointer"
                                   >
                                     Batal
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => handleDeskReject(selectedSubForAction.id)}
-                                    className="px-5 py-2 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shadow-xs cursor-pointer"
+                                    className="px-4 py-2 rounded-lg bg-[#882832] hover:bg-[#6E1F27] text-white font-semibold text-xs cursor-pointer"
                                   >
                                     Konfirmasi Tolak Naskah
                                   </button>
@@ -3870,22 +3885,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           const allCompleted = activeReviews.length > 0 && completedCount === activeReviews.length;
 
                           return (
-                            <div className="bg-[#FDF7F7] p-5 rounded-2xl border border-blue-200 space-y-4">
+                            <div className="bg-[#FAFAFA] p-5 rounded-xl border border-[#D4D4D8] space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#7A2222] flex items-center gap-2">
-                                  <Clock size={16} className={`text-[#7A2222] ${allCompleted || activeReviews.length === 0 ? '' : 'animate-spin'}`} />
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-[#141414] flex items-center gap-2">
+                                  <Clock size={16} className="text-[#7A2222]" />
                                   {activeReviews.length === 0
                                     ? 'Semua Reviewer Menolak — Wajib Tunjuk Reviewer Pengganti'
                                     : allCompleted
                                     ? 'Seluruh Reviewer Aktif Selesai Menilai — Menunggu Keputusan Editor'
                                     : `Progress Telaah: ${completedCount}/${activeReviews.length} Selesai${waitingAcceptCount > 0 ? ` (${waitingAcceptCount} Menunggu Konfirmasi)` : ''}`}
                                 </h4>
-                                <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
+                                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
                                   activeReviews.length === 0
-                                    ? 'bg-rose-100 text-rose-800 border-rose-300'
+                                    ? SEMANTIC_TONE.negative
                                     : allCompleted
-                                    ? 'bg-amber-100 text-amber-800 border-amber-300'
-                                    : 'bg-blue-100 text-[#7A2222] border-blue-300'
+                                    ? SEMANTIC_TONE.warning
+                                    : SEMANTIC_TONE.accent
                                 }`}>
                                   {activeReviews.length === 0
                                     ? 'BUTUH PENGGANTI'
@@ -3897,14 +3912,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                               {/* Peringatan Jika Ada Reviewer yang Menolak Undangan */}
                               {declinedReviews.length > 0 && (
-                                <div className="bg-rose-50 border border-rose-300 rounded-xl p-3.5 text-xs text-rose-900 space-y-1">
-                                  <div className="font-extrabold flex items-center gap-1.5">
-                                    <IconAlertClean size={15} className="text-rose-600" />
+                                <div className="bg-[#FBF3F4] border border-[#E8CFD2] rounded-xl p-3.5 text-xs text-[#882832] space-y-1">
+                                  <div className="font-bold flex items-center gap-1.5">
+                                    <IconAlertClean size={15} className="text-[#882832]" />
                                     <span>
                                       {declinedReviews.length} Mitra Bestari Menolak Undangan Penelaahan!
                                     </span>
                                   </div>
-                                  <p className="text-[11px] text-rose-800 leading-relaxed">
+                                  <p className="text-[11px] text-[#882832]/90 leading-relaxed">
                                     {activeReviews.length === 0
                                       ? 'Saat ini tidak ada reviewer aktif yang menelaah naskah ini. Segera tunjuk Mitra Bestari pengganti di bawah agar proses review dapat berjalan.'
                                       : 'Silakan periksa alasan penolakan di bawah dan tunjuk Mitra Bestari pengganti jika dibutuhkan opini kedua/ketiga.'}
@@ -3913,8 +3928,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               )}
 
                               {selectedSubForAction.editor_notes && (
-                                <div className="bg-white/80 p-3 rounded-xl border border-[#7A2222]/15 text-xs text-slate-600">
-                                  <span className="text-[10px] font-bold text-slate-400 block">Catatan Pengantar Editor:</span>
+                                <div className="bg-white p-3 rounded-xl border border-[#D4D4D8] text-xs text-[#525252]">
+                                  <span className="text-[10px] font-bold text-[#4B5563] block">Catatan Pengantar Editor:</span>
                                   <span className="italic">"{selectedSubForAction.editor_notes}"</span>
                                 </div>
                               )}
@@ -3934,31 +3949,31 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       key={rev.id || idx}
                                       className={`p-3.5 rounded-xl border text-xs space-y-2 ${
                                         revDeclined
-                                          ? 'bg-rose-50/70 border-rose-200'
+                                          ? 'bg-[#FBF3F4] border-[#E8CFD2]'
                                           : revDone
-                                          ? 'bg-emerald-50/40 border-emerald-200'
+                                          ? 'bg-[#F3F6F4] border-[#D3E0D7]'
                                           : revAssigned
-                                          ? 'bg-amber-50/40 border-amber-200'
-                                          : 'bg-white border-[#7A2222]/15'
+                                          ? 'bg-[#FAF7F2] border-[#E6DAC8]'
+                                          : 'bg-white border-[#D4D4D8]'
                                       }`}
                                     >
                                       <div className="flex flex-wrap items-center justify-between gap-2">
                                         <div>
-                                          <span className="text-[10px] text-slate-400 font-bold block">Reviewer #{idx + 1}</span>
-                                          <strong className="text-slate-800">{revName}</strong>
+                                          <span className="text-[10px] text-[#4B5563] font-bold block">Reviewer #{idx + 1}</span>
+                                          <strong className="text-[#141414]">{revName}</strong>
                                         </div>
                                         <div className="flex items-center gap-2">
                                           {revDeclined ? (
-                                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
+                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${SEMANTIC_TONE.negative}`}>
                                               <IconDeclinedBan size={11} /> TELAH MENOLAK PADA NASKAH INI
                                             </span>
                                           ) : revDone ? (
-                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
+                                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                                               rev.decision === 'accept'
-                                                ? 'bg-emerald-100 text-emerald-800'
+                                                ? SEMANTIC_TONE.positive
                                                 : rev.decision === 'revise'
-                                                ? 'bg-amber-100 text-amber-800'
-                                                : 'bg-rose-100 text-rose-800'
+                                                ? SEMANTIC_TONE.warning
+                                                : SEMANTIC_TONE.negative
                                             }`}>
                                               {rev.decision === 'accept' ? (
                                                 <><IconVerifiedBadge size={11} /> SELESAI: DITERIMA</>
@@ -3970,26 +3985,26 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                             </span>
                                           ) : revAssigned ? (
                                             <>
-                                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
+                                              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${SEMANTIC_TONE.warning}`}>
                                                 <IconMailInvite size={11} /> MENUNGGU KONFIRMASI REVIEWER
                                               </span>
                                               <button
                                                 type="button"
                                                 onClick={() => handleRemoveReviewer(selectedSubForAction.id, rev.reviewer_id, revName)}
-                                                className="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer"
+                                                className="text-[10px] font-bold text-[#882832] hover:underline cursor-pointer"
                                               >
                                                 Batalkan
                                               </button>
                                             </>
                                           ) : (
                                             <>
-                                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-blue-50 text-blue-700 border border-blue-200">
+                                              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${SEMANTIC_TONE.accent}`}>
                                                 <IconDocReview size={11} /> SEDANG MENELAAH
                                               </span>
                                               <button
                                                 type="button"
                                                 onClick={() => handleRemoveReviewer(selectedSubForAction.id, rev.reviewer_id, revName)}
-                                                className="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer"
+                                                className="text-[10px] font-bold text-[#882832] hover:underline cursor-pointer"
                                               >
                                                 Batalkan
                                               </button>
@@ -3999,33 +4014,33 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       </div>
 
                                       {revDeclined && (
-                                        <div className="pt-2 border-t border-rose-200/80">
-                                          <span className="text-[10px] font-extrabold text-rose-700 uppercase block mb-0.5">
+                                        <div className="pt-2 border-t border-[#E8CFD2]">
+                                          <span className="text-[10px] font-bold text-[#882832] uppercase block mb-0.5">
                                             Alasan Penolakan dari Reviewer:
                                           </span>
-                                          <p className="italic text-rose-900 bg-white/90 p-2 rounded-lg border border-rose-100">
+                                          <p className="italic text-[#882832] bg-white p-2 rounded-lg border border-[#E8CFD2]">
                                             "{rev.comments || 'Reviewer tidak mencantumkan alasan.'}"
                                           </p>
                                         </div>
                                       )}
 
                                       {revDone && (
-                                        <div className="pt-2 border-t border-slate-100 space-y-2">
+                                        <div className="pt-2 border-t border-[#D4D4D8] space-y-2">
                                           <div className="grid grid-cols-3 gap-2">
-                                            <div className="bg-white p-1.5 rounded-lg text-center border border-slate-100">
-                                              <span className="text-[10px] text-slate-400 block">Orisinalitas</span>
+                                            <div className="bg-white p-1.5 rounded-lg text-center border border-[#D4D4D8]">
+                                              <span className="text-[10px] text-[#4B5563] block">Orisinalitas</span>
                                               <strong className="text-[#7A2222]">{rev.score_originality ?? '-'}</strong>
                                             </div>
-                                            <div className="bg-white p-1.5 rounded-lg text-center border border-slate-100">
-                                              <span className="text-[10px] text-slate-400 block">Metodologi</span>
+                                            <div className="bg-white p-1.5 rounded-lg text-center border border-[#D4D4D8]">
+                                              <span className="text-[10px] text-[#4B5563] block">Metodologi</span>
                                               <strong className="text-[#7A2222]">{rev.score_methodology ?? '-'}</strong>
                                             </div>
-                                            <div className="bg-white p-1.5 rounded-lg text-center border border-slate-100">
-                                              <span className="text-[10px] text-slate-400 block">Relevansi</span>
+                                            <div className="bg-white p-1.5 rounded-lg text-center border border-[#D4D4D8]">
+                                              <span className="text-[10px] text-[#4B5563] block">Relevansi</span>
                                               <strong className="text-[#7A2222]">{rev.score_relevance ?? '-'}</strong>
                                             </div>
                                           </div>
-                                          <p className="italic text-slate-600 bg-white p-2 rounded-lg border border-slate-100">"{rev.comments}"</p>
+                                          <p className="italic text-[#404040] bg-white p-2 rounded-lg border border-[#D4D4D8]">"{rev.comments}"</p>
                                         </div>
                                       )}
                                     </div>
@@ -4034,8 +4049,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               </div>
 
                               {/* Tambah Reviewer Tambahan / Pengganti (Checklist: Reviewer yang sudah menolak terkunci tidak bisa dicentang lagi) */}
-                              <div className="bg-white/95 p-4 rounded-2xl border border-dashed border-[#7A2222]/30 space-y-3 min-w-0">
-                                <div className="text-[11px] font-extrabold text-[#7A2222]">
+                              <div className="bg-white p-4 rounded-xl border border-dashed border-[#D4D4D4] space-y-3 min-w-0">
+                                <div className="text-[11px] font-bold text-[#7A2222]">
                                   {declinedReviews.length > 0 && activeReviews.length < 2
                                     ? `+ Tunjuk Mitra Bestari Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
                                     : allCompleted
@@ -4060,10 +4075,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                               key={r.id}
                                               className={`flex items-start gap-3 p-3 rounded-xl border transition text-xs ${
                                                 isDeclined
-                                                  ? 'bg-rose-50/50 border-rose-200/80 opacity-80 cursor-not-allowed'
+                                                  ? 'bg-[#FBF3F4]/60 border-[#E8CFD2] opacity-80 cursor-not-allowed'
                                                   : isChecked
-                                                  ? 'bg-[#FEF2F2] border-[#7A2222] shadow-2xs cursor-pointer'
-                                                  : 'bg-white border-slate-200 hover:bg-slate-50 cursor-pointer'
+                                                  ? 'bg-[#FDF2F2] border-[#7A2222] cursor-pointer'
+                                                  : 'bg-white border-[#D4D4D8] hover:bg-[#FAFAFA] cursor-pointer'
                                               }`}
                                             >
                                               <input
@@ -4079,20 +4094,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                               />
                                               <div className="min-w-0 flex-1 space-y-1">
                                                 <div className="flex flex-wrap items-center justify-between gap-2">
-                                                  <span className={`font-bold ${isDeclined ? 'text-slate-500 line-through' : 'text-slate-800'}`}>
+                                                  <span className={`font-bold ${isDeclined ? 'text-[#4B5563] line-through' : 'text-[#141414]'}`}>
                                                     {r.name}
                                                   </span>
                                                   {isDeclined && (
-                                                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 shrink-0">
+                                                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${SEMANTIC_TONE.negative}`}>
                                                       <IconDeclinedBan size={11} /> Telah menolak pada naskah ini
                                                     </span>
                                                   )}
                                                 </div>
-                                                <div className="text-[11px] text-slate-500 truncate">
+                                                <div className="text-[11px] text-[#4B5563] truncate">
                                                   {r.email} • {r.specialty || r.affiliation || 'Mitra Bestari'}
                                                 </div>
                                                 {isDeclined && declinedInfo?.comments && (
-                                                  <div className="text-[11px] text-rose-700 italic">
+                                                  <div className="text-[11px] text-[#882832] italic">
                                                     Alasan: &ldquo;{declinedInfo.comments}&rdquo;
                                                   </div>
                                                 )}
@@ -4111,13 +4126,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                             type="button"
                                             disabled={selectedReviewerIds.length === 0}
                                             onClick={() => handleAssignReviewer(selectedSubForAction.id)}
-                                            className="px-5 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0 whitespace-nowrap shadow-xs transition"
+                                            className="px-4 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] disabled:opacity-50 text-white font-semibold text-xs cursor-pointer shrink-0 whitespace-nowrap transition"
                                           >
-                                            + Undang {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer
+                                            Undang {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer
                                           </button>
                                         </div>
                                       ) : (
-                                        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-rose-700 bg-rose-50/80 px-3 py-2 rounded-xl border border-rose-200">
+                                        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#882832] bg-[#FBF3F4] px-3 py-2 rounded-xl border border-[#E8CFD2]">
                                           <span>Tidak ada Mitra Bestari tersisa yang dapat ditugaskan (seluruh akun lain telah ditugaskan atau telah menolak pada naskah ini).</span>
                                           {isAdmin && (
                                             <button
@@ -4128,14 +4143,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                               }}
                                               className="text-[#7A2222] font-bold hover:underline cursor-pointer shrink-0"
                                             >
-                                              + Tambah Akun Reviewer Baru →
+                                              Tambah Akun Reviewer Baru →
                                             </button>
                                           )}
                                         </div>
                                       )}
                                     </div>
                                   ) : (
-                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#4B5563]">
                                       <span>Seluruh akun Reviewer yang tersedia sudah ditugaskan aktif pada naskah ini.</span>
                                       {isAdmin && (
                                         <button
@@ -4146,7 +4161,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                           }}
                                           className="text-[#7A2222] font-bold hover:underline cursor-pointer"
                                         >
-                                          + Tambah Akun Reviewer Baru →
+                                          Tambah Akun Reviewer Baru →
                                         </button>
                                       )}
                                     </div>
@@ -4156,12 +4171,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                               {/* Panel Keputusan Akhir Chief Editor jika Split Decision / Semua Reviewer Aktif Selesai */}
                               {allCompleted ? (
-                                <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 space-y-3">
-                                  <div className="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
-                                    <IconScaleJudge size={15} className="text-amber-700" />
+                                <div className="bg-[#FAF7F2] border border-[#E6DAC8] rounded-xl p-4 space-y-3">
+                                  <div className="text-xs font-bold text-[#7C5329] flex items-center gap-1.5">
+                                    <IconScaleJudge size={15} className="text-[#7C5329]" />
                                     Keputusan Akhir Dewan Redaksi (Chief Editor Tie-Breaker)
                                   </div>
-                                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                                  <p className="text-[11px] text-[#525252] leading-relaxed">
                                     {declinedReviews.length > 0 && activeReviews.length === 1
                                       ? 'Salah satu Mitra Bestari menolak undangan dan 1 Reviewer aktif telah menyelesaikan penilaian. Anda dapat menunjuk Reviewer Pengganti di atas untuk opini kedua, atau langsung menetapkan keputusan final di bawah ini:'
                                       : 'Para Mitra Bestari memberikan rekomendasi berbeda. Sebagai Chief Editor, Anda dapat menunjuk Reviewer penengah di atas atau langsung menetapkan keputusan final naskah ini:'}
@@ -4170,21 +4185,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     <button
                                       type="button"
                                       onClick={() => handleEditorDecision(selectedSubForAction.id, 'accept')}
-                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs cursor-pointer"
+                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs cursor-pointer"
                                     >
                                       <IconVerifiedBadge size={14} /> Setujui (Accept)
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleEditorDecision(selectedSubForAction.id, 'revise')}
-                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs cursor-pointer"
+                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white hover:bg-[#FAF7F2] text-[#7C5329] border border-[#E6DAC8] font-semibold text-xs cursor-pointer"
                                     >
                                       <IconAlertClean size={14} /> Minta Revisi Penulis
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleEditorDecision(selectedSubForAction.id, 'reject')}
-                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
+                                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white hover:bg-[#FBF3F4] text-[#882832] border border-[#E8CFD2] font-semibold text-xs cursor-pointer"
                                     >
                                       <IconDeclinedBan size={14} /> Tolak Naskah
                                     </button>
@@ -4193,22 +4208,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 ) : (
                                   <div className="space-y-3">
                                     <div className="flex flex-wrap items-center justify-between gap-2">
-                                      <p className="text-[11px] text-slate-500 leading-relaxed italic flex-1 min-w-[200px] flex items-start gap-1.5">
-                                        <IconInfoClean size={14} className="mt-0.5 text-slate-400" />
+                                      <p className="text-[11px] text-[#4B5563] leading-relaxed italic flex-1 min-w-[200px] flex items-start gap-1.5">
+                                        <IconInfoClean size={14} className="mt-0.5 text-[#4B5563]" />
                                         <span>Reviewer yang baru diundang berstatus <strong>Menunggu Konfirmasi</strong> hingga mereka menyetujui atau menolak undangan review. Status naskah akan berlanjut setelah semua reviewer aktif selesai menilai.</span>
                                       </p>
                                       <button
                                         type="button"
                                         onClick={() => setShowDeskRejectForm((prev) => !prev)}
-                                        className="px-4 py-1.5 rounded-full border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] transition cursor-pointer shrink-0"
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#E8CFD2] bg-[#FBF3F4] hover:bg-[#F5E1E4] text-[#882832] font-semibold text-[11px] transition cursor-pointer shrink-0"
                                       >
-                                        ✕ Tolak Naskah
+                                        <IconDeclinedBan size={13} /> Tolak Naskah
                                       </button>
                                     </div>
 
                                     {showDeskRejectForm && (
-                                      <div className="p-4 rounded-2xl bg-rose-50/90 border border-rose-200 space-y-2.5">
-                                        <div className="text-xs font-extrabold text-rose-900">
+                                      <div className="p-4 rounded-xl bg-[#FBF3F4] border border-[#E8CFD2] space-y-2.5">
+                                        <div className="text-xs font-bold text-[#882832]">
                                           Tolak Naskah — Alasan akan dikirim sebagai notifikasi ke Penulis
                                         </div>
                                         <div className="flex flex-wrap gap-1.5">
@@ -4221,10 +4236,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                               key={preset}
                                               type="button"
                                               onClick={() => setDeskRejectReason(preset)}
-                                              className={`px-3 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer text-left ${
+                                              className={`px-3 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer text-left ${
                                                 deskRejectReason === preset
-                                                  ? 'bg-rose-700 text-white border-rose-700'
-                                                  : 'bg-white text-rose-800 border-rose-200 hover:border-rose-400'
+                                                  ? 'bg-[#882832] text-white border-[#882832]'
+                                                  : 'bg-white text-[#882832] border-[#E8CFD2] hover:border-[#882832]/50'
                                               }`}
                                             >
                                               {preset}
@@ -4236,7 +4251,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                           value={deskRejectReason}
                                           onChange={(e) => setDeskRejectReason(e.target.value)}
                                           placeholder="Tuliskan alasan penolakan untuk Penulis..."
-                                          className="w-full bg-white border border-rose-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-500"
+                                          className="w-full bg-white border border-[#E8CFD2] rounded-xl p-2.5 text-xs text-[#141414] focus:outline-none focus:border-[#882832]"
                                         />
                                         <div className="flex items-center justify-end gap-2">
                                           <button
@@ -4245,14 +4260,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                               setShowDeskRejectForm(false);
                                               setDeskRejectReason('');
                                             }}
-                                            className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 font-bold text-xs cursor-pointer"
+                                            className="px-4 py-1.5 rounded-lg border border-[#D4D4D8] bg-white text-[#525252] font-semibold text-xs cursor-pointer"
                                           >
                                             Batal
                                           </button>
                                           <button
                                             type="button"
                                             onClick={() => handleDeskReject(selectedSubForAction.id)}
-                                            className="px-5 py-1.5 rounded-full bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
+                                            className="px-4 py-1.5 rounded-lg bg-[#882832] hover:bg-[#6E1F27] text-white font-semibold text-xs cursor-pointer"
                                           >
                                             Konfirmasi Tolak Naskah
                                           </button>
@@ -4267,17 +4282,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                         {/* KONDISI 3: Naskah Perlu Revisi */}
                         {selectedSubForAction.status === 'revision_required' && (
-                          <div className="bg-orange-50 p-5 rounded-2xl border border-orange-200 space-y-3">
+                          <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E6DAC8] space-y-3">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-extrabold uppercase tracking-wider text-orange-900 flex items-center gap-2">
-                                <Clock size={16} className="text-orange-600 animate-pulse" />
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-[#7C5329] flex items-center gap-2">
+                                <Clock size={16} className="text-[#7C5329]" />
                                 Status: Menunggu Berkas Perbaikan dari Penulis
                               </h4>
-                              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 border border-orange-300">
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${SEMANTIC_TONE.warning}`}>
                                 PERLU REVISI
                               </span>
                             </div>
-                            <p className="text-xs text-slate-700 leading-relaxed">
+                            <p className="text-xs text-[#525252] leading-relaxed">
                               Reviewer telah mengevaluasi naskah dan meminta penulis melakukan revisi. Penulis saat ini sedang menyempurnakan naskah. Status akan otomatis kembali ke <em>Under Review</em> setelah penulis mengunggah berkas revisi baru.
                             </p>
                           </div>
@@ -4285,23 +4300,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                         {/* KONDISI 4: Naskah Diterima (Siap Terbit) */}
                         {selectedSubForAction.status === 'accepted' && (
-                          <div className="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 space-y-4">
+                          <div className="bg-[#F3F6F4] p-5 rounded-xl border border-[#D3E0D7] space-y-4">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-extrabold uppercase tracking-wider text-emerald-900 flex items-center gap-2">
-                                <CheckCircle2 size={16} className="text-emerald-700" />
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-[#2F523B] flex items-center gap-2">
+                                <CheckCircle2 size={16} className="text-[#2F523B]" />
                                 Naskah Disetujui (Accepted) — Siap Diterbitkan
                               </h4>
-                              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${SEMANTIC_TONE.positive}`}>
                                 SIAP TERBIT
                               </span>
                             </div>
-                            <p className="text-xs text-slate-700 leading-relaxed">
+                            <p className="text-xs text-[#404040] leading-relaxed">
                               Mitra Bestari telah merekomendasikan naskah ini untuk diterbitkan. Klik tombol di bawah untuk menerbitkan artikel secara resmi ke terbitan aktif jurnal dan meng-generate nomor DOI resmi.
                             </p>
                             <button
                               type="button"
                               onClick={() => handlePublishArticle(selectedSubForAction.id)}
-                              className="bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
+                              className="bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer flex items-center gap-2"
                             >
                               <IconDocPublish size={16} /> Terbitkan ke Terbitan Aktif &amp; Buat Nomor DOI
                             </button>
@@ -4310,23 +4325,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                         {/* KONDISI 5: Naskah Telah Terbit */}
                         {selectedSubForAction.status === 'published' && (
-                          <div className="bg-purple-50 p-5 rounded-2xl border border-purple-200 space-y-3">
+                          <div className="bg-[#FDF2F2] p-5 rounded-xl border border-[#DFBABA] space-y-3">
                             <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-extrabold uppercase tracking-wider text-purple-900 flex items-center gap-2">
-                                <Award size={16} className="text-purple-700" />
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-[#7A2222] flex items-center gap-2">
+                                <Award size={16} className="text-[#7A2222]" />
                                 Naskah Telah Resmi Diterbitkan (Published)
                               </h4>
-                              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-300">
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${SEMANTIC_TONE.positive}`}>
                                 RESMI TERBIT
                               </span>
                             </div>
-                            <div className="bg-white p-3.5 rounded-xl border border-purple-100 text-xs space-y-1">
-                              <span className="text-slate-400 block text-[10px]">Nomor Identifikasi Digital (DOI):</span>
+                            <div className="bg-white p-3.5 rounded-xl border border-[#D4D4D8] text-xs space-y-1">
+                              <span className="text-[#4B5563] block text-[10px]">Nomor Identifikasi Digital (DOI):</span>
                               <div className="font-mono font-bold text-[#7A2222] text-sm select-all">
                                 {selectedSubForAction.doi || '10.31290/makassaris.v4i2.100'}
                               </div>
                             </div>
-                            <p className="text-[11px] text-slate-500 italic">
+                            <p className="text-[11px] text-[#4B5563] italic">
                               Artikel telah terindeks publik dan dapat diakses pembaca melalui portal terbitan.
                             </p>
                           </div>
@@ -4334,22 +4349,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                         {/* KONDISI 6: Naskah Ditolak */}
                         {selectedSubForAction.status === 'rejected' && (
-                          <div className="bg-rose-50 p-5 rounded-2xl border border-rose-200 space-y-2 text-xs">
+                          <div className="bg-[#FBF3F4] p-5 rounded-xl border border-[#E8CFD2] space-y-2 text-xs">
                             <div className="flex items-center justify-between">
-                              <h4 className="font-extrabold uppercase text-rose-900 flex items-center gap-2">
-                                <X size={16} className="text-rose-700" />
+                              <h4 className="font-bold uppercase text-[#882832] flex items-center gap-2">
+                                <X size={16} className="text-[#882832]" />
                                 Status: Naskah Ditolak (Rejected)
                               </h4>
-                              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${SEMANTIC_TONE.negative}`}>
                                 DITOLAK
                               </span>
                             </div>
-                            <p className="text-slate-700 leading-relaxed">
+                            <p className="text-[#404040] leading-relaxed">
                               Naskah ini telah dinyatakan ditolak oleh Dewan Redaksi dan pemberitahuan telah muncul pada akun Penulis.
                             </p>
                             {selectedSubForAction.editor_notes && (
-                              <div className="bg-white/90 p-3 rounded-xl border border-rose-200 text-rose-900">
-                                <span className="text-[10px] font-extrabold uppercase text-rose-700 block mb-0.5">
+                              <div className="bg-white p-3 rounded-xl border border-[#E8CFD2] text-[#882832]">
+                                <span className="text-[10px] font-bold uppercase text-[#882832] block mb-0.5">
                                   Alasan Penolakan yang Dikirim ke Penulis:
                                 </span>
                                 <span className="italic">&ldquo;{selectedSubForAction.editor_notes}&rdquo;</span>
@@ -4362,8 +4377,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                     {/* BAGIAN B: HASIL EVALUASI REVIEWER (HANYA MUNCUL JIKA SUDAH ADA REVIEW YANG DILAKUKAN) */}
                     {isAdminOrEditor && selectedSubForAction.status !== 'pending' && selectedSubForAction.status !== 'under_review' && (
-                      <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <div className="bg-white p-5 rounded-xl border border-[#D4D4D8] space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-[#141414] flex items-center gap-2">
                           <CheckCircle2 size={16} className="text-[#7A2222]" />
                           Laporan Hasil Penilaian Mitra Bestari (Reviewer)
                         </h4>
@@ -4383,43 +4398,43 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   key={rev.id || idx}
                                   className={`p-4 rounded-xl border space-y-2 text-xs ${
                                     isDeclined
-                                      ? 'bg-rose-50/70 border-rose-200'
-                                      : 'bg-[#FDF7F7] border-[#7A2222]/15'
+                                      ? 'bg-[#FBF3F4] border-[#E8CFD2]'
+                                      : 'bg-[#FAFAFA] border-[#D4D4D8]'
                                   }`}
                                 >
                                   <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <span className="font-bold text-slate-800">
+                                    <span className="font-bold text-[#141414]">
                                       Mitra Bestari: {revName}
                                     </span>
                                     {isDeclined ? (
-                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
+                                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${SEMANTIC_TONE.negative}`}>
                                         <IconDeclinedBan size={11} /> MENOLAK UNDANGAN REVIEW
                                       </span>
                                     ) : isCompleted ? (
-                                      <span className={`px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
+                                      <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                                         rev.decision === 'accept'
-                                          ? 'bg-emerald-100 text-emerald-800'
+                                          ? SEMANTIC_TONE.positive
                                           : rev.decision === 'revise'
-                                          ? 'bg-amber-100 text-amber-800'
-                                          : 'bg-rose-100 text-rose-800'
+                                          ? SEMANTIC_TONE.warning
+                                          : SEMANTIC_TONE.negative
                                       }`}>
                                         Rekomendasi: {rev.decision === 'accept' ? 'DITERIMA (ACCEPT)' : rev.decision === 'revise' ? 'PERLU REVISI' : 'DITOLAK'}
                                       </span>
                                     ) : isAssigned ? (
-                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-amber-100 text-amber-800 border border-amber-200">
+                                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${SEMANTIC_TONE.warning}`}>
                                         <IconMailInvite size={11} /> MENUNGGU KONFIRMASI
                                       </span>
                                     ) : (
-                                      <span className="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1">
-                                        <Clock size={11} className="inline animate-spin" /> SEDANG MENELAAH (IN PROGRESS)
+                                      <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] border flex items-center gap-1 ${SEMANTIC_TONE.accent}`}>
+                                        <Clock size={11} className="inline" /> SEDANG MENELAAH (IN PROGRESS)
                                       </span>
                                     )}
                                   </div>
 
                                   {isDeclined && (
                                     <div>
-                                      <span className="text-[10px] font-bold text-rose-700 block">Alasan Penolakan Undangan:</span>
-                                      <p className="text-rose-900 italic bg-white p-2.5 rounded-lg border border-rose-100 mt-1 leading-relaxed">
+                                      <span className="text-[10px] font-bold text-[#882832] block">Alasan Penolakan Undangan:</span>
+                                      <p className="text-[#882832] italic bg-white p-2.5 rounded-lg border border-[#E8CFD2] mt-1 leading-relaxed">
                                         "{rev.comments || 'Tidak ada alasan tertulis.'}"
                                       </p>
                                     </div>
@@ -4428,23 +4443,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   {isCompleted && (
                                     <>
                                       <div className="grid grid-cols-3 gap-2 py-1">
-                                        <div className="bg-white p-2 rounded-lg text-center border border-slate-100">
-                                          <span className="text-[10px] text-slate-400 block">Orisinalitas</span>
+                                        <div className="bg-white p-2 rounded-lg text-center border border-[#D4D4D8]">
+                                          <span className="text-[10px] text-[#4B5563] block">Orisinalitas</span>
                                           <strong className="text-sm text-[#7A2222]">{rev.score_originality ?? '-'}</strong>
                                         </div>
-                                        <div className="bg-white p-2 rounded-lg text-center border border-slate-100">
-                                          <span className="text-[10px] text-slate-400 block">Metodologi</span>
+                                        <div className="bg-white p-2 rounded-lg text-center border border-[#D4D4D8]">
+                                          <span className="text-[10px] text-[#4B5563] block">Metodologi</span>
                                           <strong className="text-sm text-[#7A2222]">{rev.score_methodology ?? '-'}</strong>
                                         </div>
-                                        <div className="bg-white p-2 rounded-lg text-center border border-slate-100">
-                                          <span className="text-[10px] text-slate-400 block">Relevansi</span>
+                                        <div className="bg-white p-2 rounded-lg text-center border border-[#D4D4D8]">
+                                          <span className="text-[10px] text-[#4B5563] block">Relevansi</span>
                                           <strong className="text-sm text-[#7A2222]">{rev.score_relevance ?? '-'}</strong>
                                         </div>
                                       </div>
 
                                       <div>
-                                        <span className="text-[10px] font-bold text-slate-500 block">Catatan &amp; Masukan Reviewer:</span>
-                                        <p className="text-slate-700 italic bg-white p-2.5 rounded-lg border border-slate-100 mt-1 leading-relaxed">
+                                        <span className="text-[10px] font-bold text-[#4B5563] block">Catatan &amp; Masukan Reviewer:</span>
+                                        <p className="text-[#404040] italic bg-white p-2.5 rounded-lg border border-[#D4D4D8] mt-1 leading-relaxed">
                                           "{rev.comments || 'Tidak ada catatan tertulis.'}"
                                         </p>
                                       </div>
@@ -4455,7 +4470,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             })}
                           </div>
                         ) : (
-                          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500">
+                          <div className="p-4 rounded-xl bg-[#FAFAFA] border border-[#D4D4D8] text-center text-xs text-[#4B5563]">
                             Naskah sedang dalam proses penelaahan oleh Reviewer yang ditugaskan.
                           </div>
                         )}
@@ -4495,19 +4510,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       return (
                         <div className="space-y-4">
                           {/* Stepper Progress 3 Tahap Khusus Sisi Reviewer */}
-                          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
-                            <div className="flex items-center justify-between text-[11px] font-extrabold">
-                              <span className="text-slate-700 uppercase tracking-wider">
+                          <div className="bg-[#FAFAFA] p-4 rounded-xl border border-[#D4D4D8] space-y-2.5">
+                            <div className="flex items-center justify-between text-[11px] font-bold">
+                              <span className="text-[#141414] uppercase tracking-wider">
                                 Progress Penelaahan Anda
                               </span>
                               <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] ${
                                 isCompleted
-                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                  ? SEMANTIC_TONE.positive
                                   : isDeclined
-                                  ? 'bg-rose-100 text-rose-800 border-rose-300'
+                                  ? SEMANTIC_TONE.negative
                                   : isInProgress
-                                  ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                  : 'bg-amber-100 text-amber-900 border-amber-300'
+                                  ? SEMANTIC_TONE.accent
+                                  : SEMANTIC_TONE.warning
                               }`}>
                                 {isCompleted ? (
                                   <><IconVerifiedBadge size={11} /> 100% — BERHASIL ANDA REVIEW</>
@@ -4531,16 +4546,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 return (
                                   <div
                                     key={st.id}
-                                    className={`p-2 rounded-xl border ${
+                                    className={`p-2 rounded-lg border ${
                                       isDeclined && st.id === 3
-                                        ? 'bg-rose-50 border-rose-300 text-rose-800'
+                                        ? 'bg-[#FBF3F4] border-[#E8CFD2] text-[#882832]'
                                         : isCompleted && st.id === 3
-                                        ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                                        ? 'bg-[#F3F6F4] border-[#D3E0D7] text-[#2F523B]'
                                         : active
-                                        ? 'bg-blue-50 border-blue-300 text-[#7A2222]'
+                                        ? 'bg-[#FDF2F2] border-[#DFBABA] text-[#7A2222]'
                                         : done
-                                        ? 'bg-white border-emerald-200 text-emerald-700'
-                                        : 'bg-white border-slate-200 text-slate-400'
+                                        ? 'bg-white border-[#D3E0D7] text-[#2F523B]'
+                                        : 'bg-white border-[#D4D4D8] text-[#4B5563]'
                                     }`}
                                   >
                                     <span className="block">{st.label}</span>
@@ -4552,25 +4567,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                           {/* STATE 1: UNDANGAN REVIEW BARU (BELUM DITERIMA / DITOLAK) */}
                           {canRespondInvite && (
-                            <div className="bg-amber-50/80 p-5 rounded-2xl border-2 border-amber-300 space-y-4">
+                            <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#E6DAC8] space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-950 flex items-center gap-2">
-                                  <IconMailInvite size={16} className="text-amber-700" /> Undangan Penelaahan Sejawat (Review Request)
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-[#7C5329] flex items-center gap-2">
+                                  <IconMailInvite size={16} className="text-[#7C5329]" /> Undangan Penelaahan Sejawat (Review Request)
                                 </h4>
-                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950">
+                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.warning}`}>
                                   MENUNGGU KONFIRMASI ANDA
                                 </span>
                               </div>
 
-                              <p className="text-xs text-amber-900 leading-relaxed">
+                              <p className="text-xs text-[#404040] leading-relaxed">
                                 Dewan Redaksi <strong>{selectedSubForAction.journal?.title}</strong> mengundang Anda sebagai Mitra Bestari untuk menelaah naskah di atas.
                                 Silakan tinjau judul dan abstrak terlebih dahulu. Berkas lengkap naskah akan terbuka setelah Anda menyetujui undangan ini.
                                 Jika tidak sesuai bidang keahlian, berhalangan, atau terdapat <em>Conflict of Interest</em>, Anda berhak menolak undangan ini.
                               </p>
 
                               {selectedSubForAction.editor_notes && (
-                                <div className="bg-white/90 p-3 rounded-xl border border-amber-200 text-xs text-slate-700">
-                                  <span className="font-bold text-amber-900 block text-[10px] uppercase mb-0.5">
+                                <div className="bg-white p-3 rounded-xl border border-[#E6DAC8] text-xs text-[#404040]">
+                                  <span className="font-bold text-[#7C5329] block text-[10px] uppercase mb-0.5">
                                     Catatan Pengantar dari Editor:
                                   </span>
                                   "{selectedSubForAction.editor_notes}"
@@ -4581,22 +4596,22 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <button
                                   type="button"
                                   onClick={() => handleRespondReviewInvitation(selectedSubForAction.id, 'accept')}
-                                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
+                                  className="bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer flex items-center gap-2"
                                 >
                                   <IconVerifiedBadge size={15} /> Terima Undangan &amp; Mulai Review
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setShowDeclineForm((prev) => !prev)}
-                                  className="bg-white hover:bg-rose-50 text-rose-700 border border-rose-300 font-bold text-xs px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2"
+                                  className="bg-white hover:bg-[#FBF3F4] text-[#882832] border border-[#E8CFD2] font-semibold text-xs px-4 py-2.5 rounded-lg transition cursor-pointer flex items-center gap-2"
                                 >
                                   <IconDeclinedBan size={15} /> Tolak Undangan Review
                                 </button>
                               </div>
 
                               {showDeclineForm && (
-                                <div className="bg-white p-4 rounded-xl border border-rose-200 space-y-3 mt-2">
-                                  <div className="text-xs font-extrabold text-rose-800">
+                                <div className="bg-white p-4 rounded-xl border border-[#E8CFD2] space-y-3 mt-2">
+                                  <div className="text-xs font-bold text-[#882832]">
                                     Alasan Menolak Undangan Penelaahan (Dikirim ke Admin/Editor):
                                   </div>
                                   <div className="flex flex-wrap gap-1.5">
@@ -4607,8 +4622,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         onClick={() => setDeclineReason(preset)}
                                         className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
                                           declineReason === preset
-                                            ? 'bg-rose-600 text-white border-rose-600'
-                                            : 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
+                                            ? 'bg-[#882832] text-white border-[#882832]'
+                                            : 'bg-[#FBF3F4] text-[#882832] border-[#E8CFD2] hover:bg-[#F5E1E4]'
                                         }`}
                                       >
                                         {preset}
@@ -4619,7 +4634,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     value={declineReason}
                                     onChange={(e) => setDeclineReason(e.target.value)}
                                     placeholder="Tuliskan alasan penolakan Anda secara singkat agar Editor dapat menunjuk Mitra Bestari pengganti..."
-                                    className="w-full bg-slate-50 border border-rose-200 rounded-xl p-3 text-xs h-20 outline-none focus:border-rose-400"
+                                    className="w-full bg-[#FAFAFA] border border-[#E8CFD2] rounded-xl p-3 text-xs h-20 outline-none focus:border-[#882832]"
                                   />
                                   <div className="flex items-center justify-end gap-2">
                                     <button
@@ -4628,14 +4643,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         setShowDeclineForm(false);
                                         setDeclineReason('');
                                       }}
-                                      className="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                                      className="px-3.5 py-2 rounded-lg border border-[#D4D4D8] text-xs font-semibold text-[#525252] hover:bg-[#FAFAFA] cursor-pointer"
                                     >
                                       Batal
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleRespondReviewInvitation(selectedSubForAction.id, 'decline')}
-                                      className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
+                                      className="px-4 py-2 rounded-lg bg-[#882832] hover:bg-[#6E1F27] text-white font-semibold text-xs cursor-pointer inline-flex items-center gap-1.5"
                                     >
                                       <IconDeclinedBan size={14} /> Kirim Penolakan Undangan
                                     </button>
@@ -4647,19 +4662,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                           {/* STATE 2: SEDANG MENELAAH (FORM LEMBAR EVALUASI AKTIF) */}
                           {canReviewNow && (
-                            <div className="bg-[#FDF7F7] p-5 rounded-2xl border border-blue-200 space-y-4">
+                            <div className="bg-[#FAFAFA] p-5 rounded-xl border border-[#D4D4D8] space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#7A2222] flex items-center gap-2">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-[#141414] flex items-center gap-2">
                                   <CheckSquare size={16} className="text-[#7A2222]" />
                                   Lembar Evaluasi Sejawat — {currentUser?.name}
                                 </h4>
-                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 text-[#7A2222] border border-blue-300">
+                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.accent}`}>
                                   UNDANGAN DITERIMA • SIAP DINILAI
                                 </span>
                               </div>
 
                               {selectedSubForAction.editor_notes && (
-                                <div className="bg-white/90 p-3 rounded-xl border border-[#7A2222]/15 text-xs text-slate-600">
+                                <div className="bg-white p-3 rounded-xl border border-[#D4D4D8] text-xs text-[#525252]">
                                   <span className="font-bold text-[#7A2222] block text-[10px] uppercase mb-0.5">
                                     Catatan Pengantar dari Editor:
                                   </span>
@@ -4669,7 +4684,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                               <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                                  <label className="block text-xs font-bold text-[#404040] mb-1">
                                     Orisinalitas (1-100)
                                   </label>
                                   <input
@@ -4680,11 +4695,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     onChange={(e) =>
                                       setReviewScores({ ...reviewScores, score_originality: Number(e.target.value) })
                                     }
-                                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm font-extrabold text-center"
+                                    className="w-full bg-white border border-[#D4D4D8] focus:border-[#7A2222] rounded-xl p-2.5 text-sm font-bold text-center text-[#141414] outline-none"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                                  <label className="block text-xs font-bold text-[#404040] mb-1">
                                     Metodologi (1-100)
                                   </label>
                                   <input
@@ -4695,11 +4710,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     onChange={(e) =>
                                       setReviewScores({ ...reviewScores, score_methodology: Number(e.target.value) })
                                     }
-                                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm font-extrabold text-center"
+                                    className="w-full bg-white border border-[#D4D4D8] focus:border-[#7A2222] rounded-xl p-2.5 text-sm font-bold text-center text-[#141414] outline-none"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                                  <label className="block text-xs font-bold text-[#404040] mb-1">
                                     Relevansi (1-100)
                                   </label>
                                   <input
@@ -4710,13 +4725,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     onChange={(e) =>
                                       setReviewScores({ ...reviewScores, score_relevance: Number(e.target.value) })
                                     }
-                                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-sm font-extrabold text-center"
+                                    className="w-full bg-white border border-[#D4D4D8] focus:border-[#7A2222] rounded-xl p-2.5 text-sm font-bold text-center text-[#141414] outline-none"
                                   />
                                 </div>
                               </div>
 
                               <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                <label className="block text-xs font-bold text-[#404040] mb-1">
                                   Komentar &amp; Masukan Substansi untuk Penulis *
                                 </label>
                                 <textarea
@@ -4725,19 +4740,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     setReviewScores({ ...reviewScores, comments: e.target.value })
                                   }
                                   placeholder="Tuliskan hasil telaah metodologi, kebaruan riset, dan bagian yang perlu diperbaiki..."
-                                  className="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs h-24 outline-none"
+                                  className="w-full bg-white border border-[#D4D4D8] focus:border-[#7A2222] rounded-xl p-3 text-xs text-[#141414] h-24 outline-none"
                                 />
                               </div>
 
                               <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
-                                  <label className="text-xs font-bold text-slate-700">Rekomendasi:</label>
+                                  <label className="text-xs font-bold text-[#404040]">Rekomendasi:</label>
                                   <select
                                     value={reviewScores.decision}
                                     onChange={(e) =>
                                       setReviewScores({ ...reviewScores, decision: e.target.value })
                                     }
-                                    className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-extrabold"
+                                    className="bg-white border border-[#D4D4D8] focus:border-[#7A2222] rounded-xl px-3 py-2 text-xs font-bold text-[#141414] outline-none"
                                   >
                                     <option value="accept">Terima Naskah (Accept Submission)</option>
                                     <option value="revise">Perlu Revisi (Revisions Required)</option>
@@ -4748,18 +4763,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <button
                                   type="button"
                                   onClick={() => handleSubmitPeerReview(selectedSubForAction.id)}
-                                  className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer"
+                                  className="bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer"
                                 >
                                   Simpan Keputusan Peer-Review
                                 </button>
                               </div>
 
                               {/* Opsi Pengunduran Diri jika ternyata ada Conflict of Interest / Berhalangan */}
-                              <div className="pt-3 border-t border-blue-200/80">
+                              <div className="pt-3 border-t border-[#D4D4D8]">
                                 <button
                                   type="button"
                                   onClick={() => setShowDeclineForm((prev) => !prev)}
-                                  className="text-[11px] font-bold text-rose-700 hover:underline cursor-pointer"
+                                  className="text-[11px] font-semibold text-[#882832] hover:underline cursor-pointer"
                                 >
                                   {showDeclineForm
                                     ? '▲ Tutup form pembatalan kesediaan review'
@@ -4767,7 +4782,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 </button>
 
                                 {showDeclineForm && (
-                                  <div className="bg-white p-3.5 rounded-xl border border-rose-200 space-y-2.5 mt-2">
+                                  <div className="bg-white p-3.5 rounded-xl border border-[#E8CFD2] space-y-2.5 mt-2">
                                     <div className="flex flex-wrap gap-1.5">
                                       {declinePresets.map((preset) => (
                                         <button
@@ -4776,8 +4791,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                           onClick={() => setDeclineReason(preset)}
                                           className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
                                             declineReason === preset
-                                              ? 'bg-rose-600 text-white border-rose-600'
-                                              : 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100'
+                                              ? 'bg-[#882832] text-white border-[#882832]'
+                                              : 'bg-[#FBF3F4] text-[#882832] border-[#E8CFD2] hover:bg-[#F5E1E4]'
                                           }`}
                                         >
                                           {preset}
@@ -4788,13 +4803,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       value={declineReason}
                                       onChange={(e) => setDeclineReason(e.target.value)}
                                       placeholder="Tuliskan alasan Anda mengundurkan diri dari penelaahan naskah ini..."
-                                      className="w-full bg-slate-50 border border-rose-200 rounded-xl p-2.5 text-xs h-16 outline-none"
+                                      className="w-full bg-[#FAFAFA] border border-[#E8CFD2] rounded-xl p-2.5 text-xs h-16 outline-none"
                                     />
                                     <div className="flex justify-end">
                                       <button
                                         type="button"
                                         onClick={() => handleRespondReviewInvitation(selectedSubForAction.id, 'decline')}
-                                        className="px-4 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs cursor-pointer"
+                                        className="px-4 py-1.5 rounded-lg bg-[#882832] hover:bg-[#6E1F27] text-white font-semibold text-xs cursor-pointer inline-flex items-center gap-1.5"
                                       >
                                         <IconDeclinedBan size={14} /> Konfirmasi Mundur / Tolak Review
                                       </button>
@@ -4807,28 +4822,28 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                           {/* STATE 3: BERHASIL DIREVIEW (TAMPILAN KONFIRMASI SUKSES & RINGKASAN SKOR) */}
                           {isCompleted && (
-                            <div className="bg-emerald-50/80 p-5 rounded-2xl border-2 border-emerald-300 space-y-4 text-xs">
+                            <div className="bg-[#F3F6F4] p-5 rounded-xl border border-[#D3E0D7] space-y-4 text-xs">
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="flex items-start gap-3">
-                                  <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                                    <CheckCircle2 size={22} />
+                                  <div className="w-10 h-10 rounded-xl bg-[#2F523B] text-white flex items-center justify-center shrink-0">
+                                    <CheckCircle2 size={20} />
                                   </div>
                                   <div>
-                                    <h4 className="text-sm font-extrabold text-emerald-950">
-                                      <IconVerifiedBadge size={16} className="text-emerald-700" /> Naskah Berhasil Anda Review!
+                                    <h4 className="text-sm font-bold text-[#141414] flex items-center gap-1.5">
+                                      <IconVerifiedBadge size={16} className="text-[#2F523B]" /> Naskah Berhasil Anda Review!
                                     </h4>
-                                    <p className="text-[11px] text-emerald-800 mt-0.5">
+                                    <p className="text-[11px] text-[#525252] mt-0.5">
                                       Terima kasih, <strong>{currentUser?.name}</strong>. Hasil evaluasi sejawat Anda telah tercatat resmi di sistem.
                                     </p>
                                   </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
-                                  <span className={`px-3 py-1 rounded-full font-extrabold text-[10px] border ${
+                                  <span className={`px-3 py-1 rounded-full font-bold text-[10px] border ${
                                     myReview.decision === 'accept'
-                                      ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                                      ? SEMANTIC_TONE.positive
                                       : myReview.decision === 'revise'
-                                      ? 'bg-amber-100 text-amber-900 border-amber-300'
-                                      : 'bg-rose-100 text-rose-900 border-rose-300'
+                                      ? SEMANTIC_TONE.warning
+                                      : SEMANTIC_TONE.negative
                                   }`}>
                                     Rekomendasi Anda:{' '}
                                     {myReview.decision === 'accept'
@@ -4838,7 +4853,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       : 'DITOLAK (REJECT)'}
                                   </span>
                                   {avgScore && (
-                                    <span className="text-[11px] font-extrabold text-emerald-900">
+                                    <span className="text-[11px] font-bold text-[#2F523B]">
                                       Rata-rata Skor: {avgScore} / 100
                                     </span>
                                   )}
@@ -4847,82 +4862,82 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                               {/* 3 Kartu Skor */}
                               <div className="grid grid-cols-3 gap-2.5">
-                                <div className="bg-white p-2.5 rounded-xl text-center border border-emerald-200">
-                                  <span className="text-[10px] text-slate-400 font-bold block">Orisinalitas</span>
+                                <div className="bg-white p-2.5 rounded-xl text-center border border-[#D4D4D8]">
+                                  <span className="text-[10px] text-[#4B5563] font-bold block">Orisinalitas</span>
                                   <strong className="text-base text-[#7A2222]">{myReview.score_originality ?? '-'}</strong>
                                 </div>
-                                <div className="bg-white p-2.5 rounded-xl text-center border border-emerald-200">
-                                  <span className="text-[10px] text-slate-400 font-bold block">Metodologi</span>
+                                <div className="bg-white p-2.5 rounded-xl text-center border border-[#D4D4D8]">
+                                  <span className="text-[10px] text-[#4B5563] font-bold block">Metodologi</span>
                                   <strong className="text-base text-[#7A2222]">{myReview.score_methodology ?? '-'}</strong>
                                 </div>
-                                <div className="bg-white p-2.5 rounded-xl text-center border border-emerald-200">
-                                  <span className="text-[10px] text-slate-400 font-bold block">Relevansi</span>
+                                <div className="bg-white p-2.5 rounded-xl text-center border border-[#D4D4D8]">
+                                  <span className="text-[10px] text-[#4B5563] font-bold block">Relevansi</span>
                                   <strong className="text-base text-[#7A2222]">{myReview.score_relevance ?? '-'}</strong>
                                 </div>
                               </div>
 
                               {/* Catatan Evaluasi yang Dikirim */}
-                              <div className="bg-white p-3.5 rounded-xl border border-emerald-200 space-y-1">
-                                <span className="text-[10px] font-extrabold uppercase text-slate-400 block">
+                              <div className="bg-white p-3.5 rounded-xl border border-[#D4D4D8] space-y-1">
+                                <span className="text-[10px] font-bold uppercase text-[#4B5563] block">
                                   Catatan Evaluasi yang Anda Kirim:
                                 </span>
-                                <p className="italic text-slate-700 leading-relaxed">"{myReview.comments}"</p>
+                                <p className="italic text-[#404040] leading-relaxed">"{myReview.comments}"</p>
                               </div>
 
                               {/* Info Lanjutan Progress Naskah */}
-                              <div className="bg-white/90 p-3.5 rounded-xl border border-blue-200 space-y-2">
-                                <div className="flex items-center justify-between text-[11px] font-extrabold text-[#7A2222]">
+                              <div className="bg-white p-3.5 rounded-xl border border-[#D4D4D8] space-y-2">
+                                <div className="flex items-center justify-between text-[11px] font-bold text-[#141414]">
                                   <span className="inline-flex items-center gap-1.5"><IconPinClean size={13} className="text-[#7A2222]" /> Status Naskah Saat Ini:</span>
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] border ${(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).bg}`}>
                                     {(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).label} ({subProgress.percent}%)
                                   </span>
                                 </div>
-                                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div className="w-full h-1.5 bg-[#F4F4F5] rounded-full overflow-hidden">
                                   <div
                                     className={`h-full rounded-full ${subProgress.barColor}`}
                                     style={{ width: `${subProgress.percent}%` }}
                                   />
                                 </div>
-                                <p className="text-[11px] text-slate-600 leading-relaxed">{subProgress.summary}</p>
+                                <p className="text-[11px] text-[#525252] leading-relaxed">{subProgress.summary}</p>
                               </div>
                             </div>
                           )}
 
                           {/* STATE 4: REVIEWER MENOLAK UNDANGAN REVIEW */}
                           {isDeclined && (
-                            <div className="bg-rose-50/80 p-5 rounded-2xl border-2 border-rose-200 space-y-3 text-xs">
+                            <div className="bg-[#FBF3F4] p-5 rounded-xl border border-[#E8CFD2] space-y-3 text-xs">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <h4 className="text-sm font-extrabold text-rose-900 flex items-center gap-2">
-                                  <IconDeclinedBan size={16} className="text-rose-700" /> Anda Telah Menolak Undangan Penelaahan Ini
+                                <h4 className="text-sm font-bold text-[#882832] flex items-center gap-2">
+                                  <IconDeclinedBan size={16} className="text-[#882832]" /> Anda Telah Menolak Undangan Penelaahan Ini
                                 </h4>
-                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${SEMANTIC_TONE.negative}`}>
                                   DECLINED BY REVIEWER
                                 </span>
                               </div>
-                              <p className="text-rose-800 leading-relaxed">
+                              <p className="text-[#404040] leading-relaxed">
                                 Keputusan penolakan Anda telah disampaikan kepada Admin / Chief Editor agar dapat menunjuk Mitra Bestari pengganti. Anda tidak lagi dibebani penelaahan untuk naskah ini.
                               </p>
-                              <div className="bg-white p-3.5 rounded-xl border border-rose-200 space-y-1">
-                                <span className="text-[10px] font-extrabold uppercase text-rose-700 block">
+                              <div className="bg-white p-3.5 rounded-xl border border-[#E8CFD2] space-y-1">
+                                <span className="text-[10px] font-bold uppercase text-[#882832] block">
                                   Alasan Penolakan yang Anda Kirim:
                                 </span>
-                                <p className="italic text-slate-700">"{myReview.comments || '-'}"</p>
+                                <p className="italic text-[#404040]">"{myReview.comments || '-'}"</p>
                               </div>
                             </div>
                           )}
 
                           {/* FALLBACK: NASKAH SUDAH TIDAK UNDER_REVIEW TAPI REVIEWER BELUM MENYELESAIKAN */}
                           {!canRespondInvite && !canReviewNow && !isCompleted && !isDeclined && (
-                            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                            <div className="bg-[#FAFAFA] p-5 rounded-xl border border-[#D4D4D8] space-y-2 text-xs">
                               <div className="flex items-center justify-between">
-                                <h4 className="font-extrabold uppercase tracking-wider text-slate-700">
+                                <h4 className="font-bold uppercase tracking-wider text-[#141414]">
                                   Status Naskah ({currentUser?.name})
                                 </h4>
-                                <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).bg}`}>
+                                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).bg}`}>
                                   {(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).label}
                                 </span>
                               </div>
-                              <p className="text-slate-600 leading-relaxed">{subProgress.summary}</p>
+                              <p className="text-[#525252] leading-relaxed">{subProgress.summary}</p>
                             </div>
                           )}
                         </div>
@@ -4943,67 +4958,63 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           <div className="p-6 sm:p-8 space-y-6 max-w-7xl w-full mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="text-2xl font-extrabold text-slate-800">
+                <h3 className="text-2xl font-bold text-[#141414]">
                   Manajemen Pengguna &amp; Mitra Bestari
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#4B5563]">
                   Kelola akun Admin, Editor, Reviewer (Mitra Bestari), dan Penulis yang terdaftar di database portal.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddUserModal(true)}
-                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] active:scale-[0.98] text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-[0_12px_26px_-8px_rgba(122,34,34,0.52)] transition cursor-pointer"
+                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#611B1B] active:scale-[0.98] text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition cursor-pointer"
               >
-                <UserPlus size={16} /> + Tambah Pengguna / Reviewer
+                <UserPlus size={16} /> Tambah Pengguna / Reviewer
               </button>
             </div>
 
-            <div className="card-luxury rounded-[28px] overflow-hidden">
+            <div className="card-luxury rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
+                  <thead className="bg-[#FAFAFA] text-[#525252] font-bold uppercase border-b border-[#D4D4D8]">
                     <tr>
-                      <th className="p-3">No.</th>
-                      <th className="p-3">Nama &amp; Email</th>
-                      <th className="p-3">Peran (Role)</th>
-                      <th className="p-3">Afiliasi &amp; Keahlian</th>
-                      <th className="p-3 text-right">Aksi</th>
+                      <th className="p-3.5">No.</th>
+                      <th className="p-3.5">Nama &amp; Email</th>
+                      <th className="p-3.5">Peran (Role)</th>
+                      <th className="p-3.5">Afiliasi &amp; Keahlian</th>
+                      <th className="p-3.5 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-[#D4D4D8]">
                     {(stats.users || []).map((u, idx) => (
-                      <tr key={u.id} className="hover:bg-slate-50/70">
-                        <td className="p-3 font-mono font-bold text-slate-400">#{idx + 1}</td>
-                        <td className="p-3">
-                          <div className="font-bold text-slate-800">{u.name}</div>
-                          <div className="text-[11px] text-slate-500">{u.email}</div>
+                      <tr key={u.id} className="hover:bg-[#FAFAFA] transition">
+                        <td className="p-3.5 font-mono font-semibold text-[#4B5563]">#{idx + 1}</td>
+                        <td className="p-3.5">
+                          <div className="font-bold text-[#141414]">{u.name}</div>
+                          <div className="text-[11px] text-[#4B5563]">{u.email}</div>
                         </td>
-                        <td className="p-3">
-                          <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
-                            u.role === 'admin'
-                              ? 'bg-purple-50 text-purple-800 border-purple-200'
-                              : u.role === 'editor'
-                              ? 'bg-[#FEF2F2] text-[#7A2222] border-[#7A2222]/25'
-                              : u.role === 'reviewer'
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                        <td className="p-3.5">
+                          <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                            u.role === 'admin' || u.role === 'editor'
+                              ? SEMANTIC_TONE.accent
+                              : SEMANTIC_TONE.neutral
                           }`}>
                             {u.role}
                           </span>
                         </td>
-                        <td className="p-3">
-                          <div className="text-slate-700 font-medium">{u.affiliation || '-'}</div>
-                          {u.specialty && <div className="text-[11px] text-slate-400">{u.specialty}</div>}
+                        <td className="p-3.5">
+                          <div className="text-[#404040] font-medium">{u.affiliation || '-'}</div>
+                          {u.specialty && <div className="text-[11px] text-[#4B5563]">{u.specialty}</div>}
                         </td>
-                        <td className="p-3 text-right">
+                        <td className="p-3.5 text-right">
                           {String(u.id) === String(currentUser?.id) ? (
-                            <span className="text-[11px] text-emerald-600 font-bold">Akun Aktif</span>
+                            <span className="text-[11px] text-[#2F523B] font-semibold">Akun Aktif</span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => handleDeleteUser(u)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[11px] cursor-pointer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-[#E8CFD2] bg-[#FBF3F4] hover:bg-[#F5E1E4] text-[#882832] font-semibold text-[11px] cursor-pointer"
                             >
                               <Trash2 size={11} /> Hapus
                             </button>
@@ -5024,14 +5035,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL DETAIL NASKAH LENGKAP & ALUR REVISI
           ===================================================================== */}
       {detailSubmission && (
-        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
-          <div className="bg-white rounded-[32px] max-w-2xl w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 max-h-[90vh] overflow-y-auto animate-modal-pop">
+        <div className="fixed inset-0 z-50 bg-[#141414]/45 backdrop-blur-xs flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-[0_20px_50px_-15px_rgba(20,20,20,0.22)] border border-[#D4D4D8] space-y-4 max-h-[90vh] overflow-y-auto animate-modal-pop">
             <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] font-bold text-xs border border-[#7A2222]/20">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`px-3 py-1 rounded-full font-bold text-xs border ${SEMANTIC_TONE.accent}`}>
                   {detailSubmission.journal?.title}
                 </span>
-                <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[detailSubmission.status] || STATUS_BADGE.pending).bg}`}>
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[detailSubmission.status] || STATUS_BADGE.pending).bg}`}>
                   {(STATUS_BADGE[detailSubmission.status] || STATUS_BADGE.pending).label}
                 </span>
               </div>
@@ -5041,7 +5052,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   setDetailSubmission(null);
                   setRevisionFile(null);
                 }}
-                className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+                className="text-[#525252] hover:text-[#141414] font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -5050,33 +5061,33 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             {/* Progress Tracker 5 Tahap Real-Time */}
             {renderWorkflowProgressBar(detailSubmission)}
 
-            <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
+            <h3 className="text-lg font-bold text-[#141414] leading-snug">
               {detailSubmission.title}
             </h3>
 
-            <div className="text-xs text-slate-500">
-              Penulis: <strong>{detailSubmission.author?.name}</strong>
+            <div className="text-xs text-[#4B5563]">
+              Penulis: <strong className="text-[#141414]">{detailSubmission.author?.name}</strong>
               {detailSubmission.co_authors ? `, ${detailSubmission.co_authors}` : ''}
             </div>
 
             {detailSubmission.doi && (
-              <div className="text-xs font-mono text-[#7A2222] bg-[#FEF2F2] p-2 rounded-lg">
+              <div className={`text-xs font-mono px-3 py-2 rounded-lg border ${SEMANTIC_TONE.accent}`}>
                 DOI: {detailSubmission.doi}
               </div>
             )}
 
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed max-h-40 overflow-y-auto">
-              <div className="font-bold text-slate-900 mb-1">Abstrak:</div>
+            <div className="p-4 rounded-xl bg-[#FAFAFA] border border-[#D4D4D8] text-xs text-[#404040] leading-relaxed max-h-40 overflow-y-auto">
+              <div className="font-bold text-[#141414] mb-1">Abstrak:</div>
               {detailSubmission.abstract}
             </div>
 
             {/* Pemberitahuan Penolakan Naskah dari Editor / Redaksi */}
             {detailSubmission.status === 'rejected' && (
-              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs space-y-1.5">
-                <div className="font-extrabold text-rose-800 uppercase tracking-wider text-[11px]">
+              <div className="p-4 rounded-xl bg-[#FBF3F4] border border-[#E8CFD2] text-xs space-y-1.5">
+                <div className="font-bold text-[#882832] uppercase tracking-wider text-[11px]">
                   ✕ Keputusan Dewan Redaksi: Naskah Ditolak
                 </div>
-                <p className="text-rose-900 leading-relaxed italic">
+                <p className="text-[#882832] leading-relaxed italic">
                   &ldquo;{detailSubmission.editor_notes || 'Naskah tidak memenuhi kesesuaian tema/ruang lingkup atau kriteria publikasi jurnal tujuan.'}&rdquo;
                 </p>
               </div>
@@ -5089,23 +5100,23 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               );
               if (completedReviews.length === 0) return null;
               return (
-                <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2.5 text-xs">
-                  <div className="flex items-center gap-2 font-extrabold text-amber-900">
+                <div className="bg-[#FAF7F2] border border-[#E6DAC8] rounded-xl p-4 space-y-2.5 text-xs">
+                  <div className="flex items-center gap-2 font-bold text-[#7C5329]">
                     <Clock size={15} />
                     <span>Catatan &amp; Masukan Evaluasi Mitra Bestari ({completedReviews.length} Reviewer):</span>
                   </div>
                   {completedReviews.map((r, i) => (
-                    <div key={r.id || i} className="text-slate-700 bg-white p-3 rounded-xl border border-amber-100 space-y-1.5 leading-relaxed">
+                    <div key={r.id || i} className="text-[#404040] bg-white p-3 rounded-xl border border-[#D4D4D8] space-y-1.5 leading-relaxed">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-extrabold text-[#7A2222]">
+                        <span className="font-bold text-[#7A2222]">
                           {isAdminOrEditor && r.reviewer?.name ? r.reviewer.name : `Mitra Bestari #${i + 1} (Anonim)`}
                         </span>
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                           r.decision === 'accept'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? SEMANTIC_TONE.positive
                             : r.decision === 'revise'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-rose-100 text-rose-800'
+                            ? SEMANTIC_TONE.warning
+                            : SEMANTIC_TONE.negative
                         }`}>
                           {r.decision === 'accept' ? (
                             <><IconVerifiedBadge size={11} /> Diterima</>
@@ -5125,12 +5136,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             {/* Panel Khusus Penulis Pemilik Naskah: Unggah Berkas Naskah Revisi */}
             {isAuthor && String(detailSubmission.author_id) === String(currentUser?.id) && detailSubmission.status === 'revision_required' && (
-              <div className="bg-[#FEF2F2] border-2 border-dashed border-[#7A2222] rounded-2xl p-4 space-y-3">
-                <div className="text-xs font-extrabold text-[#7A2222] flex items-center gap-2">
+              <div className="bg-[#FDF2F2] border border-dashed border-[#7A2222] rounded-xl p-4 space-y-3">
+                <div className="text-xs font-bold text-[#7A2222] flex items-center gap-2">
                   <IconDocUpload size={17} />
                   <span>Unggah Berkas Naskah Revisi (Perbaikan)</span>
                 </div>
-                <p className="text-[11px] text-slate-600">
+                <p className="text-[11px] text-[#525252]">
                   Perbaiki dokumen Anda sesuai catatan reviewer di atas, lalu unggah file hasil perbaikan (PDF/DOCX) ke sini.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
@@ -5138,13 +5149,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     type="file"
                     accept=".pdf,.doc,.docx"
                     onChange={(e) => setRevisionFile(e.target.files?.[0] || null)}
-                    className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#7A2222] file:text-white hover:file:bg-[#661B1B] cursor-pointer"
+                    className="text-xs text-[#525252] file:mr-3 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#7A2222] file:text-white hover:file:bg-[#611B1B] cursor-pointer"
                   />
                   <button
                     type="button"
                     disabled={uploadingRevision || !revisionFile}
                     onClick={() => handleUploadRevision(detailSubmission.id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs transition cursor-pointer disabled:opacity-50"
                   >
                     <IconDocUpload size={14} />
                     <span>{uploadingRevision ? 'Mengunggah...' : 'Kirim Revisi ke Reviewer'}</span>
@@ -5153,13 +5164,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#D4D4D8]">
               <div className="flex items-center gap-2">
                 {(isAdminOrEditor || (isAuthor && String(detailSubmission.author_id) === String(currentUser?.id))) && (
                   <button
                     type="button"
                     onClick={() => handleOpenEditModal(detailSubmission)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-[#7A2222] font-bold text-xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#D4D4D8] bg-white hover:bg-[#FDF2F2] hover:border-[#DFBABA] text-[#404040] hover:text-[#7A2222] font-semibold text-xs cursor-pointer"
                   >
                     <Edit3 size={13} /> Edit Judul &amp; Penulis
                   </button>
@@ -5168,7 +5179,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <button
                     type="button"
                     onClick={() => handleDeleteSubmission(detailSubmission)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-600 font-bold text-xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E8CFD2] bg-[#FBF3F4] hover:bg-[#F5E1E4] text-[#882832] font-semibold text-xs cursor-pointer"
                   >
                     <Trash2 size={13} /> Hapus Naskah
                   </button>
@@ -5182,7 +5193,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     setDetailSubmission(null);
                     setRevisionFile(null);
                   }}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#D4D4D8] text-xs font-semibold text-[#525252] hover:bg-[#FAFAFA] cursor-pointer"
                 >
                   Tutup
                 </button>
@@ -5200,7 +5211,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       href={resolveFileUrl(detailSubmission.file_path)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-5 py-2 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs"
+                      className="px-4 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs"
                     >
                       Buka File Naskah
                     </a>
@@ -5216,21 +5227,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL EDIT METADATA NASKAH (JUDUL, PENULIS, ABSTRAK)
           ===================================================================== */}
       {editSubmissionModal && (
-        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
-          <div className="bg-white rounded-[32px] max-w-lg w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
+        <div className="fixed inset-0 z-50 bg-[#141414]/45 backdrop-blur-xs flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-[0_20px_50px_-15px_rgba(20,20,20,0.22)] border border-[#D4D4D8] space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-[#141414] flex items-center gap-2">
                   <Edit3 size={18} className="text-[#7A2222]" /> Edit Judul &amp; Penulis Naskah
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#4B5563]">
                   Perbarui informasi naskah #{editSubmissionModal.id}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditSubmissionModal(null)}
-                className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+                className="text-[#525252] hover:text-[#141414] font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -5238,18 +5249,18 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             <form onSubmit={handleSaveEditSubmission} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Judul Naskah *</label>
+                <label className="block font-bold text-[#404040] mb-1">Judul Naskah *</label>
                 <input
                   type="text"
                   required
                   value={editForm.title}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222]"
+                  className="w-full border border-[#D4D4D8] rounded-xl px-3.5 py-2 text-xs font-medium text-[#141414] focus:outline-none focus:border-[#7A2222]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
+                <label className="block font-bold text-[#404040] mb-1">
                   Penulis Tambahan / Co-Authors (Opsional)
                 </label>
                 <input
@@ -5257,46 +5268,46 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   placeholder="Contoh: Balanza Aryandi, Dr. Muhammad Ikbal"
                   value={editForm.co_authors}
                   onChange={(e) => setEditForm({ ...editForm, co_authors: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222]"
+                  className="w-full border border-[#D4D4D8] rounded-xl px-3.5 py-2 text-xs font-medium text-[#141414] placeholder:text-[#6B7280] focus:outline-none focus:border-[#7A2222]"
                 />
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-[#4B5563] mt-0.5">
                   Pisahkan dengan koma jika lebih dari satu penulis.
                 </p>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Kata Kunci (Keywords)</label>
+                <label className="block font-bold text-[#404040] mb-1">Kata Kunci (Keywords)</label>
                 <input
                   type="text"
                   value={editForm.keywords}
                   onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222]"
+                  className="w-full border border-[#D4D4D8] rounded-xl px-3.5 py-2 text-xs font-medium text-[#141414] focus:outline-none focus:border-[#7A2222]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Abstrak *</label>
+                <label className="block font-bold text-[#404040] mb-1">Abstrak *</label>
                 <textarea
                   rows={4}
                   required
                   value={editForm.abstract}
                   onChange={(e) => setEditForm({ ...editForm, abstract: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222] leading-relaxed"
+                  className="w-full border border-[#D4D4D8] rounded-xl px-3.5 py-2 text-xs font-medium text-[#141414] focus:outline-none focus:border-[#7A2222] leading-relaxed"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#D4D4D8]">
                 <button
                   type="button"
                   onClick={() => setEditSubmissionModal(null)}
-                  className="px-5 py-2 rounded-full border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#D4D4D8] font-semibold text-[#525252] hover:bg-[#FAFAFA] transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-6 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold shadow-[0_10px_22px_-8px_rgba(122,34,34,0.5)] transition cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold transition cursor-pointer disabled:opacity-50"
                 >
                   {savingEdit ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
@@ -5310,21 +5321,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL TAMBAH JURNAL BARU (MULTI-JOURNAL PROOF)
           ===================================================================== */}
       {isAdmin && showAddJournalModal && (
-        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
-          <div className="bg-white rounded-[32px] max-w-xl w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
+        <div className="fixed inset-0 z-50 bg-[#141414]/45 backdrop-blur-xs flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-[0_20px_50px_-15px_rgba(20,20,20,0.22)] border border-[#D4D4D8] space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-extrabold text-slate-900">
+                <h3 className="text-lg font-bold text-[#141414]">
                   Tambah Jurnal Baru ke Portal BRIDA
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#4B5563]">
                   Jurnal baru akan langsung aktif dan muncul di katalog publik OJS.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddJournalModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+                className="text-[#525252] hover:text-[#141414] font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -5333,87 +5344,87 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <form onSubmit={handleCreateJournal} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Kode Unik URL</label>
+                  <label className="block text-xs font-bold text-[#404040] mb-1">Kode Unik URL</label>
                   <input
                     type="text"
                     value={newJournal.code}
                     onChange={(e) => setNewJournal({ ...newJournal, code: e.target.value })}
                     placeholder="misal: j-sintesa"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] focus:outline-none focus:border-[#7A2222]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Singkatan Jurnal</label>
+                  <label className="block text-xs font-bold text-[#404040] mb-1">Singkatan Jurnal</label>
                   <input
                     type="text"
                     value={newJournal.abbreviation}
                     onChange={(e) => setNewJournal({ ...newJournal, abbreviation: e.target.value })}
                     placeholder="misal: J-SINTESA"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] focus:outline-none focus:border-[#7A2222]"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nama / Judul Lengkap Jurnal</label>
+                <label className="block text-xs font-bold text-[#404040] mb-1">Nama / Judul Lengkap Jurnal</label>
                 <input
                   type="text"
                   value={newJournal.title}
                   onChange={(e) => setNewJournal({ ...newJournal, title: e.target.value })}
                   placeholder="misal: Jurnal Sains, Inovasi, dan Teknologi Daerah"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"
+                  className="w-full px-3 py-2 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">P-ISSN (Cetak)</label>
+                  <label className="block text-xs font-bold text-[#404040] mb-1">P-ISSN (Cetak)</label>
                   <input
                     type="text"
                     value={newJournal.issn_print}
                     onChange={(e) => setNewJournal({ ...newJournal, issn_print: e.target.value })}
                     placeholder="2899-001X"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">E-ISSN (Online)</label>
+                  <label className="block text-xs font-bold text-[#404040] mb-1">E-ISSN (Online)</label>
                   <input
                     type="text"
                     value={newJournal.issn_online}
                     onChange={(e) => setNewJournal({ ...newJournal, issn_online: e.target.value })}
                     placeholder="2899-0028"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"
+                    className="w-full px-3 py-2 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Deskripsi Singkat</label>
+                <label className="block text-xs font-bold text-[#404040] mb-1">Deskripsi Singkat</label>
                 <textarea
                   rows={2}
                   value={newJournal.description}
                   onChange={(e) => setNewJournal({ ...newJournal, description: e.target.value })}
                   placeholder="Fokus dan ruang lingkup jurnal..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"
+                  className="w-full px-3 py-2 rounded-xl border border-[#D4D4D8] text-xs text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   required
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#D4D4D8]">
                 <button
                   type="button"
                   onClick={() => setShowAddJournalModal(false)}
-                  className="px-5 py-2 rounded-full border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#D4D4D8] text-xs font-semibold text-[#525252] hover:bg-[#FAFAFA] transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-bold shadow-[0_10px_22px_-8px_rgba(122,34,34,0.5)] transition cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white text-xs font-semibold transition cursor-pointer"
                 >
                   Simpan Jurnal Baru
                 </button>
@@ -5427,21 +5438,21 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MODAL TAMBAH PENGGUNA / REVIEWER BARU (KHUSUS ADMIN)
           ===================================================================== */}
       {isAdmin && showAddUserModal && (
-        <div className="fixed inset-0 z-50 bg-[#1a0909]/55 backdrop-blur-md flex items-center justify-center p-4 animate-backdrop-fade">
-          <div className="bg-white rounded-[32px] max-w-lg w-full p-6 sm:p-8 shadow-[0_36px_90px_-20px_rgba(28,10,10,0.45)] border border-white/80 space-y-4 animate-modal-pop">
+        <div className="fixed inset-0 z-50 bg-[#141414]/45 backdrop-blur-xs flex items-center justify-center p-4 animate-backdrop-fade">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-[0_20px_50px_-15px_rgba(20,20,20,0.22)] border border-[#D4D4D8] space-y-4 animate-modal-pop">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-[#141414] flex items-center gap-2">
                   <UserPlus size={18} className="text-[#7A2222]" /> Tambah Pengguna Baru
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#4B5563]">
                   Buat akun baru untuk Admin, Editor, Mitra Bestari (Reviewer), atau Penulis.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddUserModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+                className="text-[#525252] hover:text-[#141414] font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -5449,35 +5460,35 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Nama Lengkap &amp; Gelar *</label>
+                <label className="block font-bold text-[#404040] mb-1">Nama Lengkap &amp; Gelar *</label>
                 <input
                   type="text"
                   required
                   value={newUserForm.name}
                   onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
                   placeholder="Contoh: Dr. Rahmat Hidayat, M.Si."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#D4D4D8] text-[#141414] focus:outline-none focus:border-[#7A2222]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Email *</label>
+                  <label className="block font-bold text-[#404040] mb-1">Email *</label>
                   <input
                     type="email"
                     required
                     value={newUserForm.email}
                     onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
                     placeholder="nama@instansi.ac.id"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#D4D4D8] text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Peran (Role) *</label>
+                  <label className="block font-bold text-[#404040] mb-1">Peran (Role) *</label>
                   <select
                     value={newUserForm.role}
                     onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold bg-white"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#D4D4D8] font-semibold bg-white text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   >
                     <option value="reviewer">Reviewer (Mitra Bestari)</option>
                     <option value="author">Author (Penulis)</option>
@@ -5488,7 +5499,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Kata Sandi (Min. 6 karakter) *</label>
+                <label className="block font-bold text-[#404040] mb-1">Kata Sandi (Min. 6 karakter) *</label>
                 <input
                   type="password"
                   required
@@ -5496,44 +5507,44 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   value={newUserForm.password}
                   onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
                   placeholder="Masukkan kata sandi akun"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#D4D4D8] text-[#141414] focus:outline-none focus:border-[#7A2222]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Afiliasi / Instansi</label>
+                  <label className="block font-bold text-[#404040] mb-1">Afiliasi / Instansi</label>
                   <input
                     type="text"
                     value={newUserForm.affiliation}
                     onChange={(e) => setNewUserForm({ ...newUserForm, affiliation: e.target.value })}
                     placeholder="UNHAS / BRIDA Makassar"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#D4D4D8] text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Bidang Keahlian</label>
+                  <label className="block font-bold text-[#404040] mb-1">Bidang Keahlian</label>
                   <input
                     type="text"
                     value={newUserForm.specialty}
                     onChange={(e) => setNewUserForm({ ...newUserForm, specialty: e.target.value })}
                     placeholder="Smart City / Kebijakan Publik"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#D4D4D8] text-[#141414] focus:outline-none focus:border-[#7A2222]"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#D4D4D8]">
                 <button
                   type="button"
                   onClick={() => setShowAddUserModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#D4D4D8] font-semibold text-[#525252] hover:bg-[#FAFAFA] cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold cursor-pointer"
                 >
                   Simpan Pengguna
                 </button>

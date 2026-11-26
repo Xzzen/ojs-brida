@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BridaDialogProvider } from './BridaDialog';
 import Dashboard from './Dashboard';
 import Login from './Login';
 
@@ -82,20 +83,22 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {view === 'app' && currentUser ? (
-        <Dashboard
-          currentUser={currentUser}
-          initialTab={initialTab}
-          onLogout={handleLogout}
-        />
-      ) : (
-        <Login
-          onLogin={handleLogin}
-          onOpenPublicPortal={handleOpenPublicPortal}
-        />
-      )}
-    </div>
+    <BridaDialogProvider>
+      <div className="App">
+        {view === 'app' && currentUser ? (
+          <Dashboard
+            currentUser={currentUser}
+            initialTab={initialTab}
+            onLogout={handleLogout}
+          />
+        ) : (
+          <Login
+            onLogin={handleLogin}
+            onOpenPublicPortal={handleOpenPublicPortal}
+          />
+        )}
+      </div>
+    </BridaDialogProvider>
   );
 }
 
