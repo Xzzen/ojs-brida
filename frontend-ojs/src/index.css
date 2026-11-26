@@ -1,11 +1,21 @@
 @import "tailwindcss";
 
+:root {
+  --brida-maroon: #7A2222;
+  --brida-maroon-800: #661B1B;
+  --brida-maroon-900: #4A1313;
+  --brida-maroon-50: #FDF7F7;
+  --brida-blush: #FEF2F2;
+  --brida-gold: #FBBF24;
+  --brida-canvas: #F9FAFB;
+}
+
 @layer base {
   body {
     margin: 0;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #f9fafb;
+    color: #1f2937;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -20,7 +30,7 @@
   }
 }
 
-/* Subtle luxury scrollbars */
+/* Subtle refined scrollbars */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
@@ -29,18 +39,18 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
+  background: rgba(122, 34, 34, 0.22);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.55);
+  background: rgba(122, 34, 34, 0.45);
 }
 
-/* Refined elevation utility */
+/* SIGAP BRIDA Luxury Card Elevation */
 .card-luxury {
   background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 12px 32px -16px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.03), 0 12px 30px -16px rgba(122, 34, 34, 0.08);
 }
 
 .card-luxury-hover {
@@ -48,6 +58,6 @@
 }
 .card-luxury-hover:hover {
   transform: translateY(-2px);
-  border-color: rgba(148, 163, 184, 0.5);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05), 0 22px 42px -18px rgba(12, 32, 61, 0.16);
+  border-color: rgba(122, 34, 34, 0.4);
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.05), 0 20px 38px -18px rgba(122, 34, 34, 0.18);
 }

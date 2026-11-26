@@ -26,28 +26,28 @@ const STATUS_BADGE = {
 
 const JOURNAL_THEME = {
   blue: {
-    border: 'border-[#0c203d]',
-    bgHeader: 'from-[#071426] via-[#0e274a] to-[#173c6e]',
-    badge: 'bg-slate-50 text-[#0c203d] border-slate-200',
-    btn: 'bg-[#0c203d] hover:bg-[#153563] text-white'
+    border: 'border-[#7A2222]',
+    bgHeader: 'from-[#4A1313] via-[#661B1B] to-[#7A2222]',
+    badge: 'bg-[#FEF2F2] text-[#7A2222] border-red-200/80',
+    btn: 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
   },
   red: {
-    border: 'border-[#153563]',
-    bgHeader: 'from-[#0b1f3a] via-[#153563] to-[#1e4b85]',
-    badge: 'bg-blue-50/70 text-[#153563] border-blue-200/80',
-    btn: 'bg-[#153563] hover:bg-[#0c203d] text-white'
+    border: 'border-[#7A2222]',
+    bgHeader: 'from-[#5B1616] via-[#7A2222] to-[#991B1B]',
+    badge: 'bg-[#FEF2F2] text-[#7A2222] border-red-200/80',
+    btn: 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
   },
   emerald: {
-    border: 'border-teal-800',
-    bgHeader: 'from-[#042423] via-[#0a4a46] to-[#0f6b64]',
-    badge: 'bg-teal-50/70 text-teal-900 border-teal-200/80',
-    btn: 'bg-[#0a4a46] hover:bg-[#042423] text-white'
+    border: 'border-emerald-800',
+    bgHeader: 'from-[#063229] via-[#065F46] to-[#047857]',
+    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
+    btn: 'bg-emerald-700 hover:bg-emerald-800 text-white'
   },
   amber: {
-    border: 'border-slate-800',
-    bgHeader: 'from-[#14172b] via-[#22284a] to-[#323a68]',
-    badge: 'bg-indigo-50/70 text-indigo-900 border-indigo-200/80',
-    btn: 'bg-[#22284a] hover:bg-[#14172b] text-white'
+    border: 'border-amber-800',
+    bgHeader: 'from-[#451A03] via-[#78350F] to-[#92400E]',
+    badge: 'bg-amber-50 text-amber-800 border-amber-200/80',
+    btn: 'bg-amber-700 hover:bg-amber-800 text-white'
   }
 };
 
@@ -477,9 +477,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     ];
 
     return (
-      <div className="bg-[#f0f5fb] p-4 rounded-2xl border border-blue-100 space-y-3">
+      <div className="bg-[#FDF7F7] p-4 rounded-2xl border border-[#7A2222]/15 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="font-extrabold text-[#153e75] uppercase tracking-wider text-[11px]">
+          <span className="font-extrabold text-[#7A2222] uppercase tracking-wider text-[11px]">
             Progres Alur Publikasi OJS
           </span>
           <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
@@ -487,14 +487,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               ? 'bg-rose-100 text-rose-800'
               : meta.percent === 100
               ? 'bg-purple-100 text-purple-800'
-              : 'bg-blue-100 text-[#153e75]'
+              : 'bg-blue-100 text-[#7A2222]'
           }`}>
             {isRejected ? 'Ditolak' : `${meta.percent}% Selesai`}
           </span>
         </div>
 
         {/* Continuous Progress Track */}
-        <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-blue-100">
+        <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-[#7A2222]/15">
           <div
             className={`h-full transition-all duration-500 rounded-full ${meta.barColor}`}
             style={{ width: `${meta.percent}%` }}
@@ -513,7 +513,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     isRejected && st.id === 5
                       ? 'bg-rose-600 text-white'
                       : done
-                      ? 'bg-[#153e75] text-white'
+                      ? 'bg-[#7A2222] text-white'
                       : active
                       ? sub.status === 'revision_required'
                         ? 'bg-orange-500 text-white animate-pulse'
@@ -531,7 +531,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           })}
         </div>
 
-        <p className="text-[11px] text-slate-600 bg-white/90 px-3 py-2 rounded-xl border border-blue-100 leading-relaxed">
+        <p className="text-[11px] text-slate-600 bg-white/90 px-3 py-2 rounded-xl border border-[#7A2222]/15 leading-relaxed">
           <strong>Status Saat Ini:</strong> {meta.summary}
         </p>
       </div>
@@ -971,7 +971,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         toastOptions={{
           style: {
             borderRadius: '14px',
-            background: '#0c203d',
+            background: '#7A2222',
             color: '#fff',
             fontSize: '12px',
             fontWeight: 600,
@@ -989,10 +989,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       )}
 
       {/* =====================================================================
-          SIDEBAR NAVIGASI OJS MULTI-JOURNAL (OBSIDIAN ACADEMIC NAVY)
+          SIDEBAR NAVIGASI OJS MULTI-JOURNAL (SIGAP BRIDA ROYAL MAROON)
           ===================================================================== */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[272px] bg-gradient-to-b from-[#071426] via-[#0c203d] to-[#08172c] text-white flex flex-col border-r border-white/[0.06] shadow-[4px_0_32px_rgba(7,20,38,0.16)] shrink-0 select-none transition-transform duration-300 ${
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-[272px] bg-gradient-to-b from-[#4A1313] via-[#661B1B] to-[#7A2222] text-white flex flex-col border-r border-white/[0.08] shadow-[4px_0_32px_rgba(74,19,19,0.22)] shrink-0 select-none transition-transform duration-300 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -1019,7 +1019,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <h1 className="font-bold text-[11px] tracking-[0.14em] uppercase text-white/90">
               OJS BRIDA
             </h1>
-            <p className="text-[10px] text-sky-300/80 font-semibold tracking-wider uppercase">
+            <p className="text-[10px] text-amber-300/80 font-semibold tracking-wider uppercase">
               Multi-Journal
             </p>
           </div>
@@ -1028,12 +1028,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         {/* Multi-Journal Context Switcher inside Sidebar */}
         <div className="px-5 pt-4 pb-4 border-b border-white/[0.08]">
           <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 mb-2 flex items-center gap-1.5">
-            <Layers size={12} className="text-sky-300" /> Konteks Jurnal Aktif
+            <Layers size={12} className="text-amber-300" /> Konteks Jurnal Aktif
           </label>
           <select
             value={selectedJournalId}
             onChange={(e) => setSelectedJournalId(e.target.value)}
-            className="w-full bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] rounded-xl px-3 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-sky-400/70 transition cursor-pointer"
+            className="w-full bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.12] rounded-xl px-3 py-2.5 text-xs font-semibold text-white focus:outline-none focus:border-amber-300/70 transition cursor-pointer"
           >
             <option value="all" className="text-slate-900 font-bold">
               Semua Jurnal ({journals.length} Jurnal)
@@ -1060,16 +1060,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             }}
             className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
               activeTab === 'portal'
-                ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                 : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
             <span className="flex items-center gap-3">
-              <Globe size={17} className={activeTab === 'portal' ? 'text-[#153563]' : 'text-slate-400'} />
+              <Globe size={17} className={activeTab === 'portal' ? 'text-[#661B1B]' : 'text-slate-400'} />
               Portal Publik Jurnal
             </span>
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
-              activeTab === 'portal' ? 'bg-slate-100 text-[#0c203d]' : 'bg-white/10 text-slate-300'
+              activeTab === 'portal' ? 'bg-slate-100 text-[#7A2222]' : 'bg-white/10 text-slate-300'
             }`}>
               {journals.length}
             </span>
@@ -1083,7 +1083,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             }}
             className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
               activeTab === 'trending'
-                ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                 : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
             }`}
           >
@@ -1108,16 +1108,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }}
               className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                   : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <LayoutDashboard size={17} className={activeTab === 'dashboard' ? 'text-[#153563]' : 'text-slate-400'} />
+                <LayoutDashboard size={17} className={activeTab === 'dashboard' ? 'text-[#661B1B]' : 'text-slate-400'} />
                 {isAuthor ? 'Dasbor Naskah Saya' : isReviewer ? 'Naskah Tugasan Saya' : 'Dasbor & Analitik'}
               </span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
-                activeTab === 'dashboard' ? 'bg-slate-100 text-[#0c203d]' : 'bg-white/10 text-slate-300'
+                activeTab === 'dashboard' ? 'bg-slate-100 text-[#7A2222]' : 'bg-white/10 text-slate-300'
               }`}>
                 {scopedStats.total}
               </span>
@@ -1133,11 +1133,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }}
               className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'journals'
-                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                   : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
-              <BookOpen size={17} className={activeTab === 'journals' ? 'text-[#153563]' : 'text-slate-400'} />
+              <BookOpen size={17} className={activeTab === 'journals' ? 'text-[#661B1B]' : 'text-slate-400'} />
               Manajemen Multi-Jurnal
             </button>
           )}
@@ -1151,16 +1151,16 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }}
               className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'users'
-                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                   : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <Users size={17} className={activeTab === 'users' ? 'text-[#153563]' : 'text-slate-400'} />
+                <Users size={17} className={activeTab === 'users' ? 'text-[#661B1B]' : 'text-slate-400'} />
                 Manajemen Pengguna
               </span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tabular-nums ${
-                activeTab === 'users' ? 'bg-slate-100 text-[#0c203d]' : 'bg-white/10 text-slate-300'
+                activeTab === 'users' ? 'bg-slate-100 text-[#7A2222]' : 'bg-white/10 text-slate-300'
               }`}>
                 {(stats.users || []).length}
               </span>
@@ -1176,11 +1176,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }}
               className={`w-full flex items-center gap-3 py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'unggah'
-                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                   : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
-              <FileUp size={17} className={activeTab === 'unggah' ? 'text-[#153563]' : 'text-slate-400'} />
+              <FileUp size={17} className={activeTab === 'unggah' ? 'text-[#661B1B]' : 'text-slate-400'} />
               Unggah Naskah Baru
             </button>
           )}
@@ -1194,12 +1194,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               }}
               className={`w-full flex items-center justify-between py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'review'
-                  ? 'bg-white text-[#0c203d] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
+                  ? 'bg-white text-[#7A2222] shadow-[0_6px_20px_rgba(0,0,0,0.22)] font-bold'
                   : 'text-slate-300 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               <span className="flex items-center gap-3">
-                <CheckSquare size={17} className={activeTab === 'review' ? 'text-[#153563]' : 'text-slate-400'} />
+                <CheckSquare size={17} className={activeTab === 'review' ? 'text-[#661B1B]' : 'text-slate-400'} />
                 {isReviewer ? 'Meja Evaluasi Review' : 'Evaluasi & Editorial'}
               </span>
               {reviewQueueBadgeCount > 0 && (
@@ -1230,60 +1230,60 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           MAIN CONTENT AREA
           ===================================================================== */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* TOPBAR HEADER — MINIMALIST GLASSMORPHIC */}
-        <header className="bg-white/85 backdrop-blur-xl border-b border-slate-200/75 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30">
+        {/* TOPBAR HEADER — IDENTIK SIGAP BRIDA */}
+        <header className="bg-white/90 backdrop-blur-xl border-b border-[#7A2222]/10 px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-30">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer shrink-0"
+              className="lg:hidden p-2 rounded-xl border border-gray-200 text-[#7A2222] hover:bg-[#FDF7F7] cursor-pointer shrink-0"
               aria-label="Buka menu navigasi"
             >
               <Menu size={18} />
             </button>
             <div className="min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h2 className="text-base sm:text-lg font-extrabold text-[#0c203d] tracking-tight">
-                  Sistem Publikasi OJS
+                <h2 className="text-base sm:text-lg font-extrabold text-[#7A2222] tracking-tight">
+                  OJS BRIDA
                 </h2>
-                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80">
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#7A2222] border border-[#7A2222]/15">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   {activeJournalObj ? activeJournalObj.abbreviation : 'Portal Multi-Journal BRIDA'}
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 truncate">
+              <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5 truncate">
                 {isGuest ? (
-                  <span>Pengunjung Publik • Open Access Portal</span>
+                  <span>Sistem Publikasi Ilmiah Terpadu • Open Access</span>
                 ) : (
                   <>
-                    <strong className="text-slate-800 font-semibold">{currentUser?.name}</strong>{' '}
-                    <span className="hidden sm:inline text-slate-400">({currentUser?.email})</span>
+                    <strong className="text-gray-800 font-semibold">{currentUser?.name}</strong>{' '}
+                    <span className="hidden sm:inline text-gray-400">({currentUser?.email})</span>
                   </>
                 )}
               </p>
             </div>
           </div>
 
-          {/* Authenticated User Pill + Logout / Login Button */}
+          {/* Authenticated User Pill + SIGAP-Style Outlined Maroon Auth Button */}
           <div className="flex items-center gap-2.5 flex-wrap">
             {!isGuest && (
-              <div className="hidden md:flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200/90 text-xs">
-                <ShieldCheck size={14} className="text-[#0c203d]" />
-                <span className="font-semibold text-slate-700">{currentUser?.label}</span>
+              <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
+                <ShieldCheck size={14} className="text-[#7A2222]" />
+                <span className="font-semibold text-[#7A2222]">{currentUser?.label}</span>
               </div>
             )}
 
             <button
               onClick={onLogout}
-              className={`flex items-center gap-1.5 font-semibold text-xs px-4 py-2 rounded-full border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 font-bold text-xs px-4 py-2 rounded-xl border transition-all cursor-pointer ${
                 isGuest
-                  ? 'bg-[#0c203d] hover:bg-[#153563] text-white border-[#0c203d] shadow-[0_4px_14px_rgba(12,32,61,0.22)]'
-                  : 'bg-white text-slate-700 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 border-slate-200'
+                  ? 'bg-transparent hover:bg-[#7A2222] text-[#7A2222] hover:text-white border-[#7A2222]'
+                  : 'bg-white text-gray-700 hover:bg-[#FEF2F2] hover:text-[#7A2222] hover:border-[#7A2222]/40 border-gray-200'
               }`}
             >
               {isGuest ? (
                 <>
-                  <Lock size={13} /> Masuk / Daftar
+                  <Lock size={13} /> Masuk
                 </>
               ) : (
                 <>
@@ -1295,112 +1295,193 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         </header>
 
         {/* ===================================================================
-            TAB 1: PORTAL PUBLIK MULTI-JOURNAL — EDITORIAL LUXURY EDITION
+            TAB 1: PORTAL PUBLIK MULTI-JOURNAL — SIGAP BRIDA MAROON EDITION
            =================================================================== */}
         {activeTab === 'portal' && (
-          <div
-            className="flex-1 w-full relative overflow-x-hidden px-5 sm:px-10 pt-8 pb-24"
-            style={{
-              background:
-                'radial-gradient(ellipse 85% 45% at 50% 0%, #dce8f8 0%, #f1f5fb 38%, #f8fafc 78%)',
-            }}
-          >
+          <div className="flex-1 w-full relative overflow-x-hidden bg-[#f9fafb] pb-24">
             {!portalSelectedJournal ? (
-              <div className="max-w-[1140px] mx-auto space-y-14">
-                {/* HERO SECTION — Editorial Serif "JOURNAL" + 3D Books + Luxury Search Pill */}
-                <section className="relative pt-2 pb-6 flex flex-col items-center justify-center">
-                  {/* Official Institutional Eyebrow Pill */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs text-[11px] font-bold tracking-[0.14em] uppercase text-[#0c203d] mb-4">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    Badan Riset &amp; Inovasi Daerah • Kota Makassar
-                  </div>
-
-                  {/* Giant Editorial Serif "JOURNAL" Text */}
-                  <div className="relative w-full flex justify-center">
-                    <h1
-                      className="font-serif-editorial text-center font-bold tracking-[0.06em] text-[64px] sm:text-[124px] md:text-[164px] lg:text-[184px] leading-none select-none pointer-events-none bg-gradient-to-b from-[#0c203d]/20 via-[#153563]/14 to-transparent bg-clip-text text-transparent"
-                    >
-                      JOURNAL
-                    </h1>
-
-                    {/* 3D Floating Stacked Blue Books */}
-                    <img
-                      src="/assets/hero-books.png"
-                      alt="Koleksi Jurnal BRIDA"
-                      className="absolute top-8 sm:top-16 md:top-20 z-10 w-[180px] sm:w-[255px] md:w-[310px] object-contain pointer-events-none drop-shadow-[0_30px_40px_rgba(12,32,61,0.22)]"
-                    />
-                  </div>
-
-                  {/* Luxury Search Bar Pill */}
-                  <div className="relative z-20 w-full max-w-[600px] mt-24 sm:mt-36 md:mt-44">
-                    <div className="w-full bg-white/95 backdrop-blur-xl rounded-full p-2 pl-5 shadow-[0_8px_30px_rgba(12,32,61,0.10),0_1px_2px_rgba(15,23,42,0.04)] border border-slate-200/90 focus-within:border-[#0c203d]/40 focus-within:ring-4 focus-within:ring-[#0c203d]/5 flex items-center justify-between gap-2 transition-all">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <Search size={17} className="text-slate-400 shrink-0" />
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Cari judul artikel ilmiah, penulis, DOI, atau topik riset..."
-                          className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
-                        />
+              <>
+                {/* HERO BAND MAROON RESMI ALA SIGAP BRIDA KOTA MAKASSAR */}
+                <section className="relative bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313] border-b border-red-900/40 text-white px-5 sm:px-10 pt-8 pb-14">
+                  <div className="max-w-[1140px] mx-auto space-y-6">
+                    {/* Top Strip ala SIGAP */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/15">
+                      <div>
+                        <h1 className="text-base sm:text-lg font-extrabold tracking-wide uppercase text-white">
+                          OJS BRIDA KOTA MAKASSAR
+                        </h1>
+                        <p className="text-xs text-white/80 mt-0.5">
+                          Portal Publikasi &amp; Repositori Jurnal Ilmiah Terpadu Badan Riset dan Inovasi Daerah
+                        </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const el = document.getElementById('daftar-artikel');
-                          if (el) el.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                        className="px-6 sm:px-7 py-2.5 rounded-full bg-[#0c203d] hover:bg-[#153563] text-white font-semibold text-xs sm:text-sm shadow-sm transition cursor-pointer shrink-0"
-                      >
-                        Telusuri
-                      </button>
+                      <div className="flex items-center gap-2.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#450a0a]/60 border border-white/15 text-[11px] font-semibold text-white/95">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                          Layanan Aktif
+                        </span>
+                        {isGuest ? (
+                          <button
+                            type="button"
+                            onClick={onLogout}
+                            className="px-4 py-1.5 rounded-lg bg-white hover:bg-gray-100 text-[#7A2222] font-bold text-xs shadow-xs transition cursor-pointer"
+                          >
+                            Masuk / Daftar
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab('dashboard')}
+                            className="px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-gray-900 font-bold text-xs shadow-xs transition cursor-pointer"
+                          >
+                            Dashboard Saya →
+                          </button>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Multi-Journal Quick Filter Pills */}
-                    {journals.length > 0 && (
-                      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedJournalId('all')}
-                          className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
-                            selectedJournalId === 'all'
-                              ? 'bg-[#0c203d] text-white border-[#0c203d] shadow-xs'
-                              : 'bg-white/90 text-slate-700 border-slate-200/90 hover:border-slate-300 hover:bg-white'
-                          }`}
-                        >
-                          Semua Jurnal ({journals.length})
-                        </button>
-                        {journals.map((j) => (
-                          <button
-                            key={j.id}
-                            type="button"
-                            onClick={() => setSelectedJournalId(j.id)}
-                            className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
-                              String(selectedJournalId) === String(j.id)
-                                ? 'bg-[#0c203d] text-white border-[#0c203d] shadow-xs'
-                                : 'bg-white/90 text-slate-700 border-slate-200/90 hover:border-slate-300 hover:bg-white'
-                            }`}
-                          >
-                            {j.abbreviation}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    {/* Split Hero Grid ala SIGAP: Kiri Kartu Pencarian Putih + Kanan Ringkasan & Akses Unggulan */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                      {/* Kartu Kiri: Pencarian Jurnal & Artikel Ilmiah */}
+                      <div className="lg:col-span-8 bg-white text-gray-900 rounded-2xl p-6 sm:p-7 shadow-[0_18px_40px_-14px_rgba(30,5,5,0.4)] flex flex-col justify-between space-y-5">
+                        <div className="space-y-3">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[11px] font-extrabold uppercase tracking-wider">
+                            <Search size={12} /> Pencarian Jurnal &amp; Artikel Ilmiah
+                          </span>
+                          <h2 className="font-serif-editorial text-2xl sm:text-[32px] font-bold text-gray-900 leading-tight">
+                            Pusat Publikasi Ilmiah Resmi BRIDA Kota Makassar
+                          </h2>
+                          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                            Temukan artikel penelitian terakreditasi SINTA, kajian kebijakan berbasis bukti, dan inovasi daerah secara terbuka (<em>Diamond Open Access</em>).
+                          </p>
+                        </div>
 
-                    {/* Institutional Trust Bar */}
-                    <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-medium text-slate-500">
-                      <span className="inline-flex items-center gap-1.5">
-                        <CheckCircle2 size={13} className="text-emerald-600" /> Diamond Open Access (Rp 0)
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <ShieldCheck size={13} className="text-[#0c203d]" /> Double-Blind Peer Review
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Award size={13} className="text-amber-600" /> Terindeks SINTA &amp; DOI Resmi
-                      </span>
+                        {/* Search Bar + Filter Jurnal */}
+                        <div className="space-y-3">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                            <div className="relative flex-1">
+                              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Contoh: Smart City, Inovasi Daerah, nama penulis, atau DOI..."
+                                className="w-full bg-white border border-gray-300 focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/15 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none transition"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const el = document.getElementById('daftar-artikel');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#7A2222] hover:bg-[#991B1B] text-white font-bold text-xs sm:text-sm shadow-xs transition cursor-pointer shrink-0"
+                            >
+                              <Search size={15} /> Cari Artikel
+                            </button>
+                          </div>
+
+                          {/* Multi-Journal Quick Filter Pills */}
+                          {journals.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedJournalId('all')}
+                                className={`px-3 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                                  selectedJournalId === 'all'
+                                    ? 'bg-[#7A2222] text-white border-[#7A2222]'
+                                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-[#FDF7F7] hover:border-[#7A2222]/40 hover:text-[#7A2222]'
+                                }`}
+                              >
+                                Semua Jurnal ({journals.length})
+                              </button>
+                              {journals.map((j) => (
+                                <button
+                                  key={j.id}
+                                  type="button"
+                                  onClick={() => setSelectedJournalId(j.id)}
+                                  className={`px-3 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                                    String(selectedJournalId) === String(j.id)
+                                      ? 'bg-[#7A2222] text-white border-[#7A2222]'
+                                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-[#FDF7F7] hover:border-[#7A2222]/40 hover:text-[#7A2222]'
+                                  }`}
+                                >
+                                  {j.abbreviation}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Institutional Trust Bar ala SIGAP */}
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3 border-t border-gray-100 text-[11px] font-semibold text-gray-500">
+                          <span className="inline-flex items-center gap-1.5">
+                            <CheckCircle2 size={13} className="text-emerald-600" /> Diamond Open Access (Rp 0)
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <CheckCircle2 size={13} className="text-emerald-600" /> Double-Blind Peer Review
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <CheckCircle2 size={13} className="text-emerald-600" /> Standar SINTA &amp; DOI Resmi
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Kartu Kanan: Ilustrasi + Akses Layanan Unggulan (Identik Layout SIGAP!) */}
+                      <div className="lg:col-span-4 flex flex-col gap-4">
+                        <div className="bg-white text-gray-900 rounded-2xl p-6 shadow-[0_18px_40px_-14px_rgba(30,5,5,0.4)] flex-1 flex flex-col items-center justify-center text-center space-y-3">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] text-[10px] font-extrabold uppercase tracking-wider">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#7A2222]" /> {journals.length} Jurnal Aktif
+                          </span>
+                          <img
+                            src="/assets/hero-books.png"
+                            alt="Koleksi Jurnal BRIDA"
+                            className="w-32 sm:w-36 object-contain drop-shadow-md"
+                          />
+                          <div>
+                            <h3 className="font-serif-editorial text-lg font-bold text-gray-900">
+                              Portal OJS Multi-Journal
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                              Publikasi gratis (APC Rp 0) dengan validasi otomatis standar SINTA/ARJUNA.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => (isGuest ? onLogout() : setActiveTab(isReviewer ? 'review' : 'unggah'))}
+                            className="w-full py-2.5 px-4 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                          >
+                            {isGuest ? 'Kirim Naskah / Login →' : isReviewer ? 'Buka Meja Review →' : 'Unggah Naskah Baru →'}
+                          </button>
+                        </div>
+
+                        {/* Dark Maroon Sub-card ala SIGAP "Akses Layanan Unggulan" */}
+                        <div className="bg-[#450a0a]/60 border border-white/15 rounded-2xl p-4 space-y-2.5">
+                          <div className="text-xs font-extrabold text-white">Akses Layanan Unggulan</div>
+                          <p className="text-[11px] text-white/80 leading-relaxed">
+                            Jelajahi topik riset terhangat atau unduh template resmi berstandar SINTA.
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenForum('')}
+                              className="py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-gray-900 font-extrabold text-[11px] transition cursor-pointer"
+                            >
+                              Trending &amp; Forum
+                            </button>
+                            <a
+                              href={`${API_BASE}/template-naskah`}
+                              className="py-2 px-3 rounded-xl bg-white hover:bg-gray-100 text-[#7A2222] font-extrabold text-[11px] text-center transition"
+                            >
+                              Template SINTA
+                            </a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </section>
+
+                <div className="max-w-[1140px] mx-auto px-5 sm:px-10 pt-10 space-y-14">
 
                 {/* SECTION: TRENDING TOPIK & DISKUSI HANGAT */}
                 <TrendingPortalWidget apiBase={API_BASE} onOpenForum={handleOpenForum} />
@@ -1417,7 +1498,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400 mb-1.5">
                       Ekosistem Publikasi
                     </span>
-                    <h3 className="font-serif-editorial text-[#0c203d] font-bold text-xl leading-snug max-w-[240px]">
+                    <h3 className="font-serif-editorial text-[#7A2222] font-bold text-xl leading-snug max-w-[240px]">
                       Pusat Publikasi &amp; Riset Inovasi Daerah
                     </h3>
                   </div>
@@ -1425,9 +1506,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   {/* Right Split Card */}
                   <div className="lg:col-span-8 card-luxury rounded-[26px] overflow-hidden grid grid-cols-1 md:grid-cols-12">
                     {/* Obsidian-Navy Left Sidebar */}
-                    <div className="md:col-span-4 bg-gradient-to-b from-[#071426] to-[#0e2647] text-white p-6 flex flex-col justify-between">
+                    <div className="md:col-span-4 bg-gradient-to-b from-[#4A1313] to-[#661B1B] text-white p-6 flex flex-col justify-between">
                       <div>
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-300/80 block mb-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300/80 block mb-1">
                           Profil Redaksi
                         </span>
                         <h3 className="font-serif-editorial font-bold text-xl mb-5 tracking-tight">
@@ -1446,7 +1527,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               onClick={() => setActiveInfoTab(tab.key)}
                               className={`w-full text-left px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer ${
                                 activeInfoTab === tab.key
-                                  ? 'bg-white text-[#0c203d] font-bold shadow-sm'
+                                  ? 'bg-white text-[#7A2222] font-bold shadow-sm'
                                   : 'text-slate-300 hover:bg-white/[0.08] hover:text-white font-medium'
                               }`}
                             >
@@ -1475,7 +1556,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <div className="md:col-span-8 p-6 sm:p-8 flex flex-col justify-center bg-white/90">
                       {activeInfoTab === 'fokus' && (
                         <div>
-                          <h3 className="text-[#1a3e72] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Fokus &amp; Ruang Lingkup
                           </h3>
                           {activeJournalObj ? (
@@ -1512,7 +1593,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                       {activeInfoTab === 'peer_review' && (
                         <div>
-                          <h3 className="text-[#1a3e72] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Proses Peer Review
                           </h3>
                           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3">
@@ -1526,7 +1607,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                       {activeInfoTab === 'dewan_editor' && (
                         <div>
-                          <h3 className="text-[#1a3e72] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Dewan Editor
                           </h3>
                           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-2">
@@ -1543,7 +1624,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                       {activeInfoTab === 'apc' && (
                         <div>
-                          <h3 className="text-[#1a3e72] font-extrabold text-xl sm:text-2xl mb-3">
+                          <h3 className="text-[#7A2222] font-extrabold text-xl sm:text-2xl mb-3">
                             Kebijakan Akses &amp; APC
                           </h3>
                           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3">
@@ -1563,7 +1644,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-2">
                     Standar Publikasi OJS
                   </span>
-                  <h2 className="font-serif-editorial text-[#0c203d] font-bold text-2xl sm:text-3xl tracking-tight mb-10">
+                  <h2 className="font-serif-editorial text-[#7A2222] font-bold text-2xl sm:text-3xl tracking-tight mb-10">
                     Alur Penerbitan Naskah Ilmiah
                   </h2>
 
@@ -1597,13 +1678,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     ].map((step, idx, arr) => (
                       <React.Fragment key={step.label}>
                         <div className="flex flex-col items-center group">
-                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#0c203d] to-[#1a3e72] ring-4 ring-slate-100 shadow-[0_12px_26px_-8px_rgba(12,32,61,0.35)] flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
+                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#7A2222] to-[#7A2222] ring-4 ring-slate-100 shadow-[0_12px_26px_-8px_rgba(12,32,61,0.35)] flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
                             {step.icon}
-                            <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-[#0c203d] border border-slate-200 text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                            <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white text-[#7A2222] border border-slate-200 text-[10px] font-extrabold flex items-center justify-center shadow-xs">
                               {idx + 1}
                             </span>
                           </div>
-                          <span className="mt-3.5 text-xs sm:text-sm font-bold text-[#0c203d]">
+                          <span className="mt-3.5 text-xs sm:text-sm font-bold text-[#7A2222]">
                             {step.label}
                           </span>
                           <span className="text-[10px] font-medium text-slate-400 mt-0.5">
@@ -1626,14 +1707,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-1">
                         Publikasi Terkini • Open Access
                       </span>
-                      <h2 className="font-serif-editorial text-[#0c203d] font-bold text-2xl sm:text-3xl tracking-tight">
+                      <h2 className="font-serif-editorial text-[#7A2222] font-bold text-2xl sm:text-3xl tracking-tight">
                         Terbitan Terkini (Current Issue)
                       </h2>
                       <p className="text-slate-500 text-xs sm:text-sm mt-1">
                         Koleksi artikel ilmiah resmi yang telah melalui penelaahan sejawat &amp; ber-DOI aktif.
                       </p>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0c203d] bg-white px-4 py-2 rounded-full border border-slate-200 shadow-2xs">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7A2222] bg-white px-4 py-2 rounded-full border border-slate-200 shadow-2xs">
                       <BookOpen size={13} /> {publishedSubmissions.length} Artikel Resmi Terbit
                     </span>
                   </div>
@@ -1648,7 +1729,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         <button
                           type="button"
                           onClick={() => setSearchQuery('')}
-                          className="mt-3 px-4 py-2 rounded-full bg-[#0c203d] text-white text-xs font-semibold cursor-pointer"
+                          className="mt-3 px-4 py-2 rounded-full bg-[#7A2222] text-white text-xs font-semibold cursor-pointer"
                         >
                           Reset Pencarian
                         </button>
@@ -1695,7 +1776,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
 
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[#0c203d] font-bold text-[10px] border border-slate-200/80">
+                            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[#7A2222] font-bold text-[10px] border border-slate-200/80">
                               {sub.journal?.abbreviation || 'J-SINTESA'}
                             </span>
                             {sub.doi && (
@@ -1707,7 +1788,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                           <h3
                             onClick={() => setDetailSubmission(sub)}
-                            className="text-slate-900 font-bold text-[15px] leading-snug cursor-pointer hover:text-[#153563] line-clamp-2 transition"
+                            className="text-slate-900 font-bold text-[15px] leading-snug cursor-pointer hover:text-[#661B1B] line-clamp-2 transition"
                           >
                             {sub.title}
                           </h3>
@@ -1722,7 +1803,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           <button
                             type="button"
                             onClick={() => setDetailSubmission(sub)}
-                            className="text-xs font-semibold text-slate-500 hover:text-[#0c203d] transition cursor-pointer"
+                            className="text-xs font-semibold text-slate-500 hover:text-[#7A2222] transition cursor-pointer"
                           >
                             Detail Abstrak
                           </button>
@@ -1731,7 +1812,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               href={resolveFileUrl(sub.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#0c203d] hover:bg-[#153563] text-white font-semibold text-xs shadow-xs transition"
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#7A2222] hover:bg-[#661B1B] text-white font-semibold text-xs shadow-xs transition"
                             >
                               <FileText size={12} /> Baca PDF
                             </a>
@@ -1751,7 +1832,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 block mb-1">
                         Direktori Resmi
                       </span>
-                      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold text-[#0c203d] tracking-tight">
+                      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold text-[#7A2222] tracking-tight">
                         Katalog Jurnal Ilmiah BRIDA ({journals.length} Jurnal)
                       </h3>
                       <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -1762,7 +1843,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     {isAdminOrEditor && (
                       <button
                         onClick={() => setShowAddJournalModal(true)}
-                        className="flex items-center gap-2 bg-[#0c203d] hover:bg-[#153563] text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-sm transition cursor-pointer"
+                        className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-semibold px-5 py-2.5 rounded-full shadow-sm transition cursor-pointer"
                       >
                         <PlusCircle size={15} /> Tambah Jurnal Baru
                       </button>
@@ -1804,7 +1885,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                                 {j.description}
                               </p>
-                              <div className="bg-[#f0f5fb] p-3.5 rounded-2xl border border-blue-100 text-xs space-y-1.5">
+                              <div className="bg-[#FDF7F7] p-3.5 rounded-2xl border border-[#7A2222]/15 text-xs space-y-1.5">
                                 <div>
                                   <strong className="text-slate-800">Fokus &amp; Ruang Lingkup:</strong>{' '}
                                   <span className="text-slate-600">{j.focus_scope}</span>
@@ -1814,7 +1895,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   <span className="text-slate-600">{j.chief_editor}</span>
                                 </div>
                                 {currentIssue && (
-                                  <div className="text-[#153e75] font-bold pt-1">
+                                  <div className="text-[#7A2222] font-bold pt-1">
                                     📌 Terbitan Terkini: {currentIssue.volume} {currentIssue.number} ({currentIssue.year}) — {currentIssue.title}
                                   </div>
                                 )}
@@ -1856,16 +1937,48 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     })}
                   </div>
                 </section>
+
+                {/* BOTTOM CTA BANNER ALA SIGAP BRIDA KOTA MAKASSAR */}
+                <section className="rounded-3xl bg-gradient-to-r from-[#7A2222] via-[#661B1B] to-[#4A1313] p-7 sm:p-9 text-white shadow-[0_18px_40px_-14px_rgba(74,19,19,0.4)] flex flex-wrap items-center justify-between gap-6">
+                  <div className="space-y-1.5 max-w-xl">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-300">
+                      Publikasi Terbuka • APC Rp 0
+                    </span>
+                    <h3 className="font-serif-editorial text-2xl sm:text-3xl font-bold tracking-tight">
+                      Siap mempublikasikan riset Anda bersama BRIDA Makassar?
+                    </h3>
+                    <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+                      Daftarkan akun peneliti atau mitra bestari secara gratis dan nikmati proses peer-review transparan berstandar SINTA &amp; DOI resmi.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => (isGuest ? onLogout() : setActiveTab(isReviewer ? 'review' : 'unggah'))}
+                      className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-gray-900 font-extrabold text-xs sm:text-sm shadow-sm transition cursor-pointer"
+                    >
+                      {isGuest ? 'Mulai Daftar / Masuk →' : isReviewer ? 'Buka Meja Review →' : '+ Unggah Naskah Sekarang'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenForum('')}
+                      className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-xs sm:text-sm transition cursor-pointer"
+                    >
+                      Buka Trending &amp; Forum
+                    </button>
+                  </div>
+                </section>
               </div>
+              </>
             ) : (
               /* TAMPILAN HALAMAN SPESIFIK 1 JURNAL */
-              <div className="max-w-[1120px] mx-auto space-y-6">
+              <div className="max-w-[1140px] mx-auto px-5 sm:px-10 pt-8 space-y-6">
                 <button
                   onClick={() => {
                     setPortalSelectedJournal(null);
                     setSelectedJournalId('all');
                   }}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-[#153e75] bg-white hover:bg-blue-50 px-4 py-2.5 rounded-full border border-blue-200 shadow-sm transition cursor-pointer"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-[#7A2222] bg-white hover:bg-blue-50 px-4 py-2.5 rounded-full border border-blue-200 shadow-sm transition cursor-pointer"
                 >
                   ← Kembali ke Katalog Rumah Jurnal BRIDA
                 </button>
@@ -1952,7 +2065,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 </div>
                                 <h4
                                   onClick={() => setDetailSubmission(art)}
-                                  className="text-base font-bold text-slate-800 hover:text-[#153e75] cursor-pointer"
+                                  className="text-base font-bold text-slate-800 hover:text-[#7A2222] cursor-pointer"
                                 >
                                   {art.title}
                                 </h4>
@@ -1968,7 +2081,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     href={resolveFileUrl(art.file_path)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="px-4 py-2 rounded-xl bg-[#153e75] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#0f2e5a] transition"
+                                    className="px-4 py-2 rounded-xl bg-[#7A2222] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#661B1B] transition"
                                   >
                                     <FileText size={14} /> Lihat PDF
                                   </a>
@@ -2024,11 +2137,11 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     {isAuthor ? 'Naskah Saya' : isReviewer ? 'Tugas Review Saya' : 'Total Naskah'}
                   </span>
-                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0c203d] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#7A2222] flex items-center justify-center">
                     <FileText size={17} />
                   </div>
                 </div>
-                <p className="text-3xl font-extrabold text-[#0c203d] mt-3 tabular-nums tracking-tight">
+                <p className="text-3xl font-extrabold text-[#7A2222] mt-3 tabular-nums tracking-tight">
                   {scopedStats.total}
                 </p>
                 <p className="text-xs text-slate-400 mt-1">
@@ -2105,8 +2218,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="Terbit" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
-                      <Bar dataKey="Proses" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="Terbit" fill="#7A2222" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="Proses" fill="#F59E0B" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -2170,14 +2283,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Cari judul, penulis, DOI..."
-                      className="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#153e75] w-56"
+                      className="pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-[#7A2222] w-56"
                     />
                   </div>
 
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#153e75]"
+                    className="border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#7A2222]"
                   >
                     <option value="all">Semua Status ({roleScopedSubmissions.length})</option>
                     <option value="pending">Menunggu Editor</option>
@@ -2192,7 +2305,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#f0f5fb] text-slate-700 font-extrabold uppercase border-b border-slate-200">
+                  <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
                     <tr>
                       <th className="p-3">ID</th>
                       <th className="p-3">Jurnal Tujuan</th>
@@ -2225,14 +2338,14 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         <tr key={sub.id} className="hover:bg-slate-50/70 transition">
                           <td className="p-3 font-mono font-bold text-slate-500">#{sub.id}</td>
                           <td className="p-3">
-                            <span className="font-extrabold text-[11px] px-2.5 py-1 rounded-md bg-[#eaf2fb] text-[#153e75] border border-blue-200">
+                            <span className="font-extrabold text-[11px] px-2.5 py-1 rounded-md bg-[#FEF2F2] text-[#7A2222] border border-blue-200">
                               {sub.journal?.abbreviation}
                             </span>
                           </td>
                           <td className="p-3 max-w-md">
                             <div
                               onClick={() => setDetailSubmission(sub)}
-                              className="font-bold text-slate-800 hover:text-[#153e75] cursor-pointer"
+                              className="font-bold text-slate-800 hover:text-[#7A2222] cursor-pointer"
                             >
                               {sub.title}
                             </div>
@@ -2295,7 +2408,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 href={resolveFileUrl(sub.file_path)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#153e75] font-bold text-[11px] border border-blue-200"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#7A2222] font-bold text-[11px] border border-blue-200"
                               >
                                 <FileText size={13} /> Dokumen
                               </a>
@@ -2312,7 +2425,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   setSelectedSubForAction(sub);
                                   setActiveTab('review');
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-[#153e75] text-white font-bold text-[11px] hover:bg-[#0f2e5a] cursor-pointer"
+                                className="px-2.5 py-1 rounded-lg bg-[#7A2222] text-white font-bold text-[11px] hover:bg-[#661B1B] cursor-pointer"
                               >
                                 Tugaskan Reviewer
                               </button>
@@ -2373,7 +2486,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditModal(sub)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-[11px] font-bold text-[#153e75] cursor-pointer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-[11px] font-bold text-[#7A2222] cursor-pointer"
                                 title="Edit Judul, Penulis & Abstrak"
                               >
                                 <Edit3 size={11} /> Edit
@@ -2419,7 +2532,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
               <button
                 onClick={() => setShowAddJournalModal(true)}
-                className="flex items-center gap-2 bg-[#153e75] hover:bg-[#0f2e5a] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
+                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
               >
                 <PlusCircle size={16} /> + Tambah Jurnal Baru
               </button>
@@ -2430,7 +2543,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <div key={j.id} className="bg-white rounded-2xl shadow-xs border border-slate-200 p-6 space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-[#153e75] border border-blue-200">
+                      <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-[#7A2222] border border-blue-200">
                         {j.abbreviation}
                       </span>
                       <h4 className="text-lg font-extrabold text-slate-800 mt-2">{j.title}</h4>
@@ -2438,7 +2551,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-xs bg-[#f0f5fb] p-3 rounded-xl border border-blue-100">
+                  <div className="grid grid-cols-2 gap-3 text-xs bg-[#FDF7F7] p-3 rounded-xl border border-[#7A2222]/15">
                     <div>
                       <span className="text-slate-400 block text-[10px]">P-ISSN / E-ISSN</span>
                       <span className="font-bold text-slate-700">{j.issn_print} / {j.issn_online}</span>
@@ -2470,7 +2583,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           setSearchQuery('');
                           setActiveTab('dashboard');
                         }}
-                        className="text-[#153e75] font-bold hover:underline cursor-pointer"
+                        className="text-[#7A2222] font-bold hover:underline cursor-pointer"
                       >
                         Buka Naskah →
                       </button>
@@ -2516,9 +2629,9 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               </div>
 
               {/* Live Standarisasi Gatekeeper Panel */}
-              <div className="bg-[#f0f5fb] border border-blue-200 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div className="bg-[#FDF7F7] border border-blue-200 rounded-2xl p-4 sm:p-5 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#153e75]">
+                  <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#7A2222]">
                     <ShieldCheck size={16} />
                     <span>Gatekeeper Standarisasi Naskah (Standar SINTA / ARJUNA &amp; OJS)</span>
                   </div>
@@ -2630,7 +2743,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               s.done
                                 ? 'bg-emerald-600 text-white shadow-sm'
                                 : active
-                                ? 'bg-[#153e75] text-white ring-4 ring-blue-100 shadow-sm'
+                                ? 'bg-[#7A2222] text-white ring-4 ring-blue-100 shadow-sm'
                                 : 'bg-slate-100 text-slate-400 border border-slate-200'
                             }`}
                           >
@@ -2638,7 +2751,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           </div>
                           <span
                             className={`mt-2 text-[11px] font-bold ${
-                              s.done ? 'text-emerald-700' : active ? 'text-[#153e75]' : 'text-slate-400'
+                              s.done ? 'text-emerald-700' : active ? 'text-[#7A2222]' : 'text-slate-400'
                             }`}
                           >
                             {s.label}
@@ -2667,7 +2780,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <select
                       value={formJournalId}
                       onChange={(e) => setFormJournalId(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-[#153e75] focus:outline-none focus:border-[#153e75]"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-[#7A2222] focus:outline-none focus:border-[#7A2222]"
                       required
                     >
                       {journals.map((j) => (
@@ -2685,7 +2798,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     <select
                       value={section}
                       onChange={(e) => setSection(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#153e75]"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#7A2222]"
                     >
                       <option value="Original Research">Original Research (Artikel Penelitian)</option>
                       <option value="Policy Brief">Policy Brief (Kajian Kebijakan)</option>
@@ -2708,7 +2821,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     placeholder="Contoh: Analisis Efektivitas Layanan Publik Digital Berbasis Smart City di Kota Makassar"
                     className={`w-full px-4 py-3 rounded-xl border text-xs sm:text-sm text-slate-800 focus:outline-none ${
                       title.trim() === ''
-                        ? 'border-slate-200 focus:border-[#153e75]'
+                        ? 'border-slate-200 focus:border-[#7A2222]'
                         : isTitleStandardOk
                         ? 'border-emerald-400 bg-emerald-50/20'
                         : 'border-rose-400 bg-rose-50/20'
@@ -2754,7 +2867,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       placeholder="Contoh: Inovasi Daerah, Kebijakan Publik, Smart City, Makassar"
                       className={`w-full px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none ${
                         keywords.trim() === ''
-                          ? 'border-slate-200 focus:border-[#153e75]'
+                          ? 'border-slate-200 focus:border-[#7A2222]'
                           : isKeywordsStandardOk
                           ? 'border-emerald-400 bg-emerald-50/20'
                           : 'border-rose-400 bg-rose-50/20'
@@ -2844,12 +2957,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     className={`w-full rounded-2xl border-2 border-dashed p-7 flex flex-col items-center justify-center text-center cursor-pointer transition ${
                       isFileStandardOk
                         ? 'border-emerald-400 bg-emerald-50/40'
-                        : 'border-slate-300 hover:border-[#153e75] bg-[#f0f5fb]/50'
+                        : 'border-slate-300 hover:border-[#7A2222] bg-[#FDF7F7]/50'
                     }`}
                   >
-                    <FileUp size={34} className="text-[#153e75] mb-2" />
+                    <FileUp size={34} className="text-[#7A2222] mb-2" />
                     <p className="text-xs sm:text-sm text-slate-700 font-bold">
-                      Drag &amp; drop file di sini atau <span className="text-[#153e75] underline">klik untuk memilih</span>
+                      Drag &amp; drop file di sini atau <span className="text-[#7A2222] underline">klik untuk memilih</span>
                     </p>
                     <p className="text-[11px] text-slate-500 mt-1 max-w-md">
                       Server otomatis memeriksa keaslian biner (Magic Bytes) serta kelengkapan struktur <strong>IMRAD</strong> (Pendahuluan, Metode, Hasil &amp; Pembahasan, Kesimpulan, Daftar Pustaka).
@@ -2904,7 +3017,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                         onChange={(e) =>
                           setOjsChecklist({ ...ojsChecklist, [c.key]: e.target.checked })
                         }
-                        className="mt-0.5 accent-[#153e75] w-4 h-4 cursor-pointer shrink-0"
+                        className="mt-0.5 accent-[#7A2222] w-4 h-4 cursor-pointer shrink-0"
                       />
                       <span className="text-slate-700 leading-relaxed">{c.text}</span>
                     </label>
@@ -2922,7 +3035,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     disabled={submitLoading}
                     className={`px-6 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-md transition cursor-pointer ${
                       standardScoreCount === 6
-                        ? 'bg-[#153e75] hover:bg-[#0f2e5a] text-white'
+                        ? 'bg-[#7A2222] hover:bg-[#661B1B] text-white'
                         : 'bg-slate-700 hover:bg-slate-800 text-white'
                     }`}
                   >
@@ -2996,12 +3109,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           }}
                           className={`p-4 rounded-xl border transition cursor-pointer space-y-2 ${
                             active
-                              ? 'bg-[#eaf2fb] border-[#153e75] ring-2 ring-blue-200'
+                              ? 'bg-[#FEF2F2] border-[#7A2222] ring-2 ring-blue-200'
                               : 'bg-slate-50/60 border-slate-200 hover:bg-slate-100'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#153e75] text-white">
+                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#7A2222] text-white">
                               {sub.journal?.abbreviation}
                             </span>
                             {isReviewer && myRev ? (
@@ -3034,7 +3147,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           <div className="flex items-center justify-between text-[11px] text-slate-500">
                             <span>Penulis: {sub.author?.name}</span>
                             {isAdminOrEditor && (prog.activeRevs.length > 0 || prog.declinedRevs.length > 0) && (
-                              <span className="text-[10px] font-bold text-[#153e75]">
+                              <span className="text-[10px] font-bold text-[#7A2222]">
                                 {prog.completedRevs.length}/{prog.activeRevs.length} selesai
                                 {prog.declinedRevs.length > 0 ? ` • ⚠ ${prog.declinedRevs.length} tolak` : ''}
                               </span>
@@ -3109,7 +3222,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     {/* Header Naskah */}
                     <div className="border-b border-slate-100 pb-5 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs font-extrabold text-[#153e75] bg-[#eaf2fb] px-3 py-1 rounded-lg border border-blue-200">
+                        <span className="text-xs font-extrabold text-[#7A2222] bg-[#FEF2F2] px-3 py-1 rounded-lg border border-blue-200">
                           Jurnal: {selectedSubForAction.journal?.title}
                         </span>
                         <div className="flex items-center gap-2">
@@ -3118,7 +3231,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               href={resolveFileUrl(selectedSubForAction.file_path)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs font-bold text-[#153e75] bg-[#eaf2fb] hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 flex items-center gap-1.5"
+                              className="text-xs font-bold text-[#7A2222] bg-[#FEF2F2] hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 flex items-center gap-1.5"
                             >
                               <FileText size={14} /> Buka Dokumen Naskah
                             </a>
@@ -3159,7 +3272,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
                             <div className="flex items-center justify-between">
                               <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                                <UserCheck size={16} className="text-[#153e75]" />
+                                <UserCheck size={16} className="text-[#7A2222]" />
                                 Penugasan Mitra Bestari (Support Multi-Reviewer)
                               </h4>
                               <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
@@ -3184,7 +3297,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       key={rev.id}
                                       className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition text-xs ${
                                         checked
-                                          ? 'bg-[#eaf2fb] border-[#153e75] shadow-2xs'
+                                          ? 'bg-[#FEF2F2] border-[#7A2222] shadow-2xs'
                                           : 'bg-white border-slate-200 hover:bg-slate-50'
                                       }`}
                                     >
@@ -3192,7 +3305,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         type="checkbox"
                                         checked={checked}
                                         onChange={() => toggleReviewerSelection(rev.id)}
-                                        className="mt-0.5 accent-[#153e75] w-4 h-4 cursor-pointer"
+                                        className="mt-0.5 accent-[#7A2222] w-4 h-4 cursor-pointer"
                                       />
                                       <div className="min-w-0 flex-1">
                                         <div className="font-bold text-slate-800">{rev.name}</div>
@@ -3215,19 +3328,19 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 value={editorNotes}
                                 onChange={(e) => setEditorNotes(e.target.value)}
                                 placeholder="Misal: Mohon telaah fokus metodologi kuantitatif..."
-                                className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#153e75]"
+                                className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:border-[#7A2222]"
                               />
                             </div>
 
                             <div className="pt-1 flex items-center justify-between gap-3">
-                              <span className="text-[11px] font-bold text-[#153e75]">
+                              <span className="text-[11px] font-bold text-[#7A2222]">
                                 {selectedReviewerIds.length} Mitra Bestari dipilih
                               </span>
                               <button
                                 type="button"
                                 disabled={selectedReviewerIds.length === 0}
                                 onClick={() => handleAssignReviewer(selectedSubForAction.id)}
-                                className="bg-[#153e75] hover:bg-[#0f2e5a] disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
+                                className="bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs transition cursor-pointer flex items-center gap-2"
                               >
                                 📋 Tugaskan {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer (Mulai Telaah)
                               </button>
@@ -3250,10 +3363,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           const allCompleted = activeReviews.length > 0 && completedCount === activeReviews.length;
 
                           return (
-                            <div className="bg-[#f0f5fb] p-5 rounded-2xl border border-blue-200 space-y-4">
+                            <div className="bg-[#FDF7F7] p-5 rounded-2xl border border-blue-200 space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#153e75] flex items-center gap-2">
-                                  <Clock size={16} className={`text-[#153e75] ${allCompleted || activeReviews.length === 0 ? '' : 'animate-spin'}`} />
+                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#7A2222] flex items-center gap-2">
+                                  <Clock size={16} className={`text-[#7A2222] ${allCompleted || activeReviews.length === 0 ? '' : 'animate-spin'}`} />
                                   {activeReviews.length === 0
                                     ? 'Semua Reviewer Menolak — Wajib Tunjuk Reviewer Pengganti'
                                     : allCompleted
@@ -3265,7 +3378,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                     ? 'bg-rose-100 text-rose-800 border-rose-300'
                                     : allCompleted
                                     ? 'bg-amber-100 text-amber-800 border-amber-300'
-                                    : 'bg-blue-100 text-[#153e75] border-blue-300'
+                                    : 'bg-blue-100 text-[#7A2222] border-blue-300'
                                 }`}>
                                   {activeReviews.length === 0
                                     ? 'BUTUH PENGGANTI'
@@ -3293,7 +3406,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               )}
 
                               {selectedSubForAction.editor_notes && (
-                                <div className="bg-white/80 p-3 rounded-xl border border-blue-100 text-xs text-slate-600">
+                                <div className="bg-white/80 p-3 rounded-xl border border-[#7A2222]/15 text-xs text-slate-600">
                                   <span className="text-[10px] font-bold text-slate-400 block">Catatan Pengantar Editor:</span>
                                   <span className="italic">"{selectedSubForAction.editor_notes}"</span>
                                 </div>
@@ -3319,7 +3432,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                           ? 'bg-emerald-50/40 border-emerald-200'
                                           : revAssigned
                                           ? 'bg-amber-50/40 border-amber-200'
-                                          : 'bg-white border-blue-100'
+                                          : 'bg-white border-[#7A2222]/15'
                                       }`}
                                     >
                                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3397,15 +3510,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                           <div className="grid grid-cols-3 gap-2">
                                             <div className="bg-white p-1.5 rounded-lg text-center border border-slate-100">
                                               <span className="text-[10px] text-slate-400 block">Orisinalitas</span>
-                                              <strong className="text-[#153e75]">{rev.score_originality ?? '-'}</strong>
+                                              <strong className="text-[#7A2222]">{rev.score_originality ?? '-'}</strong>
                                             </div>
                                             <div className="bg-white p-1.5 rounded-lg text-center border border-slate-100">
                                               <span className="text-[10px] text-slate-400 block">Metodologi</span>
-                                              <strong className="text-[#153e75]">{rev.score_methodology ?? '-'}</strong>
+                                              <strong className="text-[#7A2222]">{rev.score_methodology ?? '-'}</strong>
                                             </div>
                                             <div className="bg-white p-1.5 rounded-lg text-center border border-slate-100">
                                               <span className="text-[10px] text-slate-400 block">Relevansi</span>
-                                              <strong className="text-[#153e75]">{rev.score_relevance ?? '-'}</strong>
+                                              <strong className="text-[#7A2222]">{rev.score_relevance ?? '-'}</strong>
                                             </div>
                                           </div>
                                           <p className="italic text-slate-600 bg-white p-2 rounded-lg border border-slate-100">"{rev.comments}"</p>
@@ -3418,7 +3531,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                               {/* Tambah Reviewer Tambahan / Pengganti / Penunjukan Reviewer ke-3 */}
                               <div className="bg-white/90 p-3.5 rounded-xl border border-dashed border-blue-300 space-y-2">
-                                <div className="text-[11px] font-extrabold text-[#153e75]">
+                                <div className="text-[11px] font-extrabold text-[#7A2222]">
                                   {declinedReviews.length > 0 && activeReviews.length < 2
                                     ? `+ Tunjuk Mitra Bestari Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
                                     : allCompleted
@@ -3444,7 +3557,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       type="button"
                                       disabled={!extraReviewerId}
                                       onClick={() => handleAddExtraReviewer(selectedSubForAction.id)}
-                                      className="px-4 py-2 rounded-xl bg-[#153e75] hover:bg-[#0f2e5a] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0"
+                                      className="px-4 py-2 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] disabled:opacity-50 text-white font-bold text-xs cursor-pointer shrink-0"
                                     >
                                       + Undang Reviewer
                                     </button>
@@ -3458,7 +3571,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         setActiveTab('users');
                                         setShowAddUserModal(true);
                                       }}
-                                      className="text-[#153e75] font-bold hover:underline cursor-pointer"
+                                      className="text-[#7A2222] font-bold hover:underline cursor-pointer"
                                     >
                                       + Tambah Akun Reviewer Baru →
                                     </button>
@@ -3567,7 +3680,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
                             <div className="bg-white p-3.5 rounded-xl border border-purple-100 text-xs space-y-1">
                               <span className="text-slate-400 block text-[10px]">Nomor Identifikasi Digital (DOI):</span>
-                              <div className="font-mono font-bold text-[#153e75] text-sm select-all">
+                              <div className="font-mono font-bold text-[#7A2222] text-sm select-all">
                                 {selectedSubForAction.doi || '10.31290/makassaris.v4i2.100'}
                               </div>
                             </div>
@@ -3601,7 +3714,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     {isAdminOrEditor && selectedSubForAction.status !== 'pending' && selectedSubForAction.status !== 'under_review' && (
                       <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
                         <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                          <CheckCircle2 size={16} className="text-[#153e75]" />
+                          <CheckCircle2 size={16} className="text-[#7A2222]" />
                           Laporan Hasil Penilaian Mitra Bestari (Reviewer)
                         </h4>
 
@@ -3621,7 +3734,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   className={`p-4 rounded-xl border space-y-2 text-xs ${
                                     isDeclined
                                       ? 'bg-rose-50/70 border-rose-200'
-                                      : 'bg-[#f0f5fb] border-blue-100'
+                                      : 'bg-[#FDF7F7] border-[#7A2222]/15'
                                   }`}
                                 >
                                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3667,15 +3780,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       <div className="grid grid-cols-3 gap-2 py-1">
                                         <div className="bg-white p-2 rounded-lg text-center border border-slate-100">
                                           <span className="text-[10px] text-slate-400 block">Orisinalitas</span>
-                                          <strong className="text-sm text-[#153e75]">{rev.score_originality ?? '-'}</strong>
+                                          <strong className="text-sm text-[#7A2222]">{rev.score_originality ?? '-'}</strong>
                                         </div>
                                         <div className="bg-white p-2 rounded-lg text-center border border-slate-100">
                                           <span className="text-[10px] text-slate-400 block">Metodologi</span>
-                                          <strong className="text-sm text-[#153e75]">{rev.score_methodology ?? '-'}</strong>
+                                          <strong className="text-sm text-[#7A2222]">{rev.score_methodology ?? '-'}</strong>
                                         </div>
                                         <div className="bg-white p-2 rounded-lg text-center border border-slate-100">
                                           <span className="text-[10px] text-slate-400 block">Relevansi</span>
-                                          <strong className="text-sm text-[#153e75]">{rev.score_relevance ?? '-'}</strong>
+                                          <strong className="text-sm text-[#7A2222]">{rev.score_relevance ?? '-'}</strong>
                                         </div>
                                       </div>
 
@@ -3772,7 +3885,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         : isCompleted && st.id === 3
                                         ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                                         : active
-                                        ? 'bg-blue-50 border-blue-300 text-[#153e75]'
+                                        ? 'bg-blue-50 border-blue-300 text-[#7A2222]'
                                         : done
                                         ? 'bg-white border-emerald-200 text-emerald-700'
                                         : 'bg-white border-slate-200 text-slate-400'
@@ -3882,20 +3995,20 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                           {/* STATE 2: SEDANG MENELAAH (FORM LEMBAR EVALUASI AKTIF) */}
                           {canReviewNow && (
-                            <div className="bg-[#f0f5fb] p-5 rounded-2xl border border-blue-200 space-y-4">
+                            <div className="bg-[#FDF7F7] p-5 rounded-2xl border border-blue-200 space-y-4">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#153e75] flex items-center gap-2">
-                                  <CheckSquare size={16} className="text-[#153e75]" />
+                                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#7A2222] flex items-center gap-2">
+                                  <CheckSquare size={16} className="text-[#7A2222]" />
                                   Lembar Evaluasi Sejawat — {currentUser?.name}
                                 </h4>
-                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 text-[#153e75] border border-blue-300">
+                                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 text-[#7A2222] border border-blue-300">
                                   UNDANGAN DITERIMA • SIAP DINILAI
                                 </span>
                               </div>
 
                               {selectedSubForAction.editor_notes && (
-                                <div className="bg-white/90 p-3 rounded-xl border border-blue-100 text-xs text-slate-600">
-                                  <span className="font-bold text-[#153e75] block text-[10px] uppercase mb-0.5">
+                                <div className="bg-white/90 p-3 rounded-xl border border-[#7A2222]/15 text-xs text-slate-600">
+                                  <span className="font-bold text-[#7A2222] block text-[10px] uppercase mb-0.5">
                                     Catatan Pengantar dari Editor:
                                   </span>
                                   "{selectedSubForAction.editor_notes}"
@@ -4084,15 +4197,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <div className="grid grid-cols-3 gap-2.5">
                                 <div className="bg-white p-2.5 rounded-xl text-center border border-emerald-200">
                                   <span className="text-[10px] text-slate-400 font-bold block">Orisinalitas</span>
-                                  <strong className="text-base text-[#153e75]">{myReview.score_originality ?? '-'}</strong>
+                                  <strong className="text-base text-[#7A2222]">{myReview.score_originality ?? '-'}</strong>
                                 </div>
                                 <div className="bg-white p-2.5 rounded-xl text-center border border-emerald-200">
                                   <span className="text-[10px] text-slate-400 font-bold block">Metodologi</span>
-                                  <strong className="text-base text-[#153e75]">{myReview.score_methodology ?? '-'}</strong>
+                                  <strong className="text-base text-[#7A2222]">{myReview.score_methodology ?? '-'}</strong>
                                 </div>
                                 <div className="bg-white p-2.5 rounded-xl text-center border border-emerald-200">
                                   <span className="text-[10px] text-slate-400 font-bold block">Relevansi</span>
-                                  <strong className="text-base text-[#153e75]">{myReview.score_relevance ?? '-'}</strong>
+                                  <strong className="text-base text-[#7A2222]">{myReview.score_relevance ?? '-'}</strong>
                                 </div>
                               </div>
 
@@ -4106,7 +4219,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                               {/* Info Lanjutan Progress Naskah */}
                               <div className="bg-white/90 p-3.5 rounded-xl border border-blue-200 space-y-2">
-                                <div className="flex items-center justify-between text-[11px] font-extrabold text-[#153e75]">
+                                <div className="flex items-center justify-between text-[11px] font-extrabold text-[#7A2222]">
                                   <span>📌 Status Naskah Saat Ini:</span>
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] border ${(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).bg}`}>
                                     {(STATUS_BADGE[selectedSubForAction.status] || STATUS_BADGE.pending).label} ({subProgress.percent}%)
@@ -4188,7 +4301,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
               <button
                 type="button"
                 onClick={() => setShowAddUserModal(true)}
-                className="flex items-center gap-2 bg-[#153e75] hover:bg-[#0f2e5a] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
+                className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
               >
                 <UserPlus size={16} /> + Tambah Pengguna / Reviewer
               </button>
@@ -4197,7 +4310,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <div className="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#f0f5fb] text-slate-700 font-extrabold uppercase border-b border-slate-200">
+                  <thead className="bg-[#FDF7F7] text-slate-700 font-extrabold uppercase border-b border-slate-200">
                     <tr>
                       <th className="p-3">ID</th>
                       <th className="p-3">Nama &amp; Email</th>
@@ -4219,7 +4332,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             u.role === 'admin'
                               ? 'bg-purple-50 text-purple-800 border-purple-200'
                               : u.role === 'editor'
-                              ? 'bg-blue-50 text-[#153e75] border-blue-200'
+                              ? 'bg-blue-50 text-[#7A2222] border-blue-200'
                               : u.role === 'reviewer'
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               : 'bg-amber-50 text-amber-800 border-amber-200'
@@ -4262,7 +4375,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[#eaf2fb] text-[#153e75] font-bold text-xs border border-blue-200">
+                <span className="px-3 py-1 rounded-full bg-[#FEF2F2] text-[#7A2222] font-bold text-xs border border-blue-200">
                   {detailSubmission.journal?.title}
                 </span>
                 <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${(STATUS_BADGE[detailSubmission.status] || STATUS_BADGE.pending).bg}`}>
@@ -4294,7 +4407,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
 
             {detailSubmission.doi && (
-              <div className="text-xs font-mono text-[#153e75] bg-[#eaf2fb] p-2 rounded-lg">
+              <div className="text-xs font-mono text-[#7A2222] bg-[#FEF2F2] p-2 rounded-lg">
                 DOI: {detailSubmission.doi}
               </div>
             )}
@@ -4319,7 +4432,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   {completedReviews.map((r, i) => (
                     <div key={r.id || i} className="text-slate-700 bg-white p-3 rounded-xl border border-amber-100 space-y-1.5 leading-relaxed">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-extrabold text-[#153e75]">
+                        <span className="font-extrabold text-[#7A2222]">
                           {isAdminOrEditor && r.reviewer?.name ? r.reviewer.name : `Mitra Bestari #${i + 1} (Anonim)`}
                         </span>
                         <span className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] ${
@@ -4341,8 +4454,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
             {/* Panel Khusus Penulis Pemilik Naskah: Unggah Berkas Naskah Revisi */}
             {isAuthor && String(detailSubmission.author_id) === String(currentUser?.id) && detailSubmission.status === 'revision_required' && (
-              <div className="bg-[#eaf2fb] border-2 border-dashed border-[#153e75] rounded-2xl p-4 space-y-3">
-                <div className="text-xs font-extrabold text-[#153e75] flex items-center gap-2">
+              <div className="bg-[#FEF2F2] border-2 border-dashed border-[#7A2222] rounded-2xl p-4 space-y-3">
+                <div className="text-xs font-extrabold text-[#7A2222] flex items-center gap-2">
                   <FileUp size={16} />
                   <span>Unggah Berkas Naskah Revisi (Perbaikan)</span>
                 </div>
@@ -4354,7 +4467,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     type="file"
                     accept=".pdf,.doc,.docx"
                     onChange={(e) => setRevisionFile(e.target.files?.[0] || null)}
-                    className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#153e75] file:text-white hover:file:bg-[#0f2e5a] cursor-pointer"
+                    className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#7A2222] file:text-white hover:file:bg-[#661B1B] cursor-pointer"
                   />
                   <button
                     type="button"
@@ -4374,7 +4487,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <button
                     type="button"
                     onClick={() => handleOpenEditModal(detailSubmission)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-[#153e75] font-bold text-xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-[#7A2222] font-bold text-xs cursor-pointer"
                   >
                     <Edit3 size={13} /> Edit Judul &amp; Penulis
                   </button>
@@ -4415,7 +4528,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       href={resolveFileUrl(detailSubmission.file_path)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-5 py-2 rounded-xl bg-[#153e75] hover:bg-[#0f2e5a] text-white font-bold text-xs"
+                      className="px-5 py-2 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs"
                     >
                       Buka File Naskah
                     </a>
@@ -4436,7 +4549,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                  <Edit3 size={18} className="text-[#153e75]" /> Edit Judul &amp; Penulis Naskah
+                  <Edit3 size={18} className="text-[#7A2222]" /> Edit Judul &amp; Penulis Naskah
                 </h3>
                 <p className="text-xs text-slate-500">
                   Perbarui informasi naskah #{editSubmissionModal.id}
@@ -4459,7 +4572,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   required
                   value={editForm.title}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#153e75]"
+                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222]"
                 />
               </div>
 
@@ -4472,7 +4585,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   placeholder="Contoh: Balanza Aryandi, Dr. Muhammad Ikbal"
                   value={editForm.co_authors}
                   onChange={(e) => setEditForm({ ...editForm, co_authors: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#153e75]"
+                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222]"
                 />
                 <p className="text-[10px] text-slate-400 mt-0.5">
                   Pisahkan dengan koma jika lebih dari satu penulis.
@@ -4485,7 +4598,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   type="text"
                   value={editForm.keywords}
                   onChange={(e) => setEditForm({ ...editForm, keywords: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#153e75]"
+                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222]"
                 />
               </div>
 
@@ -4496,7 +4609,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   required
                   value={editForm.abstract}
                   onChange={(e) => setEditForm({ ...editForm, abstract: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#153e75] leading-relaxed"
+                  className="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-[#7A2222] leading-relaxed"
                 />
               </div>
 
@@ -4511,7 +4624,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-5 py-2 rounded-xl bg-[#153e75] hover:bg-[#0d2b57] text-white font-bold shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-[#7A2222] hover:bg-[#0d2b57] text-white font-bold shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {savingEdit ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
@@ -4628,7 +4741,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#153e75] text-white text-xs font-bold cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#7A2222] text-white text-xs font-bold cursor-pointer"
                 >
                   Simpan Jurnal Baru
                 </button>
@@ -4647,7 +4760,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                  <UserPlus size={18} className="text-[#153e75]" /> Tambah Pengguna Baru
+                  <UserPlus size={18} className="text-[#7A2222]" /> Tambah Pengguna Baru
                 </h3>
                 <p className="text-xs text-slate-500">
                   Buat akun baru untuk Admin, Editor, Mitra Bestari (Reviewer), atau Penulis.
@@ -4748,7 +4861,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#153e75] hover:bg-[#0f2e5a] text-white font-bold cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold cursor-pointer"
                 >
                   Simpan Pengguna
                 </button>

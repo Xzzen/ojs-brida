@@ -106,36 +106,36 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
     <div
       className="min-h-screen w-full relative overflow-x-hidden flex flex-col justify-between py-6 px-4 sm:px-8 select-none"
       style={{
-        background: 'radial-gradient(ellipse 90% 60% at 50% 0%, #dce8f8 0%, #f1f5fb 45%, #f8fafc 100%)'
+        background: 'linear-gradient(155deg, #4A1313 0%, #661B1B 38%, #7A2222 72%, #591616 100%)'
       }}
     >
-      {/* Decorative subtle ambient glows */}
+      {/* Decorative subtle warm ambient glows */}
       <div
-        className="pointer-events-none absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full opacity-25 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #1e4b85 0%, transparent 70%)' }}
+        className="pointer-events-none absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full opacity-20 blur-3xl"
+        style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
       />
       <div
-        className="pointer-events-none absolute -bottom-40 -right-24 w-[540px] h-[540px] rounded-full opacity-20 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #0c203d 0%, transparent 70%)' }}
+        className="pointer-events-none absolute -bottom-40 -right-24 w-[540px] h-[540px] rounded-full opacity-25 blur-3xl"
+        style={{ background: 'radial-gradient(circle, #991B1B 0%, transparent 70%)' }}
       />
 
       {/* Top Header Bar */}
-      <header className="relative z-20 max-w-[1140px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 bg-white/85 backdrop-blur-xl border border-slate-200/80 rounded-2xl px-6 py-3.5 shadow-[0_8px_30px_-12px_rgba(12,32,61,0.10)]">
+      <header className="relative z-20 max-w-[1140px] w-full mx-auto flex flex-wrap items-center justify-between gap-4 bg-white/95 backdrop-blur-xl border border-[#7A2222]/15 rounded-2xl px-6 py-3.5 shadow-[0_12px_36px_-12px_rgba(40,8,8,0.35)]">
         <div className="flex items-center gap-3">
           <img
             src="/assets/brida-logo.png"
             alt="BRIDA Kota Makassar"
             className="h-10 sm:h-11 object-contain"
           />
-          <span className="hidden sm:inline-block text-[11px] font-bold uppercase tracking-[0.14em] text-[#0c203d] bg-slate-100 px-3 py-1 rounded-full border border-slate-200/80">
-            Multi-Journal System
+          <span className="hidden sm:inline-block text-[11px] font-bold uppercase tracking-[0.14em] text-[#7A2222] bg-[#FEF2F2] px-3 py-1 rounded-full border border-[#7A2222]/15">
+            OJS Multi-Journal
           </span>
         </div>
 
         <button
           type="button"
           onClick={onOpenPublicPortal}
-          className="flex items-center gap-2 bg-[#0c203d] hover:bg-[#153563] text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-[0_6px_18px_rgba(12,32,61,0.2)] transition cursor-pointer"
+          className="flex items-center gap-2 bg-[#7A2222] hover:bg-[#661B1B] text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm transition cursor-pointer"
         >
           <BookOpen size={15} />
           <span>Jelajahi Portal Publik</span>
@@ -144,29 +144,28 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
       </header>
 
       {/* Main Split Card */}
-      <div className="relative z-10 my-6 max-w-[1080px] w-full mx-auto bg-white rounded-[28px] shadow-[0_24px_80px_-24px_rgba(12,32,61,0.22)] border border-slate-200/90 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Left Side: "Start your journey" with Notebook Illustration */}
-        <div className="lg:col-span-6 relative rounded-[20px] overflow-hidden min-h-[360px] lg:min-h-[580px] flex flex-col justify-between p-6 sm:p-8 select-none">
-          <img
-            src="/assets/login-bg.png"
-            alt="Sky Background"
-            className="absolute inset-0 w-full h-full object-cover"
+      <div className="relative z-10 my-6 max-w-[1080px] w-full mx-auto bg-white rounded-[28px] shadow-[0_28px_80px_-20px_rgba(30,5,5,0.55)] border border-white/20 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* Left Side: Editorial Maroon Panel with Notebook Illustration */}
+        <div className="lg:col-span-6 relative rounded-[20px] overflow-hidden min-h-[360px] lg:min-h-[580px] flex flex-col justify-between p-6 sm:p-8 select-none bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313]">
+          <div
+            className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-25 blur-3xl"
+            style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
           />
           <img
             src="/assets/login-notebook.png"
             alt="Notebook and Fountain Pen"
-            className="absolute right-0 bottom-0 w-[92%] max-w-none object-contain pointer-events-none drop-shadow-2xl"
+            className="absolute right-0 bottom-0 w-[90%] max-w-none object-contain pointer-events-none drop-shadow-[0_24px_35px_rgba(25,4,4,0.45)]"
           />
 
           <div className="relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-bold border border-white/30">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#450a0a]/60 backdrop-blur-md text-white text-[11px] font-bold border border-white/15">
               <Sparkles size={13} className="text-amber-300" />
-              Sistem Publikasi Ilmiah Terakreditasi
+              Sistem Publikasi Ilmiah BRIDA Makassar
             </span>
           </div>
 
           <div className="relative z-10">
-            <h2 className="text-white font-extrabold text-4xl sm:text-[50px] leading-[1.06] tracking-tight drop-shadow-[0_4px_16px_rgba(10,37,77,0.35)]">
+            <h2 className="font-serif-editorial text-white font-bold text-4xl sm:text-[50px] leading-[1.06] tracking-tight drop-shadow-[0_4px_16px_rgba(30,5,5,0.45)]">
               Start your
               <br />
               journey
@@ -207,7 +206,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             </div>
           )}
           {infoMsg && (
-            <div className="mb-3 p-3 rounded-xl bg-blue-50 border border-blue-200 text-[#153e75] text-xs font-semibold flex items-start gap-2">
+            <div className="mb-3 p-3 rounded-xl bg-blue-50 border border-blue-200 text-[#7A2222] text-xs font-semibold flex items-start gap-2">
               <CheckCircle2 size={15} className="shrink-0 mt-0.5" />
               <span>{infoMsg}</span>
             </div>
@@ -227,7 +226,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Contoh: Dr. Ahmad Fauzi, M.T."
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#153e75] focus:ring-2 focus:ring-[#153e75]/15 transition"
+                      className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/15 transition"
                       required
                     />
                   </div>
@@ -245,7 +244,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                         value={affiliation}
                         onChange={(e) => setAffiliation(e.target.value)}
                         placeholder="Universitas / Instansi"
-                        className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#153e75] transition"
+                        className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#7A2222] transition"
                       />
                     </div>
                   </div>
@@ -258,7 +257,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                       <select
                         value={registerRole}
                         onChange={(e) => setRegisterRole(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-semibold text-slate-800 bg-white focus:outline-none focus:border-[#153e75] transition"
+                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm font-semibold text-slate-800 bg-white focus:outline-none focus:border-[#7A2222] transition"
                       >
                         <option value="author">Penulis (Author)</option>
                         <option value="reviewer">Reviewer (Mitra Bestari)</option>
@@ -279,7 +278,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                         value={specialty}
                         onChange={(e) => setSpecialty(e.target.value)}
                         placeholder="Misal: Kebijakan Publik, Smart City, Kesehatan Lingkungan"
-                        className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#153e75] transition"
+                        className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#7A2222] transition"
                       />
                     </div>
                   </div>
@@ -299,7 +298,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nama@instansi.ac.id"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#153e75] focus:ring-2 focus:ring-[#153e75]/15 transition"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/15 transition"
                   required
                 />
               </div>
@@ -317,7 +316,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={mode === 'register' ? 'Minimal 6 karakter' : 'Masukkan kata sandi anda'}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#153e75] focus:ring-2 focus:ring-[#153e75]/15 transition"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#7A2222] focus:ring-2 focus:ring-[#7A2222]/15 transition"
                   required
                 />
                 <button
@@ -342,7 +341,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                 <div
                   className={`w-5 h-5 rounded border flex items-center justify-center transition ${
                     notRobot
-                      ? 'bg-[#153e75] border-[#153e75] text-white'
+                      ? 'bg-[#7A2222] border-[#7A2222] text-white'
                       : 'bg-white border-slate-400'
                   }`}
                 >
@@ -374,7 +373,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-[#153e75] hover:bg-[#102e5a] text-white font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer disabled:opacity-60"
+              className="w-full py-3 rounded-lg bg-[#7A2222] hover:bg-[#102e5a] text-white font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer disabled:opacity-60"
             >
               {loading ? 'Memproses...' : mode === 'login' ? 'Masuk ke Portal OJS' : 'Daftar Akun Baru'}
             </button>
@@ -394,7 +393,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
               <button
                 type="button"
                 onClick={() => handleSwitchMode(mode === 'login' ? 'register' : 'login')}
-                className="font-bold text-[#153e75] hover:underline cursor-pointer"
+                className="font-bold text-[#7A2222] hover:underline cursor-pointer"
               >
                 {mode === 'login' ? 'Daftar sekarang' : 'Masuk sekarang'}
               </button>
@@ -409,7 +408,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                       'Silakan hubungi Administrator Portal OJS BRIDA Kota Makassar (admin@brida.go.id) untuk pemulihan kata sandi.'
                     )
                   }
-                  className="font-semibold text-slate-600 hover:text-[#153e75] hover:underline cursor-pointer"
+                  className="font-semibold text-slate-600 hover:text-[#7A2222] hover:underline cursor-pointer"
                 >
                   Hubungi Admin
                 </button>
@@ -419,7 +418,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
         </div>
       </div>
 
-      <div className="relative z-10 text-center text-[11px] text-[#153e75]/80 font-medium">
+      <div className="relative z-10 text-center text-[11px] text-[#7A2222]/80 font-medium">
         Portal Multi-Journal Open Journal Systems (OJS) • Badan Riset dan Inovasi Daerah (BRIDA) Kota Makassar
       </div>
     </div>
