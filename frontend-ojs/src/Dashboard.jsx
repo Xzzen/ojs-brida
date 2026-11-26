@@ -1281,8 +1281,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </div>
           </div>
 
-          {/* Authenticated User Pill + Pill-Shaped Maroon Auth Button */}
+          {/* Layanan Aktif + Authenticated User Pill + Pill-Shaped Maroon Auth Button */}
           <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-bold text-emerald-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.75)]" />
+              Layanan Aktif
+            </span>
+
             {!isGuest && (
               <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3.5 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
                 <ShieldCheck size={14} className="text-[#7A2222]" />
@@ -1334,7 +1339,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             {!portalSelectedJournal ? (
               <>
                 {/* HERO BAND MAROON — HARMONISASI DESIGN SYSTEM LOGIN BRIDA */}
-                <section className="relative overflow-hidden bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313] border-b border-white/10 text-white px-5 sm:px-10 pt-8 pb-16">
+                <section className="relative overflow-hidden bg-gradient-to-br from-[#7A2222] via-[#661B1B] to-[#4A1313] border-b border-white/10 text-white px-5 sm:px-10 py-10 sm:py-12">
                   {/* Ambient Rings & Warm Gold Glow (Identik dengan Kartu Gelap Login) */}
                   <div className="pointer-events-none absolute -top-28 -right-20 w-[380px] h-[380px] rounded-full border border-white/[0.08]" />
                   <div className="pointer-events-none absolute -bottom-36 -left-24 w-[440px] h-[440px] rounded-full border border-white/[0.06]" />
@@ -1343,42 +1348,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     style={{ background: 'radial-gradient(circle, #FBBF24 0%, transparent 70%)' }}
                   />
 
-                  <div className="relative z-10 max-w-[1140px] mx-auto space-y-6">
-                    {/* Top Strip */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/15">
-                      <div>
-                        <h1 className="text-base sm:text-lg font-extrabold tracking-wide uppercase text-white">
-                          OJS BRIDA KOTA MAKASSAR
-                        </h1>
-                        <p className="text-xs text-white/75 mt-0.5">
-                          Portal Publikasi &amp; Repositori Jurnal Ilmiah Terpadu Badan Riset dan Inovasi Daerah
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.1] border border-white/15 text-[11px] font-semibold text-white/95 backdrop-blur-xs">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                          Layanan Aktif
-                        </span>
-                        {isGuest ? (
-                          <button
-                            type="button"
-                            onClick={onLogout}
-                            className="px-5 py-1.5 rounded-full bg-white hover:bg-gray-100 active:scale-[0.98] text-[#7A2222] font-bold text-xs shadow-sm transition cursor-pointer"
-                          >
-                            Masuk / Daftar
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => switchTab('dashboard')}
-                            className="px-5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-gray-900 font-bold text-xs shadow-sm transition cursor-pointer"
-                          >
-                            Dashboard Saya →
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
+                  <div className="relative z-10 max-w-[1140px] mx-auto">
                     {/* Split Hero Grid: Kartu Pencarian Putih Rounded-[32px] + Ringkasan & Akses Unggulan */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                       {/* Kartu Kiri: Pencarian Pill-Style & Statistik Ringkas */}
