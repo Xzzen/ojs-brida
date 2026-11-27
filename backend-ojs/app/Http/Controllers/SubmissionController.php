@@ -30,7 +30,7 @@ class SubmissionController extends Controller
             if (!$actor || $actor->role !== 'admin') {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Akses ditolak: Tindakan ini hanya diizinkan untuk Administrator (Admin) Portal.'
+                    'message' => 'Akses ditolak: Tindakan ini hanya diizinkan untuk Admin.'
                 ], 403);
             }
             return null;
@@ -39,7 +39,7 @@ class SubmissionController extends Controller
         if ($actorRole !== '' && $actorRole !== 'admin') {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Akses ditolak: Tindakan ini hanya diizinkan untuk Administrator (Admin) Portal.'
+                'message' => 'Akses ditolak: Tindakan ini hanya diizinkan untuk Admin.'
             ], 403);
         }
 
@@ -49,10 +49,10 @@ class SubmissionController extends Controller
     private function formatUserPayload(User $user): array
     {
         $roleLabels = [
-            'admin' => 'Chief Editor / Admin Portal',
-            'editor' => 'Editor Jurnal',
-            'reviewer' => 'Reviewer (Mitra Bestari)',
-            'author' => 'Author (Penulis / Peneliti)',
+            'admin' => 'Admin',
+            'editor' => 'Editor',
+            'reviewer' => 'Reviewer',
+            'author' => 'Penulis',
         ];
 
         return [
@@ -731,13 +731,13 @@ class SubmissionController extends Controller
             'file' => 'required|file|max:20480'
         ]);
 
-        // Etika Publikasi OJS (Anti Conflict-of-Interest): Hanya akun Penulis (Author) yang boleh mengunggah naskah baru
+        // Etika Publikasi OJS (Anti Conflict-of-Interest): Hanya akun Penulis yang boleh mengunggah naskah baru
         if ($request->filled('author_id')) {
             $submitter = User::find($request->author_id);
             if ($submitter && $submitter->role !== 'author') {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Pengunggahan naskah baru hanya diizinkan untuk akun Penulis (Author) guna menjaga independensi editorial.'
+                    'message' => 'Pengunggahan naskah baru hanya diizinkan untuk akun Penulis guna menjaga independensi editorial.'
                 ], 403);
             }
         }
@@ -785,7 +785,7 @@ class SubmissionController extends Controller
             InboxController::notify(
                 InboxController::editorialStaffIds(),
                 "[{$jAbbr}] Naskah Baru Masuk: {$submission->title}",
-                "Penulis {$submission->author?->name} ({$submission->author?->email}) telah mengunggah naskah baru berjudul:\n\"{$submission->title}\"\n\nNaskah lolos validasi SINTA/OJS dan kini menunggu skrining Dewan Redaksi atau penugasan Mitra Bestari pada menu Evaluasi & Editorial.",
+                "Penulis {$submission->author?->name} ({$submission->author?->email}) telah mengunggah naskah baru berjudul:\n\"{$submission->title}\"\n\nNaskah lolos validasi SINTA/OJS dan kini menunggu skrining Dewan Redaksi atau penugasan Reviewer pada menu Evaluasi & Editorial.",
                 'submission',
                 $authorId,
                 $submission->id
@@ -841,7 +841,7 @@ class SubmissionController extends Controller
             \App\Services\CloudStorageService::deleteFile($oldFilePath);
         }
 
-        // Reset status review para Mitra Bestari aktif (tidak termasuk yang menolak) agar bisa menelaah ulang berkas revisi
+        // Reset status review para Reviewer aktif (tidak termasuk yang menolak) agar bisa menelaah ulang berkas revisi
         $activeReviewerIds = Review::where('submission_id', $submission->id)
             ->where('status', '!=', 'declined')
             ->pluck('reviewer_id')
@@ -946,7 +946,7 @@ class SubmissionController extends Controller
         if (count($reviewerIds) === 0) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Pilih minimal 1 Mitra Bestari (Reviewer) untuk ditugaskan.',
+                'message' => 'Pilih minimal 1 Reviewer untuk ditugaskan.',
             ], 422);
         }
 
@@ -958,7 +958,7 @@ class SubmissionController extends Controller
             ], 422);
         }
 
-        // Cegah penugasan ulang Mitra Bestari yang sudah menolak pada naskah yang sama
+        // Cegah penugasan ulang Reviewer yang sudah menolak pada naskah yang sama
         $declinedExisting = Review::with('reviewer')
             ->where('submission_id', $submission->id)
             ->whereIn('reviewer_id', $reviewerIds)
@@ -966,7 +966,7 @@ class SubmissionController extends Controller
             ->first();
 
         if ($declinedExisting) {
-            $revName = $declinedExisting->reviewer?->name ?? 'Mitra Bestari tersebut';
+            $revName = $declinedExisting->reviewer?->name ?? 'Reviewer tersebut';
             return response()->json([
                 'status' => 'error',
                 'message' => "{$revName} telah menolak pada naskah ini dan tidak dapat ditugaskan ulang pada naskah yang sama.",
@@ -1005,7 +1005,7 @@ class SubmissionController extends Controller
             InboxController::notify(
                 $newlyAssignedIds,
                 "[{$jAbbr}] Undangan Penelaahan (Peer-Review) — {$submission->title}",
-                "Yth. Mitra Bestari,\n\nDewan Redaksi {$jAbbr} mengundang Anda untuk menelaah naskah ilmiah berjudul:\n\"{$submission->title}\"{$noteLine}\nSilakan buka menu Meja Evaluasi Review untuk menyatakan Kesediaan (Terima) atau Menolak undangan beserta alasannya.",
+                "Yth. Reviewer,\n\nDewan Redaksi {$jAbbr} mengundang Anda untuk menelaah naskah ilmiah berjudul:\n\"{$submission->title}\"{$noteLine}\nSilakan buka menu Meja Evaluasi Review untuk menyatakan Kesediaan (Terima) atau Menolak undangan beserta alasannya.",
                 'invitation',
                 $senderEditorId,
                 $submission->id
@@ -1015,7 +1015,7 @@ class SubmissionController extends Controller
                 InboxController::notify(
                     $submission->author_id,
                     "[{$jAbbr}] Naskah Memasuki Tahap Peer-Review — {$submission->title}",
-                    "Yth. {$submission->author?->name},\n\nNaskah Anda berjudul \"{$submission->title}\" telah diteruskan oleh Dewan Redaksi kepada Mitra Bestari independen untuk proses Double-Blind Peer Review.\n\nKami akan mengabarkan hasil penelaahan di Kotak Masuk ini setelah evaluasi selesai.",
+                    "Yth. {$submission->author?->name},\n\nNaskah Anda berjudul \"{$submission->title}\" telah diteruskan oleh Dewan Redaksi kepada Reviewer independen untuk proses Double-Blind Peer Review.\n\nKami akan mengabarkan hasil penelaahan di Kotak Masuk ini setelah evaluasi selesai.",
                     'submission',
                     $senderEditorId,
                     $submission->id
@@ -1030,7 +1030,7 @@ class SubmissionController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => $addedCount > 0
-                ? "Undangan penelaahan berhasil dikirim ke {$addedCount} Mitra Bestari (Total {$totalActive} Reviewer aktif)!"
+                ? "Undangan penelaahan berhasil dikirim ke {$addedCount} Reviewer (Total {$totalActive} Reviewer aktif)!"
                 : "Reviewer tersebut sudah ditugaskan sebelumnya (Total {$totalActive} Reviewer aktif).",
             'data' => $submission->load(['journal', 'issue', 'author', 'reviews.reviewer'])
         ]);
@@ -1062,7 +1062,7 @@ class SubmissionController extends Controller
         $submission->load('journal');
         $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
         $reviewerUser = User::find($request->reviewer_id);
-        $revName = $reviewerUser?->name ?: 'Mitra Bestari';
+        $revName = $reviewerUser?->name ?: 'Reviewer';
 
         if ($request->action === 'accept') {
             $review->status = 'in_progress';
@@ -1071,7 +1071,7 @@ class SubmissionController extends Controller
 
             InboxController::notify(
                 InboxController::editorialStaffIds(),
-                "[{$jAbbr}] Mitra Bestari Menerima Undangan Review — {$submission->title}",
+                "[{$jAbbr}] Reviewer Menerima Undangan Review — {$submission->title}",
                 "{$revName} menyatakan BERSEDIA menelaah naskah berjudul:\n\"{$submission->title}\"\n\nProses penelaahan sejawat kini sedang berjalan.",
                 'invitation',
                 $reviewerUser?->id,
@@ -1093,8 +1093,8 @@ class SubmissionController extends Controller
 
             InboxController::notify(
                 InboxController::editorialStaffIds(),
-                "[{$jAbbr}] ⚠️ Mitra Bestari Menolak Undangan Review — {$submission->title}",
-                "{$revName} menolak undangan penelaahan pada naskah:\n\"{$submission->title}\"\n\nAlasan penolakan:\n\"{$reason}\"\n\nSilakan buka menu Evaluasi & Editorial untuk menunjuk Mitra Bestari pengganti.",
+                "[{$jAbbr}] ⚠️ Reviewer Menolak Undangan Review — {$submission->title}",
+                "{$revName} menolak undangan penelaahan pada naskah:\n\"{$submission->title}\"\n\nAlasan penolakan:\n\"{$reason}\"\n\nSilakan buka menu Evaluasi & Editorial untuk menunjuk Reviewer pengganti.",
                 'decline_notice',
                 $reviewerUser?->id,
                 $submission->id
@@ -1208,7 +1208,7 @@ class SubmissionController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Keputusan akhir Dewan Redaksi (Chief Editor) berhasil disimpan!',
+            'message' => 'Keputusan akhir Editor berhasil disimpan!',
             'data' => $submission->load(['journal', 'issue', 'author', 'reviews.reviewer'])
         ]);
     }
@@ -1271,12 +1271,12 @@ class SubmissionController extends Controller
         if ($pendingCount > 0) {
             $submission->status = 'under_review';
             $submission->save();
-            $msg = "Evaluasi Anda berhasil disimpan! Menunggu {$pendingCount} Mitra Bestari lainnya menyelesaikan penilaian.";
+            $msg = "Evaluasi Anda berhasil disimpan! Menunggu {$pendingCount} Reviewer lainnya menyelesaikan penilaian.";
         } elseif ($hasDeclined && $activeReviews->count() < 2) {
             // Jika ada reviewer lain yang menolak sehingga hanya 1 reviewer aktif yang selesai, tahan di under_review agar Editor bisa tunjuk pengganti atau putuskan langsung
             $submission->status = 'under_review';
             $submission->save();
-            $msg = 'Evaluasi Anda berhasil disimpan! Menunggu tinjauan Dewan Redaksi (terdapat Mitra Bestari lain yang menolak undangan).';
+            $msg = 'Evaluasi Anda berhasil disimpan! Menunggu tinjauan Dewan Redaksi (terdapat Reviewer lain yang menolak undangan).';
         } else {
             $decisions = $activeReviews->pluck('decision')->filter()->values();
             $allAccept = $decisions->every(fn($d) => $d === 'accept');
@@ -1286,16 +1286,16 @@ class SubmissionController extends Controller
 
             if ($allAccept) {
                 $submission->status = 'accepted';
-                $msg = 'Seluruh Mitra Bestari menyetujui naskah! Status berubah menjadi DISETUJUI (ACCEPTED) dan siap diterbitkan Editor.';
+                $msg = 'Seluruh Reviewer menyetujui naskah! Status berubah menjadi DISETUJUI (ACCEPTED) dan siap diterbitkan Editor.';
             } elseif ($allReject) {
                 $submission->status = 'rejected';
-                $msg = 'Seluruh Mitra Bestari menolak naskah. Status berubah menjadi DITOLAK.';
+                $msg = 'Seluruh Reviewer menolak naskah. Status berubah menjadi DITOLAK.';
             } elseif ($hasRevise && !$hasReject) {
                 $submission->status = 'revision_required';
                 $msg = 'Hasil evaluasi lengkap dengan catatan perbaikan. Status berubah menjadi PERLU REVISI untuk Penulis.';
             } else {
                 $submission->status = 'under_review';
-                $msg = 'Seluruh Mitra Bestari telah menilai dengan rekomendasi berbeda (Split Decision). Menunggu keputusan akhir Chief Editor!';
+                $msg = 'Seluruh Reviewer telah menilai dengan rekomendasi berbeda (Split Decision). Menunggu keputusan akhir Editor!';
             }
             $submission->save();
         }
@@ -1307,8 +1307,8 @@ class SubmissionController extends Controller
 
         InboxController::notify(
             InboxController::editorialStaffIds(),
-            "[{$jAbbr}] Hasil Penelaahan Mitra Bestari ({$decLabel}) — {$submission->title}",
-            "Mitra Bestari {$reviewer->name} telah menyelesaikan evaluasi naskah:\n\"{$submission->title}\"\n\nRekomendasi: {$decLabel}\nSkor: Orisinalitas {$request->score_originality} | Metodologi {$request->score_methodology} | Relevansi {$request->score_relevance}\nCatatan Reviewer: \"{$request->comments}\"\n\nStatus naskah saat ini: " . strtoupper($submission->status),
+            "[{$jAbbr}] Hasil Penelaahan Reviewer ({$decLabel}) — {$submission->title}",
+            "Reviewer {$reviewer->name} telah menyelesaikan evaluasi naskah:\n\"{$submission->title}\"\n\nRekomendasi: {$decLabel}\nSkor: Orisinalitas {$request->score_originality} | Metodologi {$request->score_methodology} | Relevansi {$request->score_relevance}\nCatatan Reviewer: \"{$request->comments}\"\n\nStatus naskah saat ini: " . strtoupper($submission->status),
             'decision',
             $reviewer->id,
             $submission->id
@@ -1318,13 +1318,13 @@ class SubmissionController extends Controller
             $senderEditorId = User::where('role', 'editor')->value('id') ?? User::where('role', 'admin')->value('id');
             $authorName = $submission->author?->name ?: 'Penulis';
             $allComments = $activeReviews->where('status', 'completed')->pluck('comments')->filter()->values();
-            $formattedNotes = $allComments->map(fn($c, $i) => 'Mitra Bestari #' . ($i + 1) . ': "' . $c . '"')->implode("\n");
+            $formattedNotes = $allComments->map(fn($c, $i) => 'Reviewer #' . ($i + 1) . ': "' . $c . '"')->implode("\n");
 
             if ($submission->status === 'revision_required') {
                 InboxController::notify(
                     $submission->author_id,
                     "[{$jAbbr}] Permintaan Revisi Hasil Peer-Review — {$submission->title}",
-                    "Yth. {$authorName},\n\nProses Double-Blind Peer Review untuk naskah \"{$submission->title}\" telah selesai dengan rekomendasi PERLU REVISI.\n\nMasukan Mitra Bestari:\n{$formattedNotes}\n\nSilakan perbaiki dokumen Anda lalu unggah berkas revisi melalui Dasbor Naskah Saya → Detail Naskah.",
+                    "Yth. {$authorName},\n\nProses Double-Blind Peer Review untuk naskah \"{$submission->title}\" telah selesai dengan rekomendasi PERLU REVISI.\n\nMasukan Reviewer:\n{$formattedNotes}\n\nSilakan perbaiki dokumen Anda lalu unggah berkas revisi melalui Dasbor Naskah Saya → Detail Naskah.",
                     'revision',
                     $senderEditorId,
                     $submission->id
@@ -1333,7 +1333,7 @@ class SubmissionController extends Controller
                 InboxController::notify(
                     $submission->author_id,
                     "[{$jAbbr}] Selamat! Naskah Lolos Peer-Review (Accepted) — {$submission->title}",
-                    "Yth. {$authorName},\n\nSeluruh Mitra Bestari telah menyetujui naskah Anda berjudul \"{$submission->title}\".\n\nMasukan Penelaahan:\n{$formattedNotes}\n\nNaskah Anda kini siap diterbitkan ke edisi aktif beserta nomor DOI resmi.",
+                    "Yth. {$authorName},\n\nSeluruh Reviewer telah menyetujui naskah Anda berjudul \"{$submission->title}\".\n\nMasukan Penelaahan:\n{$formattedNotes}\n\nNaskah Anda kini siap diterbitkan ke edisi aktif beserta nomor DOI resmi.",
                     'decision',
                     $senderEditorId,
                     $submission->id

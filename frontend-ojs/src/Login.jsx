@@ -239,7 +239,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
               Daftar Akun
             </h1>
             <p className="text-xs text-gray-400 mb-4">
-              Buat akun Penulis atau Mitra Bestari (Reviewer) baru
+              Buat akun Penulis atau Reviewer baru
             </p>
 
             {errorMsg && isRegister && (
@@ -280,8 +280,8 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
                     onChange={(e) => setRegisterRole(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#7A2222] transition cursor-pointer"
                   >
-                    <option value="author">Penulis (Author)</option>
-                    <option value="reviewer">Mitra Bestari</option>
+                    <option value="author">Penulis</option>
+                    <option value="reviewer">Reviewer</option>
                   </select>
                 </div>
               </div>
@@ -544,7 +544,7 @@ export default function Login({ onLogin, onOpenPublicPortal }) {
             }`}
           >
             {overlayMode === 'register'
-              ? 'Bergabung sebagai Penulis atau Mitra Bestari BRIDA Kota Makassar.'
+              ? 'Bergabung sebagai Penulis atau Reviewer BRIDA Kota Makassar.'
               : 'Publikasi ilmiah modern — satu portal untuk seluruh jurnal BRIDA Makassar.'}
           </p>
 

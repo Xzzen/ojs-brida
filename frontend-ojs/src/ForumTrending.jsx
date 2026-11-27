@@ -60,10 +60,10 @@ const CATEGORY_META = {
 };
 
 const ROLE_META = {
-  admin: { label: 'Admin Redaksi', badge: 'bg-purple-100 text-purple-800 border-purple-200', avatar: 'from-purple-600 to-indigo-700' },
-  editor: { label: 'Chief Editor', badge: 'bg-blue-100 text-[#7A2222] border-blue-200', avatar: 'from-[#7A2222] to-blue-700' },
-  reviewer: { label: 'Mitra Bestari', badge: 'bg-emerald-100 text-emerald-800 border-emerald-200', avatar: 'from-emerald-600 to-teal-700' },
-  author: { label: 'Peneliti / Penulis', badge: 'bg-amber-100 text-amber-800 border-amber-200', avatar: 'from-amber-500 to-orange-600' }
+  admin: { label: 'Admin', badge: 'bg-purple-100 text-purple-800 border-purple-200', avatar: 'from-purple-600 to-indigo-700' },
+  editor: { label: 'Editor', badge: 'bg-blue-100 text-[#7A2222] border-blue-200', avatar: 'from-[#7A2222] to-blue-700' },
+  reviewer: { label: 'Reviewer', badge: 'bg-emerald-100 text-emerald-800 border-emerald-200', avatar: 'from-emerald-600 to-teal-700' },
+  author: { label: 'Penulis', badge: 'bg-amber-100 text-amber-800 border-amber-200', avatar: 'from-amber-500 to-orange-600' }
 };
 
 function formatRelativeTime(isoDate) {
@@ -685,7 +685,7 @@ export default function ForumTrending({
             Trending Topik Jurnal &amp; Diskusi Permasalahan
           </h3>
           <p className="text-xs sm:text-sm text-white/75 leading-relaxed">
-            Ruang interaksi bagi pengunjung publik, peneliti, mitra bestari, dan editor untuk membahas isu strategis daerah, topik jurnal hangat, serta kolaborasi riset.
+            Ruang interaksi bagi pengunjung publik, peneliti, reviewer, dan editor untuk membahas isu strategis daerah, topik jurnal hangat, serta kolaborasi riset.
           </p>
         </div>
 

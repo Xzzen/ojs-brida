@@ -115,7 +115,7 @@ class InboxController extends Controller
                 ]);
             } elseif ($sub->status === 'revision_required' && $sub->author_id) {
                 $latestRevComment = $sub->reviews->where('status', 'completed')->pluck('comments')->filter()->implode("\n- ");
-                $notes = $sub->editor_notes ?: ($latestRevComment ? "Catatan Mitra Bestari:\n- {$latestRevComment}" : 'Mohon perbaiki naskah sesuai masukan penelaahan sejawat.');
+                $notes = $sub->editor_notes ?: ($latestRevComment ? "Catatan Reviewer:\n- {$latestRevComment}" : 'Mohon perbaiki naskah sesuai masukan penelaahan sejawat.');
                 InboxMessage::create([
                     'sender_id' => $editorId,
                     'recipient_id' => $sub->author_id,
@@ -144,7 +144,7 @@ class InboxController extends Controller
                         'submission_id' => $sub->id,
                         'category' => 'submission',
                         'subject' => "[{$journalAbbr}] Naskah Baru Menunggu Penugasan — {$sub->title}",
-                        'body' => "Naskah baru berjudul \"{$sub->title}\" dari {$sub->author?->name} telah lolos validasi SINTA/OJS dan menunggu skrining Editor atau penugasan Mitra Bestari di Meja Evaluasi.",
+                        'body' => "Naskah baru berjudul \"{$sub->title}\" dari {$sub->author?->name} telah lolos validasi SINTA/OJS dan menunggu skrining Editor atau penugasan Reviewer di Meja Evaluasi.",
                         'is_read' => false,
                     ]);
                 }
@@ -158,8 +158,8 @@ class InboxController extends Controller
                         'recipient_id' => $rev->reviewer_id,
                         'submission_id' => $sub->id,
                         'category' => 'invitation',
-                        'subject' => "[{$journalAbbr}] Undangan Review (Mitra Bestari) — {$sub->title}",
-                        'body' => "Yth. {$rev->reviewer?->name},\n\nDewan Redaksi {$journalAbbr} mengundang Anda sebagai Mitra Bestari untuk menelaah naskah:\n\"{$sub->title}\"\n\n" . ($sub->editor_notes ? "Catatan Editor: \"{$sub->editor_notes}\"\n\n" : '') . "Silakan buka menu Meja Evaluasi Review untuk menerima atau menolak undangan ini.",
+                        'subject' => "[{$journalAbbr}] Undangan Review — {$sub->title}",
+                        'body' => "Yth. {$rev->reviewer?->name},\n\nDewan Redaksi {$journalAbbr} mengundang Anda sebagai Reviewer untuk menelaah naskah:\n\"{$sub->title}\"\n\n" . ($sub->editor_notes ? "Catatan Editor: \"{$sub->editor_notes}\"\n\n" : '') . "Silakan buka menu Meja Evaluasi Review untuk menerima atau menolak undangan ini.",
                         'is_read' => false,
                     ]);
                 } elseif ($rev->status === 'declined') {
@@ -169,8 +169,8 @@ class InboxController extends Controller
                             'recipient_id' => $sid,
                             'submission_id' => $sub->id,
                             'category' => 'decline_notice',
-                            'subject' => "[{$journalAbbr}] Mitra Bestari Menolak Undangan Review — {$sub->title}",
-                            'body' => "{$rev->reviewer?->name} menolak undangan penelaahan pada naskah \"{$sub->title}\".\n\nAlasan: \"" . ($rev->comments ?: 'Tidak mencantumkan alasan.') . "\"\n\nSilakan tunjuk Mitra Bestari pengganti pada Meja Evaluasi & Editorial.",
+                            'subject' => "[{$journalAbbr}] Reviewer Menolak Undangan Review — {$sub->title}",
+                            'body' => "{$rev->reviewer?->name} menolak undangan penelaahan pada naskah \"{$sub->title}\".\n\nAlasan: \"" . ($rev->comments ?: 'Tidak mencantumkan alasan.') . "\"\n\nSilakan tunjuk Reviewer pengganti pada Meja Evaluasi & Editorial.",
                             'is_read' => false,
                         ]);
                     }

@@ -40,6 +40,14 @@ import {
 } from './BridaIcons';
 import { API_BASE, STORAGE_BASE, resolveFileUrl } from './config';
 
+const ROLE_DISPLAY_LABEL = {
+  admin: 'Admin',
+  editor: 'Editor',
+  reviewer: 'Reviewer',
+  author: 'Penulis',
+  guest: 'Pengunjung'
+};
+
 const STATUS_BADGE = {
   pending: { label: 'MENUNGGU EDITOR', bg: 'bg-amber-50/90 text-amber-800 border-amber-200/80' },
   under_review: { label: 'SEDANG DIREVIEW', bg: 'bg-sky-50/90 text-sky-800 border-sky-200/80' },
@@ -252,6 +260,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   const isReviewer = currentUser?.role === 'reviewer';
   const isAuthor = currentUser?.role === 'author';
   const isGuest = currentUser?.role === 'guest';
+  const currentRoleLabel = ROLE_DISPLAY_LABEL[currentUser?.role] || currentUser?.label || 'Pengguna';
 
   // Pengaman: cegah akses tab di luar wewenang role jika pernah tersimpan di localStorage
   useEffect(() => {
@@ -326,7 +335,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   // Handler Hapus Jurnal (Khusus Admin)
   const handleDeleteJournal = async (journal) => {
     if (!isAdmin) {
-      toast.error('Hanya Administrator (Admin) yang dapat menghapus jurnal.');
+      toast.error('Hanya Admin yang dapat menghapus jurnal.');
       return;
     }
     const confirmMsg = `PERINGATAN: Apakah Anda yakin ingin menghapus jurnal:\n"${journal.title}" (${journal.abbreviation})?\nSeluruh data terbitan dan naskah di dalam jurnal ini juga akan terhapus.`;
@@ -464,7 +473,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         percent: 20,
         step: 1,
         barColor: 'bg-amber-500',
-        summary: 'Naskah diterima sistem — Menunggu skrining & penugasan Mitra Bestari oleh Editor.',
+        summary: 'Naskah diterima sistem — Menunggu skrining & penugasan Reviewer oleh Editor.',
         activeRevs,
         declinedRevs,
         completedRevs,
@@ -477,7 +486,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           percent: 30,
           step: 2,
           barColor: 'bg-rose-500',
-          summary: `Seluruh Mitra Bestari (${declinedRevs.length}) menolak undangan — Menunggu Editor menunjuk Reviewer pengganti.`,
+          summary: `Seluruh Reviewer (${declinedRevs.length}) menolak undangan — Menunggu Editor menunjuk Reviewer pengganti.`,
           activeRevs,
           declinedRevs,
           completedRevs,
@@ -489,7 +498,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
           percent: 65,
           step: 3,
           barColor: 'bg-amber-600',
-          summary: `Penelaahan selesai (${completedRevs.length}/${activeRevs.length} Reviewer) — Menunggu keputusan akhir Chief Editor.`,
+          summary: `Penelaahan selesai (${completedRevs.length}/${activeRevs.length} Reviewer) — Menunggu keputusan akhir Editor.`,
           activeRevs,
           declinedRevs,
           completedRevs,
@@ -790,7 +799,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   const handleCreateJournal = async (e) => {
     e.preventDefault();
     if (!isAdmin) {
-      toast.error('Hanya Administrator (Admin) yang dapat menambah jurnal baru.');
+      toast.error('Hanya Admin yang dapat menambah jurnal baru.');
       return;
     }
     try {
@@ -837,7 +846,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         ? [assignReviewerId]
         : [];
     if (idsToAssign.length === 0) {
-      toast.error('Pilih minimal 1 Mitra Bestari (Reviewer) terlebih dahulu!');
+      toast.error('Pilih minimal 1 Reviewer terlebih dahulu!');
       return;
     }
     try {
@@ -909,7 +918,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     }
   };
 
-  // Handler Keputusan Akhir Chief Editor (mis. saat Split Decision antar Reviewer)
+  // Handler Keputusan Akhir Editor (mis. saat Split Decision antar Reviewer)
   const handleEditorDecision = async (submissionId, decision) => {
     const labelMap = {
       accept: 'MENYETUJUI (Accept)',
@@ -922,7 +931,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         decision,
         editor_notes: editorNotes || undefined
       });
-      toast.success(res.data?.message || 'Keputusan akhir Chief Editor berhasil disimpan!');
+      toast.success(res.data?.message || 'Keputusan akhir Editor berhasil disimpan!');
       setSelectedSubForAction(res.data?.data || null);
       fetchAllData(selectedJournalId);
     } catch (err) {
@@ -1004,7 +1013,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   const handleCreateUser = async (e) => {
     e.preventDefault();
     if (!isAdmin) {
-      toast.error('Hanya Administrator (Admin) yang dapat menambah pengguna.');
+      toast.error('Hanya Admin yang dapat menambah pengguna.');
       return;
     }
     if (!newUserForm.name.trim() || !newUserForm.email.trim() || newUserForm.password.length < 6) {
@@ -1038,7 +1047,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
   // Handler Hapus Pengguna (Khusus Admin)
   const handleDeleteUser = async (u) => {
     if (!isAdmin) {
-      toast.error('Hanya Administrator (Admin) yang dapat menghapus akun pengguna.');
+      toast.error('Hanya Admin yang dapat menghapus akun pengguna.');
       return;
     }
     if (String(u.id) === String(currentUser?.id)) {
@@ -1210,7 +1219,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         {/* Main Navigation — Pill-Shaped Floating Active Items */}
         <nav className="relative z-10 flex-1 px-3.5 py-4 space-y-1.5 overflow-y-auto">
           <p className="px-3.5 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
-            Navigasi • {currentUser?.label}
+            Navigasi • {currentRoleLabel}
           </p>
 
           <button
@@ -1352,7 +1361,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             </button>
           )}
 
-          {/* Menu Unggah Naskah Baru — Khusus Penulis (Author) agar bebas konflik kepentingan */}
+          {/* Menu Unggah Naskah Baru — Khusus Penulis agar bebas konflik kepentingan */}
           {isAuthor && (
             <button
               onClick={() => switchTab('unggah')}
@@ -1394,12 +1403,12 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         <div className="relative z-10 p-4 m-3.5 rounded-[24px] bg-white/[0.07] border border-white/[0.12] backdrop-blur-xs text-xs space-y-1.5">
           <div className="flex items-center gap-2 text-emerald-300 font-bold text-[11px] tracking-wide">
             <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-            <span>AKSES: {currentUser?.role?.toUpperCase()}</span>
+            <span>AKSES: {currentRoleLabel.toUpperCase()}</span>
           </div>
           <p className="text-[11px] text-white/75 leading-relaxed">
-            {isAdmin && 'Akses Penuh Administrator: Kelola Multi-Jurnal, Akun Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
-            {isEditor && 'Akses Editor Jurnal: Seleksi naskah, tugaskan Multi-Reviewer, keputusan redaksi, & penerbitan DOI.'}
-            {isReviewer && 'Akses Mitra Bestari: Konfirmasi undangan & telaah naskah secara independen.'}
+            {isAdmin && 'Akses Admin: Kelola Multi-Jurnal, Akun Pengguna, Multi-Reviewer, & Penerbitan DOI.'}
+            {isEditor && 'Akses Editor: Seleksi naskah, tugaskan Multi-Reviewer, keputusan redaksi, & penerbitan DOI.'}
+            {isReviewer && 'Akses Reviewer: Konfirmasi undangan & telaah naskah secara independen.'}
             {isAuthor && 'Akses Penulis: Kirim naskah berstandar SINTA, pantau progress, & unggah revisi.'}
             {isGuest && 'Mode Pengunjung Publik: Jelajahi artikel Open Access & Trending Topik Riset.'}
           </p>
@@ -1475,7 +1484,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             {!isGuest && (
               <div className="hidden md:flex items-center gap-1.5 bg-[#FDF7F7] px-3.5 py-1.5 rounded-full border border-[#7A2222]/15 text-xs">
                 <ShieldCheck size={14} className="text-[#7A2222]" />
-                <span className="font-semibold text-[#7A2222]">{currentUser?.label}</span>
+                <span className="font-semibold text-[#7A2222]">{currentRoleLabel}</span>
               </div>
             )}
 
@@ -1877,7 +1886,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             Setiap naskah yang masuk ke sistem OJS BRIDA melalui tahapan seleksi awal (Pre-Review) oleh Dewan Editor untuk memeriksa kesesuaian fokus ruang lingkup dan tingkat kemiripan (uji plagiarisme).
                           </p>
                           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                            Naskah kemudian dinilai secara <strong className="text-slate-800">Double-Blind Peer Review</strong> oleh minimal 2 (dua) Mitra Bestari (Reviewer) independen sebelum keputusan akhir diterbitkan.
+                            Naskah kemudian dinilai secara <strong className="text-slate-800">Double-Blind Peer Review</strong> oleh minimal 2 (dua) Reviewer independen sebelum keputusan akhir diterbitkan.
                           </p>
                         </div>
                       )}
@@ -2232,7 +2241,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       Siap mempublikasikan riset Anda bersama BRIDA Makassar?
                     </h3>
                     <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-                      Daftarkan akun peneliti atau mitra bestari secara gratis dan nikmati proses peer-review transparan berstandar SINTA &amp; DOI resmi.
+                      Daftarkan akun peneliti atau reviewer secara gratis dan nikmati proses peer-review transparan berstandar SINTA &amp; DOI resmi.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
@@ -2705,7 +2714,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                           {isAuthor
                             ? 'Anda belum memiliki naskah yang cocok dengan filter ini. Klik "+ Unggah Naskah Baru" untuk mengirim naskah.'
                             : isReviewer
-                            ? 'Belum ada naskah yang ditugaskan kepada akun Mitra Bestari Anda.'
+                            ? 'Belum ada naskah yang ditugaskan kepada akun Reviewer Anda.'
                             : 'Tidak ada naskah yang sesuai dengan filter.'}
                         </td>
                       </tr>
@@ -2993,7 +3002,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         )}
 
         {/* ===================================================================
-            TAB 4: UNGGAH NASKAH BARU (KHUSUS PENULIS / AUTHOR — STANDAR SINTA / OJS)
+            TAB 4: UNGGAH NASKAH BARU (KHUSUS PENULIS — STANDAR SINTA / OJS)
            =================================================================== */}
         {activeTab === 'unggah' && isAuthor && (
           <div className="p-6 sm:p-8 max-w-4xl w-full mx-auto">
@@ -3457,7 +3466,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   </h3>
                   <p className="text-xs text-slate-500">
                     {isReviewer
-                      ? 'Pilih naskah untuk membaca PDF dan mengisi lembar skor penilaian Mitra Bestari.'
+                      ? 'Pilih naskah untuk membaca PDF dan mengisi lembar skor penilaian Reviewer.'
                       : 'Pilih naskah untuk menugaskan Reviewer atau menerbitkan nomor DOI.'}
                   </p>
                 </div>
@@ -3466,7 +3475,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   {roleScopedSubmissions.length === 0 ? (
                     <div className="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-400 italic">
                       {isReviewer
-                        ? 'Belum ada naskah yang ditugaskan kepada akun Mitra Bestari Anda.'
+                        ? 'Belum ada naskah yang ditugaskan kepada akun Reviewer Anda.'
                         : 'Belum ada naskah dalam antrean untuk konteks jurnal ini.'}
                     </div>
                   ) : (
@@ -3606,7 +3615,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     </h4>
                     <p className="text-xs text-slate-400 max-w-md mx-auto">
                       Klik salah satu judul naskah di daftar sebelah kiri untuk membuka lembar kerja{' '}
-                      <strong>{currentUser?.label}</strong>.
+                      <strong>{currentRoleLabel}</strong>.
                     </p>
                   </div>
                 ) : (() => {
@@ -3670,7 +3679,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       {isAdminOrEditor && renderWorkflowProgressBar(selectedSubForAction)}
                     </div>
 
-                    {/* Authority Chief Editor / Admin */}
+                    {/* Authority Editor / Admin */}
                     {isAdminOrEditor && (
                       <div className="space-y-4">
                         {/* KONDISI 1: Naskah Masih Pending (Multi-Reviewer Checklist) */}
@@ -3679,7 +3688,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             <div className="flex items-center justify-between">
                               <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
                                 <UserCheck size={16} className="text-[#7A2222]" />
-                                Penugasan Mitra Bestari (Support Multi-Reviewer)
+                                Penugasan Reviewer (Support Multi-Reviewer)
                               </h4>
                               <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
                                 MENUNGGU PENUGASAN
@@ -3687,7 +3696,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             </div>
 
                             <p className="text-xs text-slate-500">
-                              Centang <strong>1 atau lebih Mitra Bestari</strong> yang ingin Anda tugaskan untuk menelaah naskah ini secara independen.
+                              Centang <strong>1 atau lebih Reviewer</strong> yang ingin Anda tugaskan untuk menelaah naskah ini secara independen.
                             </p>
 
                             <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
@@ -3735,7 +3744,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                           )}
                                         </div>
                                         <div className="text-[11px] text-slate-500 truncate">
-                                          {rev.email} • {rev.specialty || rev.affiliation || 'Mitra Bestari'}
+                                          {rev.email} • {rev.specialty || rev.affiliation || 'Reviewer'}
                                         </div>
                                         {declinedRev?.comments && (
                                           <div className="text-[11px] text-rose-700 italic">
@@ -3764,7 +3773,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
 
                             <div className="pt-1 flex flex-wrap items-center justify-between gap-2.5">
                               <span className="text-[11px] font-bold text-[#7A2222]">
-                                {selectedReviewerIds.length} Mitra Bestari dipilih
+                                {selectedReviewerIds.length} Reviewer dipilih
                               </span>
                               <div className="flex flex-wrap items-center gap-2">
                                 <button
@@ -3901,13 +3910,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   <div className="font-extrabold flex items-center gap-1.5">
                                     <IconAlertClean size={15} className="text-rose-600" />
                                     <span>
-                                      {declinedReviews.length} Mitra Bestari Menolak Undangan Penelaahan!
+                                      {declinedReviews.length} Reviewer Menolak Undangan Penelaahan!
                                     </span>
                                   </div>
                                   <p className="text-[11px] text-rose-800 leading-relaxed">
                                     {activeReviews.length === 0
-                                      ? 'Saat ini tidak ada reviewer aktif yang menelaah naskah ini. Segera tunjuk Mitra Bestari pengganti di bawah agar proses review dapat berjalan.'
-                                      : 'Silakan periksa alasan penolakan di bawah dan tunjuk Mitra Bestari pengganti jika dibutuhkan opini kedua/ketiga.'}
+                                      ? 'Saat ini tidak ada reviewer aktif yang menelaah naskah ini. Segera tunjuk Reviewer pengganti di bawah agar proses review dapat berjalan.'
+                                      : 'Silakan periksa alasan penolakan di bawah dan tunjuk Reviewer pengganti jika dibutuhkan opini kedua/ketiga.'}
                                   </p>
                                 </div>
                               )}
@@ -4037,10 +4046,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               <div className="bg-white/95 p-4 rounded-2xl border border-dashed border-[#7A2222]/30 space-y-3 min-w-0">
                                 <div className="text-[11px] font-extrabold text-[#7A2222]">
                                   {declinedReviews.length > 0 && activeReviews.length < 2
-                                    ? `+ Tunjuk Mitra Bestari Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
+                                    ? `+ Tunjuk Reviewer Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
                                     : allCompleted
                                     ? `+ Tunjuk Reviewer ke-${activeReviews.length + 1} sebagai Penengah (Third Opinion / Adjudicator):`
-                                    : `+ Tambah Mitra Bestari Tambahan (Reviewer Aktif ke-${activeReviews.length + 1}):`}
+                                    : `+ Tambah Reviewer Tambahan (Reviewer Aktif ke-${activeReviews.length + 1}):`}
                                 </div>
                                 {(() => {
                                   const eligibleCount = unassignedReviewers.filter(
@@ -4089,7 +4098,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                                   )}
                                                 </div>
                                                 <div className="text-[11px] text-slate-500 truncate">
-                                                  {r.email} • {r.specialty || r.affiliation || 'Mitra Bestari'}
+                                                  {r.email} • {r.specialty || r.affiliation || 'Reviewer'}
                                                 </div>
                                                 {isDeclined && declinedInfo?.comments && (
                                                   <div className="text-[11px] text-rose-700 italic">
@@ -4105,7 +4114,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       {eligibleCount > 0 ? (
                                         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                                           <span className="text-[11px] font-bold text-[#7A2222]">
-                                            {selectedReviewerIds.length} Mitra Bestari pengganti dipilih
+                                            {selectedReviewerIds.length} Reviewer pengganti dipilih
                                           </span>
                                           <button
                                             type="button"
@@ -4118,7 +4127,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                         </div>
                                       ) : (
                                         <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-rose-700 bg-rose-50/80 px-3 py-2 rounded-xl border border-rose-200">
-                                          <span>Tidak ada Mitra Bestari tersisa yang dapat ditugaskan (seluruh akun lain telah ditugaskan atau telah menolak pada naskah ini).</span>
+                                          <span>Tidak ada Reviewer tersisa yang dapat ditugaskan (seluruh akun lain telah ditugaskan atau telah menolak pada naskah ini).</span>
                                           {isAdmin && (
                                             <button
                                               type="button"
@@ -4154,17 +4163,17 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 })()}
                               </div>
 
-                              {/* Panel Keputusan Akhir Chief Editor jika Split Decision / Semua Reviewer Aktif Selesai */}
+                              {/* Panel Keputusan Akhir Editor jika Split Decision / Semua Reviewer Aktif Selesai */}
                               {allCompleted ? (
                                 <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 space-y-3">
                                   <div className="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
                                     <IconScaleJudge size={15} className="text-amber-700" />
-                                    Keputusan Akhir Dewan Redaksi (Chief Editor Tie-Breaker)
+                                    Keputusan Akhir Dewan Redaksi (Editor)
                                   </div>
                                   <p className="text-[11px] text-amber-800 leading-relaxed">
                                     {declinedReviews.length > 0 && activeReviews.length === 1
-                                      ? 'Salah satu Mitra Bestari menolak undangan dan 1 Reviewer aktif telah menyelesaikan penilaian. Anda dapat menunjuk Reviewer Pengganti di atas untuk opini kedua, atau langsung menetapkan keputusan final di bawah ini:'
-                                      : 'Para Mitra Bestari memberikan rekomendasi berbeda. Sebagai Chief Editor, Anda dapat menunjuk Reviewer penengah di atas atau langsung menetapkan keputusan final naskah ini:'}
+                                      ? 'Salah satu Reviewer menolak undangan dan 1 Reviewer aktif telah menyelesaikan penilaian. Anda dapat menunjuk Reviewer Pengganti di atas untuk opini kedua, atau langsung menetapkan keputusan final di bawah ini:'
+                                      : 'Para Reviewer memberikan rekomendasi berbeda. Sebagai Editor, Anda dapat menunjuk Reviewer penengah di atas atau langsung menetapkan keputusan final naskah ini:'}
                                   </p>
                                   <div className="flex flex-wrap gap-2">
                                     <button
@@ -4296,7 +4305,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               </span>
                             </div>
                             <p className="text-xs text-slate-700 leading-relaxed">
-                              Mitra Bestari telah merekomendasikan naskah ini untuk diterbitkan. Klik tombol di bawah untuk menerbitkan artikel secara resmi ke terbitan aktif jurnal dan meng-generate nomor DOI resmi.
+                              Reviewer telah merekomendasikan naskah ini untuk diterbitkan. Klik tombol di bawah untuk menerbitkan artikel secara resmi ke terbitan aktif jurnal dan meng-generate nomor DOI resmi.
                             </p>
                             <button
                               type="button"
@@ -4365,7 +4374,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                       <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
                         <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
                           <CheckCircle2 size={16} className="text-[#7A2222]" />
-                          Laporan Hasil Penilaian Mitra Bestari (Reviewer)
+                          Laporan Hasil Penilaian Reviewer
                         </h4>
 
                         {selectedSubForAction.reviews && selectedSubForAction.reviews.length > 0 ? (
@@ -4389,7 +4398,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 >
                                   <div className="flex flex-wrap items-center justify-between gap-2">
                                     <span className="font-bold text-slate-800">
-                                      Mitra Bestari: {revName}
+                                      Reviewer: {revName}
                                     </span>
                                     {isDeclined ? (
                                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
@@ -4563,7 +4572,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               </div>
 
                               <p className="text-xs text-amber-900 leading-relaxed">
-                                Dewan Redaksi <strong>{selectedSubForAction.journal?.title}</strong> mengundang Anda sebagai Mitra Bestari untuk menelaah naskah di atas.
+                                Dewan Redaksi <strong>{selectedSubForAction.journal?.title}</strong> mengundang Anda sebagai Reviewer untuk menelaah naskah di atas.
                                 Silakan tinjau judul dan abstrak terlebih dahulu. Berkas lengkap naskah akan terbuka setelah Anda menyetujui undangan ini.
                                 Jika tidak sesuai bidang keahlian, berhalangan, atau terdapat <em>Conflict of Interest</em>, Anda berhak menolak undangan ini.
                               </p>
@@ -4618,7 +4627,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                   <textarea
                                     value={declineReason}
                                     onChange={(e) => setDeclineReason(e.target.value)}
-                                    placeholder="Tuliskan alasan penolakan Anda secara singkat agar Editor dapat menunjuk Mitra Bestari pengganti..."
+                                    placeholder="Tuliskan alasan penolakan Anda secara singkat agar Editor dapat menunjuk Reviewer pengganti..."
                                     className="w-full bg-slate-50 border border-rose-200 rounded-xl p-3 text-xs h-20 outline-none focus:border-rose-400"
                                   />
                                   <div className="flex items-center justify-end gap-2">
@@ -4900,7 +4909,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 </span>
                               </div>
                               <p className="text-rose-800 leading-relaxed">
-                                Keputusan penolakan Anda telah disampaikan kepada Admin / Chief Editor agar dapat menunjuk Mitra Bestari pengganti. Anda tidak lagi dibebani penelaahan untuk naskah ini.
+                                Keputusan penolakan Anda telah disampaikan kepada Admin / Editor agar dapat menunjuk Reviewer pengganti. Anda tidak lagi dibebani penelaahan untuk naskah ini.
                               </p>
                               <div className="bg-white p-3.5 rounded-xl border border-rose-200 space-y-1">
                                 <span className="text-[10px] font-extrabold uppercase text-rose-700 block">
@@ -4944,10 +4953,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-800">
-                  Manajemen Pengguna &amp; Mitra Bestari
+                  Manajemen Pengguna &amp; Reviewer
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Kelola akun Admin, Editor, Reviewer (Mitra Bestari), dan Penulis yang terdaftar di database portal.
+                  Kelola akun Admin, Editor, Reviewer, dan Penulis yang terdaftar di database portal.
                 </p>
               </div>
               <button
@@ -4989,7 +4998,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               : 'bg-amber-50 text-amber-800 border-amber-200'
                           }`}>
-                            {u.role}
+                            {ROLE_DISPLAY_LABEL[u.role] || u.role}
                           </span>
                         </td>
                         <td className="p-3">
@@ -5092,13 +5101,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                 <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2.5 text-xs">
                   <div className="flex items-center gap-2 font-extrabold text-amber-900">
                     <Clock size={15} />
-                    <span>Catatan &amp; Masukan Evaluasi Mitra Bestari ({completedReviews.length} Reviewer):</span>
+                    <span>Catatan &amp; Masukan Evaluasi Reviewer ({completedReviews.length} Reviewer):</span>
                   </div>
                   {completedReviews.map((r, i) => (
                     <div key={r.id || i} className="text-slate-700 bg-white p-3 rounded-xl border border-amber-100 space-y-1.5 leading-relaxed">
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-extrabold text-[#7A2222]">
-                          {isAdminOrEditor && r.reviewer?.name ? r.reviewer.name : `Mitra Bestari #${i + 1} (Anonim)`}
+                          {isAdminOrEditor && r.reviewer?.name ? r.reviewer.name : `Reviewer #${i + 1} (Anonim)`}
                         </span>
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-extrabold text-[10px] ${
                           r.decision === 'accept'
@@ -5435,7 +5444,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                   <UserPlus size={18} className="text-[#7A2222]" /> Tambah Pengguna Baru
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Buat akun baru untuk Admin, Editor, Mitra Bestari (Reviewer), atau Penulis.
+                  Buat akun baru untuk Admin, Editor, Reviewer, atau Penulis.
                 </p>
               </div>
               <button
@@ -5479,10 +5488,10 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                     onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 font-bold bg-white"
                   >
-                    <option value="reviewer">Reviewer (Mitra Bestari)</option>
-                    <option value="author">Author (Penulis)</option>
-                    <option value="editor">Editor Jurnal</option>
-                    <option value="admin">Admin Portal</option>
+                    <option value="reviewer">Reviewer</option>
+                    <option value="author">Penulis</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </div>
               </div>
