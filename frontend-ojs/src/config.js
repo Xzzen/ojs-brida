@@ -1,12 +1,10 @@
 // Konfigurasi URL Backend & Cloud Storage Dinamis (Lokal & Cloud Production)
-// - Default otomatis mengarah ke Cloud Backend (Vercel) agar developer/rekan tim yang habis `git pull`
-//   langsung bisa login & melihat data/diagram tanpa perlu setup XAMPP/MySQL lokal.
-// - Jika ingin memakai backend Laravel lokal, buat file `frontend-ojs/.env.local` berisi:
-//   VITE_API_BASE=http://127.0.0.1:8000/api
+// - Di Cloud (Vercel / Netlify): set VITE_API_BASE (dan opsional VITE_STORAGE_BASE) pada Environment Variables.
+// - Di Lokal (XAMPP): otomatis fallback ke http://<hostname>:8000/api dan /storage/
 
-const DEFAULT_CLOUD_API = 'https://ojs-brida-backend.vercel.app/api';
+const FALLBACK_HOST = typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1';
 
-const rawApiBase = (import.meta.env.VITE_API_BASE || DEFAULT_CLOUD_API).trim();
+const rawApiBase = (import.meta.env.VITE_API_BASE || `http://${FALLBACK_HOST}:8000/api`).trim();
 export const API_BASE = rawApiBase.replace(/\/+$/, '');
 
 const derivedStorageBase = `${API_BASE.replace(/\/api$/, '')}/storage/`;
