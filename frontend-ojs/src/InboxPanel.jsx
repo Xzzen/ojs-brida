@@ -58,9 +58,9 @@ const CATEGORY_STYLE = {
 };
 
 const ROLE_LABEL = {
-  admin: 'Admin Redaksi',
-  editor: 'Editor Jurnal',
-  reviewer: 'Mitra Bestari',
+  admin: 'Admin',
+  editor: 'Editor',
+  reviewer: 'Reviewer',
   author: 'Penulis'
 };
 
@@ -692,7 +692,7 @@ export default function InboxPanel({
                 <p className="text-xs text-[#4B5563] mt-0.5 leading-relaxed">
                   {currentUser?.role === 'author' || currentUser?.role === 'reviewer'
                     ? 'Sesuai etika Double-Blind Peer Review, pesan dikirim melalui Editor / Dewan Redaksi.'
-                    : 'Kirim pesan langsung ke Penulis, Mitra Bestari, Editor, atau Admin Portal.'}
+                    : 'Kirim pesan langsung ke Penulis, Reviewer, Editor, atau Admin Portal.'}
                 </p>
               </div>
               <button

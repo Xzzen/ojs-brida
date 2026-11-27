@@ -680,7 +680,7 @@ export default function ForumTrending({
             Trending Topik Jurnal &amp; Diskusi Permasalahan
           </h3>
           <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-            Ruang interaksi bagi pengunjung publik, peneliti, mitra bestari, dan editor untuk membahas isu strategis daerah, topik jurnal hangat, serta kolaborasi riset.
+            Ruang interaksi bagi pengunjung publik, peneliti, reviewer, dan editor untuk membahas isu strategis daerah, topik jurnal hangat, serta kolaborasi riset.
           </p>
         </div>
 

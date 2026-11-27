@@ -161,7 +161,7 @@ export function IconJournalStack({ size = 16, className = '' }) {
   );
 }
 
-/** Manajemen Pengguna & Mitra Bestari Duotone */
+/** Manajemen Pengguna & Reviewer Duotone */
 export function IconUsersGroup({ size = 16, className = '' }) {
   return (
     <svg {...baseProps(size, className)}>
