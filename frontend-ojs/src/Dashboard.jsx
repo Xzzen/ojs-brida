@@ -205,7 +205,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
     score_methodology: 85,
     score_relevance: 90,
     comments: '',
-    decision: 'accept'
+    decision: ''
   });
   const [showDeclineForm, setShowDeclineForm] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
@@ -1011,6 +1011,25 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
       toast.error('Mohon isi catatan evaluasi peer-review terlebih dahulu.');
       return;
     }
+    if (!['accept', 'revise', 'reject'].includes(reviewScores.decision)) {
+      toast.error('Harap pilih rekomendasi evaluasi terlebih dahulu (Terima, Perlu Revisi, atau Tolak Naskah).');
+      return;
+    }
+
+    const decConfirmMap = {
+      accept: { title: 'Kirim Rekomendasi: Terima Naskah?', label: 'TERIMA NASKAH (Accept)', tone: 'success' },
+      revise: { title: 'Kirim Rekomendasi: Perlu Revisi?', label: 'PERLU REVISI (Revise)', tone: 'primary' },
+      reject: { title: 'Kirim Rekomendasi: Tolak Naskah?', label: 'TOLAK NASKAH (Reject)', tone: 'danger' }
+    };
+    const decInfo = decConfirmMap[reviewScores.decision];
+    const confirmed = await dialog.confirm({
+      title: decInfo.title,
+      message: `Anda memilih rekomendasi ${decInfo.label}. Setelah dikirim, hasil penilaian Anda akan diteruskan ke Editor.`,
+      confirmText: `Ya, Kirim (${decInfo.label.split(' ')[0]})`,
+      cancelText: 'Periksa Lagi',
+      tone: decInfo.tone
+    });
+    if (!confirmed) return;
 
     try {
       const res = await axios.post(`${API_BASE}/submissions/${submissionId}/review`, {
@@ -1019,7 +1038,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         score_originality: Math.round(reviewScores.score_originality),
         score_methodology: Math.round(reviewScores.score_methodology),
         score_relevance: Math.round(reviewScores.score_relevance),
-        comments: reviewScores.comments.trim()
+        comments: reviewScores.comments.trim(),
+        decision: reviewScores.decision
       });
       toast.success(res.data?.message || 'Keputusan & Skor Peer-Review berhasil disimpan!');
       setReviewScores({
@@ -1027,7 +1047,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
         score_methodology: 85,
         score_relevance: 90,
         comments: '',
-        decision: 'accept'
+        decision: ''
       });
       setSelectedSubForAction(res.data?.data || null);
       fetchAllData(selectedJournalId);
@@ -3527,6 +3547,13 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             setDeclineReason('');
                             setShowDeskRejectForm(false);
                             setDeskRejectReason('');
+                            setReviewScores({
+                              score_originality: 88,
+                              score_methodology: 85,
+                              score_relevance: 90,
+                              comments: '',
+                              decision: ''
+                            });
                           }}
                           className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer space-y-2 ${
                             active
@@ -4062,6 +4089,8 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <div className="text-[11px] font-bold text-[#7A2222]">
                                   {declinedReviews.length > 0 && activeReviews.length < 2
                                     ? `+ Tunjuk Reviewer Pengganti (Reviewer Aktif ke-${activeReviews.length + 1}):`
+                                    : allCompleted && activeReviews.length === 1
+                                    ? `+ Pilih Reviewer Tambahan (Opini Ke-2 / Second Opinion):`
                                     : allCompleted
                                     ? `+ Tunjuk Reviewer ke-${activeReviews.length + 1} sebagai Penengah (Third Opinion / Adjudicator):`
                                     : `+ Tambah Reviewer Tambahan (Reviewer Aktif ke-${activeReviews.length + 1}):`}
@@ -4129,7 +4158,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                       {eligibleCount > 0 ? (
                                         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                                           <span className="text-[11px] font-bold text-[#7A2222]">
-                                            {selectedReviewerIds.length} Reviewer pengganti dipilih
+                                            {selectedReviewerIds.length} Reviewer tambahan dipilih
                                           </span>
                                           <button
                                             type="button"
@@ -4183,11 +4212,15 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 <div className="bg-[#FAF7F2] border border-[#E6DAC8] rounded-xl p-4 space-y-3">
                                   <div className="text-xs font-bold text-[#7C5329] flex items-center gap-1.5">
                                     <IconScaleJudge size={15} className="text-[#7C5329]" />
-                                    Keputusan Akhir Dewan Redaksi (Editor)
+                                    {activeReviews.length === 1
+                                      ? '1 Reviewer Selesai Menilai — Pilih Reviewer Lain atau Tetapkan Keputusan Akhir'
+                                      : 'Keputusan Akhir Dewan Redaksi (Editor)'}
                                   </div>
                                   <p className="text-[11px] text-[#525252] leading-relaxed">
-                                    {declinedReviews.length > 0 && activeReviews.length === 1
-                                      ? 'Salah satu Reviewer menolak undangan dan 1 Reviewer aktif telah menyelesaikan penilaian. Anda dapat menunjuk Reviewer Pengganti di atas untuk opini kedua, atau langsung menetapkan keputusan final di bawah ini:'
+                                    {activeReviews.length === 1
+                                      ? declinedReviews.length > 0
+                                        ? 'Salah satu Reviewer menolak undangan dan 1 Reviewer aktif telah menyelesaikan penilaian. Anda dapat menunjuk Reviewer Pengganti di atas untuk opini kedua, atau langsung menetapkan keputusan final di bawah ini:'
+                                        : 'Baru 1 Reviewer yang menilai naskah ini, sehingga status ditahan di Under Review agar Editor tetap leluasa. Anda dapat memilih Reviewer tambahan di atas untuk meminta opini ke-2, atau langsung menetapkan keputusan final di bawah ini:'
                                       : 'Para Reviewer memberikan rekomendasi berbeda. Sebagai Editor, Anda dapat menunjuk Reviewer penengah di atas atau langsung menetapkan keputusan final naskah ini:'}
                                   </p>
                                   <div className="flex flex-wrap gap-2">
@@ -4371,7 +4404,7 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             <p className="text-[#404040] leading-relaxed">
                               Naskah ini telah dinyatakan ditolak oleh Dewan Redaksi dan pemberitahuan telah muncul pada akun Penulis.
                             </p>
-                            {selectedSubForAction.editor_notes && (
+                              {selectedSubForAction.editor_notes && (
                               <div className="bg-white p-3 rounded-xl border border-[#E8CFD2] text-[#882832]">
                                 <span className="text-[10px] font-bold uppercase text-[#882832] block mb-0.5">
                                   Alasan Penolakan yang Dikirim ke Penulis:
@@ -4381,6 +4414,137 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                             )}
                           </div>
                         )}
+
+                        {/* OPSI TAMBAH REVIEWER LAIN (OPINI KE-2 / REVIEW ULANG) UNTUK NASKAH BELUM TERBIT */}
+                        {['accepted', 'rejected', 'revision_required'].includes(selectedSubForAction.status) && (() => {
+                          const assignedReviews = selectedSubForAction.reviews || [];
+                          const activeReviews = assignedReviews.filter((r) => r.status !== 'declined');
+                          const declinedReviews = assignedReviews.filter((r) => r.status === 'declined');
+                          const activeIds = activeReviews.map((r) => String(r.reviewer_id));
+                          const declinedIds = declinedReviews.map((r) => String(r.reviewer_id));
+                          const unassignedReviewers = (stats.reviewers || []).filter(
+                            (r) => !activeIds.includes(String(r.id))
+                          );
+                          const eligibleCount = unassignedReviewers.filter(
+                            (r) => !declinedIds.includes(String(r.id))
+                          ).length;
+
+                          return (
+                            <div className="bg-[#FAFAFA] p-4 rounded-xl border border-dashed border-[#D4D4D8] space-y-3 mt-4">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <div className="text-xs font-bold text-[#7A2222]">
+                                    + Pilih Reviewer Tambahan (Opini Ke-{activeReviews.length + 1} / Tinjau Ulang)
+                                  </div>
+                                  <p className="text-[11px] text-[#4B5563] mt-0.5">
+                                    Butuh pendapat Reviewer lain sebelum keputusan final / publikasi? Pilih Reviewer di bawah untuk mengundang penelaah baru (status naskah otomatis kembali ke <strong>Under Review</strong>).
+                                  </p>
+                                </div>
+                              </div>
+
+                              {unassignedReviewers.length > 0 ? (
+                                <div className="space-y-2.5">
+                                  <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                                    {unassignedReviewers.map((r) => {
+                                      const declinedInfo = declinedReviews.find(
+                                        (d) => String(d.reviewer_id) === String(r.id)
+                                      );
+                                      const isDeclined = !!declinedInfo;
+                                      const isChecked = !isDeclined && selectedReviewerIds.includes(String(r.id));
+                                      return (
+                                        <label
+                                          key={r.id}
+                                          className={`flex items-start gap-3 p-3 rounded-xl border transition text-xs ${
+                                            isDeclined
+                                              ? 'bg-[#FBF3F4]/60 border-[#E8CFD2] opacity-80 cursor-not-allowed'
+                                              : isChecked
+                                              ? 'bg-[#FDF2F2] border-[#7A2222] cursor-pointer'
+                                              : 'bg-white border-[#D4D4D8] hover:bg-[#FAFAFA] cursor-pointer'
+                                          }`}
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            disabled={isDeclined}
+                                            onChange={() => {
+                                              if (!isDeclined) toggleReviewerSelection(r.id);
+                                            }}
+                                            className={`mt-0.5 accent-[#7A2222] w-4 h-4 shrink-0 ${
+                                              isDeclined ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                                            }`}
+                                          />
+                                          <div className="min-w-0 flex-1 space-y-0.5">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                              <span className={`font-bold ${isDeclined ? 'text-[#4B5563] line-through' : 'text-[#141414]'}`}>
+                                                {r.name}
+                                              </span>
+                                              {isDeclined && (
+                                                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${SEMANTIC_TONE.negative}`}>
+                                                  <IconDeclinedBan size={11} /> Telah menolak pada naskah ini
+                                                </span>
+                                              )}
+                                            </div>
+                                            <div className="text-[11px] text-[#4B5563] truncate">
+                                              {r.email} • {r.specialty || r.affiliation || 'Reviewer'}
+                                            </div>
+                                          </div>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {eligibleCount > 0 ? (
+                                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                      <span className="text-[11px] font-bold text-[#7A2222]">
+                                        {selectedReviewerIds.length} Reviewer tambahan dipilih
+                                      </span>
+                                      <button
+                                        type="button"
+                                        disabled={selectedReviewerIds.length === 0}
+                                        onClick={() => handleAssignReviewer(selectedSubForAction.id)}
+                                        className="px-4 py-2 rounded-lg bg-[#7A2222] hover:bg-[#611B1B] disabled:opacity-50 text-white font-semibold text-xs cursor-pointer shrink-0 whitespace-nowrap transition"
+                                      >
+                                        Undang {selectedReviewerIds.length > 0 ? `${selectedReviewerIds.length} ` : ''}Reviewer Tambahan
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#882832] bg-[#FBF3F4] px-3 py-2 rounded-xl border border-[#E8CFD2]">
+                                      <span>Tidak ada Reviewer tersisa yang dapat ditugaskan pada naskah ini.</span>
+                                      {isAdmin && (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            switchTab('users');
+                                            setShowAddUserModal(true);
+                                          }}
+                                          className="text-[#7A2222] font-bold hover:underline cursor-pointer shrink-0"
+                                        >
+                                          Tambah Akun Reviewer Baru →
+                                        </button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#4B5563]">
+                                  <span>Seluruh akun Reviewer yang tersedia sudah ditugaskan pada naskah ini.</span>
+                                  {isAdmin && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        switchTab('users');
+                                        setShowAddUserModal(true);
+                                      }}
+                                      className="text-[#7A2222] font-bold hover:underline cursor-pointer"
+                                    >
+                                      Tambah Akun Reviewer Baru →
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
 
@@ -4753,29 +4917,90 @@ export default function Dashboard({ currentUser, initialTab = 'portal', onLogout
                                 />
                               </div>
 
-                              <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex items-center gap-2">
-                                  <label className="text-xs font-bold text-[#404040]">Rekomendasi:</label>
-                                  <select
-                                    value={reviewScores.decision}
-                                    onChange={(e) =>
-                                      setReviewScores({ ...reviewScores, decision: e.target.value })
-                                    }
-                                    className="bg-white border border-[#D4D4D8] focus:border-[#7A2222] rounded-xl px-3 py-2 text-xs font-bold text-[#141414] outline-none"
-                                  >
-                                    <option value="accept">Terima Naskah (Accept Submission)</option>
-                                    <option value="revise">Perlu Revisi (Revisions Required)</option>
-                                    <option value="reject">Tolak Naskah (Decline Submission)</option>
-                                  </select>
+                              <div className="space-y-3">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <label className="text-xs font-bold text-[#141414]">
+                                    Pilih Rekomendasi Keputusan Akhir Naskah *
+                                  </label>
+                                  <span className="text-[11px] text-[#4B5563]">
+                                    Wajib pilih salah satu sebelum menyimpan
+                                  </span>
                                 </div>
 
-                                <button
-                                  type="button"
-                                  onClick={() => handleSubmitPeerReview(selectedSubForAction.id)}
-                                  className="bg-[#7A2222] hover:bg-[#611B1B] text-white font-semibold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer"
-                                >
-                                  Simpan Keputusan Peer-Review
-                                </button>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                  {[
+                                    {
+                                      value: 'accept',
+                                      label: 'Terima Naskah',
+                                      sub: 'Layak diterbitkan (Accept)',
+                                      activeCls: 'bg-[#F3F6F4] border-[#2F523B] text-[#2F523B] ring-2 ring-[#2F523B]/20',
+                                      icon: <IconVerifiedBadge size={16} className="text-[#2F523B]" />,
+                                    },
+                                    {
+                                      value: 'revise',
+                                      label: 'Perlu Revisi',
+                                      sub: 'Perbaikan oleh Penulis (Revise)',
+                                      activeCls: 'bg-[#FAF7F2] border-[#7C5329] text-[#7C5329] ring-2 ring-[#7C5329]/20',
+                                      icon: <IconAlertClean size={16} className="text-[#7C5329]" />,
+                                    },
+                                    {
+                                      value: 'reject',
+                                      label: 'Tolak Naskah',
+                                      sub: 'Tidak layak terbit (Reject)',
+                                      activeCls: 'bg-[#FBF3F4] border-[#882832] text-[#882832] ring-2 ring-[#882832]/20',
+                                      icon: <IconDeclinedBan size={16} className="text-[#882832]" />,
+                                    },
+                                  ].map((opt) => {
+                                    const selected = reviewScores.decision === opt.value;
+                                    return (
+                                      <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() =>
+                                          setReviewScores({ ...reviewScores, decision: opt.value })
+                                        }
+                                        className={`flex items-start gap-2.5 p-3 rounded-xl border text-left transition cursor-pointer ${
+                                          selected
+                                            ? opt.activeCls
+                                            : 'bg-white border-[#D4D4D8] text-[#404040] hover:bg-[#FAFAFA]'
+                                        }`}
+                                      >
+                                        <span className="mt-0.5 shrink-0">{opt.icon}</span>
+                                        <span className="min-w-0">
+                                          <span className="block text-xs font-bold leading-tight">
+                                            {opt.label}
+                                          </span>
+                                          <span className="block text-[10px] opacity-80 mt-0.5 leading-snug">
+                                            {opt.sub}
+                                          </span>
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+
+                                <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
+                                  <button
+                                    type="button"
+                                    disabled={!reviewScores.decision}
+                                    onClick={() => handleSubmitPeerReview(selectedSubForAction.id)}
+                                    className={`font-semibold text-xs px-5 py-2.5 rounded-lg transition cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed ${
+                                      reviewScores.decision === 'reject'
+                                        ? 'bg-[#882832] hover:bg-[#6E1F27] text-white'
+                                        : reviewScores.decision === 'revise'
+                                        ? 'bg-[#7C5329] hover:bg-[#63411F] text-white'
+                                        : 'bg-[#7A2222] hover:bg-[#611B1B] text-white'
+                                    }`}
+                                  >
+                                    {reviewScores.decision === 'accept'
+                                      ? 'Simpan Keputusan: Terima Naskah'
+                                      : reviewScores.decision === 'revise'
+                                      ? 'Simpan Keputusan: Perlu Revisi'
+                                      : reviewScores.decision === 'reject'
+                                      ? 'Simpan Keputusan: Tolak Naskah'
+                                      : 'Pilih Rekomendasi Terlebih Dahulu'}
+                                  </button>
+                                </div>
                               </div>
 
                               {/* Opsi Pengunduran Diri jika ternyata ada Conflict of Interest / Berhalangan */}

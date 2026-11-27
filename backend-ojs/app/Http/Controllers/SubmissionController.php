@@ -951,10 +951,10 @@ class SubmissionController extends Controller
         }
 
         $submission = Submission::findOrFail($id);
-        if (in_array($submission->status, ['published', 'rejected'])) {
+        if ($submission->status === 'published') {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Naskah yang sudah terbit atau ditolak tidak dapat ditugaskan ulang ke Reviewer.',
+                'message' => 'Naskah yang sudah resmi terbit (Published) tidak dapat ditugaskan ulang ke Reviewer.',
             ], 422);
         }
 
@@ -1268,15 +1268,18 @@ class SubmissionController extends Controller
         $pendingCount = $activeReviews->whereIn('status', ['assigned', 'in_progress'])->count();
         $hasDeclined = Review::where('submission_id', $submission->id)->where('status', 'declined')->exists();
 
+        $decLabel = $request->decision === 'accept' ? 'DITERIMA (Accept)' : ($request->decision === 'revise' ? 'PERLU REVISI (Revise)' : 'DITOLAK (Reject)');
+
         if ($pendingCount > 0) {
             $submission->status = 'under_review';
             $submission->save();
-            $msg = "Evaluasi Anda berhasil disimpan! Menunggu {$pendingCount} Reviewer lainnya menyelesaikan penilaian.";
-        } elseif ($hasDeclined && $activeReviews->count() < 2) {
-            // Jika ada reviewer lain yang menolak sehingga hanya 1 reviewer aktif yang selesai, tahan di under_review agar Editor bisa tunjuk pengganti atau putuskan langsung
+            $msg = "Evaluasi Anda ({$decLabel}) berhasil disimpan! Menunggu {$pendingCount} Reviewer lainnya menyelesaikan penilaian.";
+        } elseif ($activeReviews->count() < 2) {
+            // Jika baru 1 Reviewer aktif yang selesai menilai (baik karena baru ditunjuk 1 reviewer maupun karena reviewer lain menolak),
+            // tahan di under_review agar Editor selalu punya opsi memilih Reviewer ke-2 (Opini Kedua) atau langsung memutuskan!
             $submission->status = 'under_review';
             $submission->save();
-            $msg = 'Evaluasi Anda berhasil disimpan! Menunggu tinjauan Dewan Redaksi (terdapat Reviewer lain yang menolak undangan).';
+            $msg = "Evaluasi Anda ({$decLabel}) berhasil disimpan! Karena baru 1 Reviewer yang menilai, naskah diteruskan ke Editor untuk menunjuk Reviewer tambahan atau menetapkan keputusan akhir.";
         } else {
             $decisions = $activeReviews->pluck('decision')->filter()->values();
             $allAccept = $decisions->every(fn($d) => $d === 'accept');
@@ -1303,7 +1306,6 @@ class SubmissionController extends Controller
         // Kirim notifikasi hasil evaluasi ke Dewan Redaksi (Admin & Editor)
         $submission->load(['journal', 'author']);
         $jAbbr = $submission->journal?->abbreviation ?: 'OJS BRIDA';
-        $decLabel = $request->decision === 'accept' ? 'DITERIMA (Accept)' : ($request->decision === 'revise' ? 'PERLU REVISI (Revise)' : 'DITOLAK (Reject)');
 
         InboxController::notify(
             InboxController::editorialStaffIds(),
